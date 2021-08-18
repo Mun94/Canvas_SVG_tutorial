@@ -1,0 +1,117 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">위치 이동시키기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'green';
+            ctx.fillRect(50, 50, 100, 100);
+            ctx.translate(100, 100);
+            ctx.fillRect(50, 50, 100, 100);
+        </script>
+
+        <canvas class="myCanvas2" width="400" height="300">크기 번형하기</canvas>
+
+        <script>
+            const canvas2 = document.querySelector('.myCanvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+
+            ctx2.fillStyle = 'green';
+            ctx2.fillRect(50, 50, 100, 100);
+            ctx2.scale(0.5, 0.5);
+            ctx2.fillStyle = 'red';
+            ctx2.fillRect(50, 50, 100, 100);
+        </script>
+
+        <canvas class="myCanvas3" width="400" height="300">회전시키기</canvas>
+
+        <script>
+            const canvas3 = document.querySelector('.myCanvas3');
+
+            const ctx3 = canvas3.getContext('2d');
+
+            ctx3.fillStyle = 'yellow';
+            ctx3.strokeStyle = 'blue';
+            ctx3.lineWidth = 5;
+
+            ctx3.strokeRect(100, 100, 100, 100);
+            ctx3.fillRect(100, 100, 100, 100);
+
+            ctx3.rotate(5 * Math.PI / 180);
+            ctx3.strokeRect(100, 100, 100, 100);
+            ctx3.fillRect(100, 100, 100, 100);
+
+            ctx3.rotate(5 * Math.PI / 180);
+            ctx3.strokeRect(100, 100, 100, 100);
+            ctx3.fillRect(100, 100, 100, 100);
+        </script>
+
+        <canvas class="myCanvas4" width="400" height="300">사각형 형태 변형하기</canvas>
+
+        <script>
+            const canvas4 = document.querySelector('.myCanvas4');
+
+            const ctx4 = canvas4.getContext('2d');
+
+            ctx4.fillStyle = 'yellow';
+            ctx4.strokeStyle = 'blue';
+            ctx4.lineWidth = 5;
+
+            ctx4.strokeRect(0, 0, 100, 100);
+            ctx4.fillRect(0, 0, 100, 100);
+            ctx4.transform(1.5, 0, 0, 1.5, 100, 100);
+
+            ctx4.strokeRect(0, 0, 100, 100);
+            ctx4.fillRect(0, 0, 100, 100);
+        </script>
+
+        <canvas class="myCanvas5" width="400" height="300">사각형 형태 변형하기</canvas>
+
+        <script>
+            const canvas5 = document.querySelector('.myCanvas5');
+
+            const ctx5 = canvas5.getContext('2d');
+
+            ctx5.fillStyle = 'yellow';
+            ctx5.strokeStyle = 'blue';
+            ctx5.lineWidth = 5;
+
+            ctx5.strokeRect(0, 0, 100, 100);
+            ctx5.fillRect(0, 0, 100, 100);
+            ctx5.transform(1, 0.2, 0.2, 1, 100, 100);
+
+            ctx5.strokeRect(0, 0, 100, 100);
+            ctx5.fillRect(0, 0, 100, 100);
+        </script>
+
+        <canvas class="myCanvas6" width="400" height="300">transform vs setTransform</canvas>
+
+        <script>
+            const canvas6 = document.querySelector('.myCanvas6');
+
+            const ctx6 = canvas6.getContext('2d');
+
+            ctx6.fillStyle = 'yellow';
+            ctx6.strokeStyle = 'blue';
+            ctx6.lineWidth = 5;
+
+            ctx6.strokeRect(0, 0, 100, 100);
+            ctx6.fillRect(0, 0, 100, 100);
+
+            ctx6.transform(1, 0.2, 0.2, 1, 100, 100);
+            ctx6.fillStyle = 'green';
+            ctx6.fillRect(0, 0, 100, 100);
+
+            ctx6.transform(1, 0, 0, 1, 100, 100);
+            ctx6.fillStyle = 'red';
+            ctx6.fillRect(0, 0, 100, 100);
+        </script>
+    </body>
+</html>
