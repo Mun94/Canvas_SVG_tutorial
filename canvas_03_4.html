@@ -1,0 +1,62 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">gradient로 내부 채우기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createLinearGradient(50,50, 250, 50);
+
+            grad.addColorStop(0, 'red');
+            grad.addColorStop(1 / 6, 'orange');
+            grad.addColorStop(2 / 6, 'yellow');
+            grad.addColorStop(3 / 6, 'green');
+            grad.addColorStop(4 / 6, 'aqua');
+            grad.addColorStop(5 / 6, 'blue');
+            grad.addColorStop(1, 'purple');
+
+            ctx.lineWidth = 20;
+            ctx.fillStyle = grad;
+            ctx.fillRect(50, 50, 200, 200);
+            ctx.strokeRect(50, 50, 200, 200)
+        </script>
+
+        <canvas class="myCanvas2" width="400" height="300">radial gradient로 사각형 내부 채우기</canvas>
+        <script>
+            const canvas2 = document.querySelector('.myCanvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+            const grad2 = ctx2.createRadialGradient(50, 50, 200, 100, 100, 300);
+            
+            grad2.addColorStop(0, 'red');
+            grad2.addColorStop(0.5, 'yellow');
+            grad2.addColorStop(1, 'black');
+
+            ctx2.lineWidth = 10;
+            ctx2.fillStyle = grad2;
+            ctx2.fillRect(50, 50, 200, 200);
+            ctx2.strokeRect(50, 50, 200, 200);
+
+        </script>
+
+        <canvas class="myCanvas3" width="400" height="300">패턴으로 사각형 내부 채우기</canvas>
+        <script>
+            const canvas3 = document.querySelector('.myCanvas3');
+            
+            const ctx3 = canvas3.getContext('2d');
+            const flower = new Image();
+            flower.src = 'images/flower.png';
+
+            flower.onload = () => {
+                const pattern = ctx3.createPattern(flower, 'repeat');
+                ctx.fillStyle = pattern;
+
+                ctx.fillRect(0, 0, canvas3.width, canvas3.height);
+            };
+        </script>
+    </body>
+</html>
