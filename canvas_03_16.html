@@ -1,0 +1,69 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">
+            캔버스의 빌딩 이미지를 마우스로 클릭할 때 빌딩 이름 출력하기
+        </canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            const buildings = [ 
+                {"id":"AirPort","x":50,"y":50,"w":64,"h":64,"sx":0,"sy":0},
+                {"id":"Bank","x":150,"y":50,"w":64,"h":64,"sx":100,"sy":0},
+                {"id":"CarRepair","x":250,"y":50,"w":64,"h":64,"sx":200,"sy":0},
+                {"id":"GasStation","x":50,"y":150,"w":64,"h":64,"sx":300,"sy":0},
+                {"id":"Hospital","x":150,"y":150,"w":64,"h":64,"sx":400,"sy":0},
+                {"id":"Temple","x":250,"y":150,"w":64,"h":64,"sx":500,"sy":0}
+            ];
+
+            const buildingImage = new Image();
+            buildingImage.src = 'images/buildings.png';
+            const bgImage = new Image();
+            bgImage.src = 'images/background.png';
+
+            buildingImage.onload = function() {
+                ctx.drawImage(bgImage, 0, 0);
+
+                for(let building of buildings) {
+                    const [sx, sy, sw, sh, dx, dy, dw, dh] = [
+                        building['sx'],
+                        building['sy'],
+                        building['w'],
+                        building['h'],
+                        building['x'],
+                        building['y'],
+                        building['w'],
+                        building['h'],
+                    ];
+                    
+                    ctx.drawImage(buildingImage, sx, sy, sw, sh, dx, dy, dw, dh);
+                };
+            };
+
+            document.addEventListener('mousedown', e => {
+                const mouseX = e.clientX - ctx.canvas.offsetLeft;
+                const mouseY = e.clientY - ctx.canvas.offsetTop;
+
+                for(let bData of buildings) {
+                    if(mouseX >= bData.x && mouseX < bData.x + bData.w &&
+                        mouseY >= bData.y && mouseY < bData.y + bData.h
+                    ) {
+                        ctx.clearRect(100, 260, 200, 30);
+                        ctx.fillStyle = 'yellow';
+                        ctx.fillRect(100, 260, 200, 30);
+
+                        ctx.fillStyle = '#6495ED';
+                        ctx.textAlign = 'center';
+                        ctx.font = 'bold 20px Arial, sans-serif';
+                        ctx.fillText(bData.id, 200, 280);
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
