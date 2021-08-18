@@ -1,0 +1,24 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">클릭한 곳에 사각형 그리기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.canvas.addEventListener('click', e => {
+                const mouseX = e.clientX - ctx.canvas.offsetLeft;
+                const mouseY = e.clientY - ctx.canvas.offsetTop;
+
+                ctx.fillStyle = 'red';
+
+                ctx.fillRect(mouseX - 10, mouseY - 10, 20, 20);
+                console.log('ctx.canvas.offsetLeft', ctx.canvas.offsetLeft, 'ctx.canvas.offsetTop', ctx.canvas.offsetTop);
+            });
+        </script>
+    </body>
+</html>
