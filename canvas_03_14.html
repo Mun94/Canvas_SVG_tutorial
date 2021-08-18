@@ -1,0 +1,91 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">이미지를 키보드로 움직이기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            const bgImg = new Image();
+            bgImg.src = 'images/space.png';
+            const fighterImg = new Image();
+            fighterImg.src = 'images/fighter.png';
+            const speed = 5;
+            let keyCodeVale;
+
+            function Background() {
+                this.x = 0;
+                this.y = 0;
+                this.w = bgImg.width;
+                this.h = bgImg.height;
+
+                this.render = function(){
+                    ctx.drawImage(bgImg, this.x--, 0);
+
+                    if(this.x <= - 600) {
+                        this.x = 0;
+                    };
+                };
+            };
+
+            function Player() {
+                this.x = 0;
+                this.y = 0;
+                this.w = fighterImg.width;
+                this.h = fighterImg.height;
+
+                this.render = function() {
+                    ctx.drawImage(fighterImg, this.x, this.y);
+                };
+            };
+
+            const background = new Background();
+            const player = new Player();
+            console.log('background', background, 'player', player);
+
+            player.x = 30;
+            player.y = 150;
+
+            const update = () => {
+                switch(keyCodeVale) {
+                    case 'W':
+                        player.y -= speed;
+                        break;
+                    case 'S':
+                        player.y += speed;
+                        break;
+                    case 'A':
+                        player.x -= speed;
+                        break;
+                    case 'D':
+                        player.x += speed;
+                        break;
+                    default:
+                        break;
+                };
+            };
+
+            document.addEventListener('keydown', e => {
+                keyCodeVale = String.fromCharCode(e.keyCode);
+                console.log(e.keyCode, keyCodeVale);
+            });
+
+            document.addEventListener('keyup', () => {
+                keyCodeVale = '';
+            });
+
+            const animate = () => {
+                background.render();
+                player.render();
+                update();
+            };
+
+            setInterval(animate, 30);
+
+        </script>
+    </body>
+</html>
