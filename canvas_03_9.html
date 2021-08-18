@@ -1,0 +1,87 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">색상 보정</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'red';
+            ctx.fillRect(20, 30, 100, 100);
+            ctx.fillStyle = 'green';
+            ctx.fillRect(50, 50, 100, 100);
+            ctx.strokeRect(0, 0, 100, 100);
+
+            const src = ctx.getImageData(0, 0, 100, 100);
+            ctx.putImageData(src, 200, 50, );
+            ctx.strokeRect(200, 50, 100, 100)
+        </script>
+
+        <canvas class="myCanvas2" width="400" height="300">지정한 부분의 색상을 흑백으로 바꾸어 출력</canvas>
+
+        <script>
+            const canvas2 = document.querySelector('.myCanvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+
+            ctx2.fillStyle = 'red';
+            ctx2.fillRect(20, 30, 100, 100);
+            ctx2.fillStyle = 'green';
+            ctx2.fillRect(50, 50, 100, 100);
+
+            const src2 = ctx.getImageData(0, 0, 100, 100);
+            let pixels = src2.data;
+            const numPixels = pixels.length;
+            
+            for(let i = 0; i < numPixels; i++){
+                const avg = (pixels[i*4] + pixels[i*4 + 1] + pixels[i*4 + 2]) / 3;
+
+                pixels[i*4] = avg; // red;
+                pixels[i*4 + 1] = avg; // green;
+                pixels[i*4 + 2] = avg; // blue;
+            };
+
+            ctx2.putImageData(src2, 200, 50);
+            ctx2.strokeRect(0, 0, 100, 100);
+            ctx2.strokeRect(200, 50, 100, 100);
+        </script>
+
+        <canvas class="myCanvas3" width="400" height="300">지정한 부분의 색상을 흑백으로 바꾸어 출력</canvas>
+
+        <script>
+            const canvas3 = document.querySelector('.myCanvas3');
+
+            const ctx3 = canvas3.getContext('2d');
+
+            const img = new Image();
+            img.src = 'images/duck.jpg';
+
+            const draw = (img) => {
+                ctx3.drawImage(img, 0, 0);
+
+                const src3 = ctx3.getImageData(0, 0, 100, 100);
+                let datas = src3.data;
+                const numPixels3 = datas.length;
+
+                for(let i =0; i < numPixels3; i += 4){
+                    datas[i] = 255 - datas[i]; // red
+                    datas[i + 1] = 255 - datas[i + 1]; // green
+                    datas[i + 2] = 255 - datas[i + 2];
+                };
+
+                ctx3.putImageData(src3, 200, 50);
+                ctx3.strokeRect(0, 0, 100, 100);
+                ctx3.strokeRect(200, 50, 100, 100);
+            };
+
+            img.onload = function() {
+                draw(this);
+                console.log(this)
+            };
+        </script>
+    </body>
+</html>
