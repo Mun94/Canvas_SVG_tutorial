@@ -17,6 +17,9 @@ let randScale;
 let ang = 0;
 const arrScale = [0.4, 0.6, 0.8, 1];
 
+const hitexplosion = {};
+let spriteCount = 1;
+
 const bgImage = new Image();
 bgImage.src = 'images/space.png';
 const fighterImage = new Image();
@@ -25,6 +28,8 @@ const laserImage = new Image();
 laserImage.src = 'images/laser.png';
 const asteroidImage = new Image();
 asteroidImage.src = 'images/asteroid.png';
+const explodeImage = new Image();
+explodeImage.src = 'images/explode.png';
 
 const lastUpdateTime = 0;
 let acDelta = 0;
@@ -34,6 +39,8 @@ let bool_bg = false;
 let bool_fighter = false;
 let bool_laser = false;
 let bool_asteroid = false;
+let bool_explode = false;
+let bool_hitexplosion = false;
 
 const lasers = [];
 const laserTotal = 10;
@@ -52,6 +59,10 @@ laserImage.onload = () => {
 
 asteroidImage.onload = () => {
     bool_asteroid = true;
+};
+
+explodeImage.onload = () => {
+    bool_explode = true;
 };
 
 function Background() {
@@ -127,7 +138,42 @@ const moveAstroid = () => {
     if(asteroid.x < -100) {
         reset();
     };
+};
+
+
+const drawExplode = () => {
+    ctx.drawImage(explodeImage, 
+        spriteCount * 39 , 0, 39, 40,
+        hitexplosion.x, hitexplosion.y, 39 * (1 + randScale), 40 * (1 + randScale)
+    );
+
+    spriteCount++;
+
+    if(spriteCount > 13) {
+        spriteCount = 1;
+        bool_hitexplosion = false;
+    }
 }
+
+const detectCollision = () => {
+    const aw = asteroidImage.width * randScale;
+    const ah = asteroidImage.height * randScale;
+
+    if(lasers.length) {
+        for(let laser of lasers) {
+            if(laser[0] > asteroid.x && laser[0] < asteroid.x + aw &&
+               laser[1] > asteroid.y && laser[1] < asteroid.y +ah 
+            ) {
+                hitexplosion.x = laser[0];
+                hitexplosion.y = laser[1];
+                bool_hitexplosion = true;
+                
+                lasers.shift();
+                reset();
+            };
+        };
+    };
+};
 
 const render = () => {
     const delta = Date.now() - lastUpdateTime;
@@ -151,26 +197,14 @@ const render = () => {
         if(bool_asteroid) {
             moveAstroid();
         };
+
+        if(bool_explode && bool_hitexplosion) {
+            drawExplode();
+        }
     }else {
         acDelta += delta;
     };
 };
-
-const detectCollision = () => {
-    const aw = asteroidImage.width * randScale;
-    const ah = asteroidImage.height * randScale;
-
-    if(lasers.length) {
-        for(let laser of lasers) {
-            if(laser[0] > asteroid.x && laser[0] < asteroid.x + aw &&
-               laser[1] > asteroid.y && laser[1] < asteroid.y +ah 
-            ) {
-                lasers.shift();
-                reset();
-            }
-        }
-    }
-}
 
 const update = () => {
     if('W' in keysDown) { fighter.y -= fighter.speed };
@@ -210,8 +244,8 @@ document.addEventListener('keyup', e => {
 });
 
 const main = () => {
-    update();
     render();
+    update();
     requestAnimationFrame(main);
 };
 
