@@ -13,6 +13,8 @@ const bgImage = new Image();
 bgImage.src = 'images/space.png';
 const fighterImage = new Image();
 fighterImage.src = 'images/fighter.png';
+const laserImage = new Image();
+laserImage.src = 'images/laser.png';
 
 const lastUpdateTime = 0;
 let acDelta = 0;
@@ -20,6 +22,9 @@ const msPerFrame = 1000;
 
 let bool_bg = false;
 let bool_fighter = false;
+let bool_laser = false;
+const lasers = [];
+const laserTotal = 10;
 
 bgImage.onload = () => {
     bool_bg = true;
@@ -29,6 +34,40 @@ fighterImage.onload = () => {
     bool_fighter = true;
 };
 
+laserImage.onload = () => {
+    bool_laser = true;
+};
+
+function Background() {
+    this.x = 0;
+    this.y = 0;
+
+    this.render = function() {
+        ctx.drawImage(bgImage, this.x--, 0);
+    };
+};
+const background = new Background();
+
+const drawLaser = () => {
+    if(lasers.length) {
+        for(let laser of lasers) {
+            ctx.drawImage(laserImage, laser[0], laser[1]);
+        };
+    };
+};
+
+const moveLaser = () => {
+    for(let laser of lasers) {
+        if(laser[0] > 0) {
+            laser[0] += 20;
+        };
+
+        if(laser[0] > 600) {
+            lasers.shift();
+        };
+    };
+};
+
 const render = () => {
     const delta = Date.now() - lastUpdateTime;
 
@@ -36,12 +75,17 @@ const render = () => {
         acDelta = 0;
 
         if(bool_bg) {
-            ctx.drawImage(bgImage, 0, 0);
+            background.render();
         };
 
         if(bool_fighter) {
             ctx.drawImage(fighterImage, fighter.x, fighter.y);
         };
+
+        if(bool_laser) {
+            drawLaser();
+            moveLaser();
+        }
     }else {
         acDelta += delta;
     }
@@ -70,6 +114,12 @@ const update = () => {
 
 document.addEventListener('keydown', e => {
     keysDown[String.fromCharCode(e.keyCode)] = true;
+
+    if(e.keyCode === 32 && lasers.length <= laserTotal) {
+        lasers.push([
+            fighter.x + 50, fighter.y + 10
+        ]);
+    };
 });
 
 document.addEventListener('keyup', e => {
