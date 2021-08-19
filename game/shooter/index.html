@@ -10,6 +10,24 @@
                 background: '#FFFFFF';
                 border: 1px solid #909090
             }
+
+            .lives {
+                position: absolute;
+                top: 10px;
+                left: 20px;
+                color: yellow;
+                font-size: 140%;
+                font-weight: bold;
+            }
+
+            .score {
+                position: absolute;
+                top: 10px;
+                left: 250px;
+                color: white;
+                font-size: 140%;
+                font-weight: bold;
+            }
         </style>
     </head>
 
@@ -17,6 +35,8 @@
         <canvas class="myCanvas" width="600" height="400">
             스페이스 슈팅 게임
         </canvas>
+        <div class="lives">LIVE: <span id="lives">0</span></div>
+        <div class="score">SCORE: <span id="score">0</span></div>
 
         <script src='js/main.js'></script>
     </body>

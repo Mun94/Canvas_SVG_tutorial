@@ -1,4 +1,6 @@
 const canvas = document.querySelector('.myCanvas');
+const livesDom = document.getElementById('lives');
+const scoreDom = document.getElementById('score');
 
 const ctx = canvas.getContext('2d');
 
@@ -45,6 +47,9 @@ let bool_fighterexplosion = false;
 
 const lasers = [];
 const laserTotal = 10;
+
+let score = 0;
+let lives = 2;
 
 bgImage.onload = () => {
     bool_bg = true;
@@ -180,7 +185,15 @@ const detectCollision = () => {
         hitexplosion.y = asteroid.y;
         reset();
         resetFigher();
-    }
+
+        if(lives <= 0) {
+            lives = 0;
+        } else {
+            --lives;
+        };
+  
+        livesDom.innerText = lives;
+    };
 
     if(lasers.length) {
         for(let laser of lasers) {
@@ -193,6 +206,8 @@ const detectCollision = () => {
                 
                 lasers.shift();
                 reset();
+
+                scoreDom.innerText = Number(scoreDom.textContent) + 100;
             };
         };
     };
@@ -284,5 +299,6 @@ const main = () => {
     requestAnimationFrame(main);
 };
 
+livesDom.innerText = lives;
 reset();
 main();
