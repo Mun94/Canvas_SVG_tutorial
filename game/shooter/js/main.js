@@ -41,6 +41,7 @@ let bool_laser = false;
 let bool_asteroid = false;
 let bool_explode = false;
 let bool_hitexplosion = false;
+let bool_fighterexplosion = false;
 
 const lasers = [];
 const laserTotal = 10;
@@ -152,12 +153,34 @@ const drawExplode = () => {
     if(spriteCount > 13) {
         spriteCount = 1;
         bool_hitexplosion = false;
-    }
-}
+    };
+};
+
+const resetFigher = () => {
+    fighter.x = 0;
+    fighter.y = canvas.height / 2;
+};
 
 const detectCollision = () => {
     const aw = asteroidImage.width * randScale;
     const ah = asteroidImage.height * randScale;
+    const fw = fighterImage.width;
+    const fh = fighterImage.height;
+
+    if((fighter.x > asteroid.x && fighter.x < asteroid.x + aw
+        && fighter.y > asteroid.y && fighter.y < asteroid.y + ah)
+        || (fighter.x + fw > asteroid.x && fighter.x + fw < asteroid.x + aw
+            && fighter.y > asteroid.y && fighter.y < asteroid.y + ah)
+        || (fighter.x > asteroid.x && fighter.x < asteroid.x + aw
+            && fighter.y + fh > asteroid.y && fighter.y + fh < asteroid.y + ah)
+        || (fighter.x + fw > asteroid.x && fighter.x + fw < asteroid.x + aw
+            && fighter.y + fh > asteroid.y && fighter.y + fh < asteroid.y + ah)) {
+        bool_hitexplosion = true;
+        hitexplosion.x = asteroid.x;
+        hitexplosion.y = asteroid.y;
+        reset();
+        resetFigher();
+    }
 
     if(lasers.length) {
         for(let laser of lasers) {
@@ -193,6 +216,18 @@ const render = () => {
             drawLaser();
             moveLaser();
         };
+
+        if(bool_fighter) {
+            if(bool_fighterexplosion) {
+                ctx.drawImage(fighterImage, fighter.x += 1, fighter.y);
+                
+                if(fighter.x >= 50) {
+                    bool_fighterexplosion = false;
+                };
+            }else {
+                ctx.drawImage(fighterImage, fighter.x, fighter.y);
+            };
+        }
 
         if(bool_asteroid) {
             moveAstroid();
