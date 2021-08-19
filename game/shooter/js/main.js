@@ -1,6 +1,8 @@
 const canvas = document.querySelector('.myCanvas');
 const livesDom = document.getElementById('lives');
 const scoreDom = document.getElementById('score');
+const gameOverDom = document.getElementById('game-over');
+const restartDom = document.getElementById('restart');
 
 const ctx = canvas.getContext('2d');
 
@@ -50,6 +52,8 @@ const laserTotal = 10;
 
 let score = 0;
 let lives = 2;
+
+let isGameOver = false;
 
 bgImage.onload = () => {
     bool_bg = true;
@@ -166,6 +170,26 @@ const resetFigher = () => {
     fighter.y = canvas.height / 2;
 };
 
+const gameOver = () => {
+    isGameOver = true;
+    bool_explode = false;
+
+    gameOverDom.style.display = 'block';
+};
+
+const restart = () => {
+    isGameOver = false;
+    bool_explode = true;
+
+    gameOverDom.style.display = 'none';
+
+    lives = 2;
+    score = 0;
+
+    livesDom.innerText = lives;
+    scoreDom.innerText = score;
+};
+
 const detectCollision = () => {
     const aw = asteroidImage.width * randScale;
     const ah = asteroidImage.height * randScale;
@@ -188,6 +212,7 @@ const detectCollision = () => {
 
         if(lives <= 0) {
             lives = 0;
+            gameOver();
         } else {
             --lives;
         };
@@ -293,10 +318,17 @@ document.addEventListener('keyup', e => {
     delete keysDown[String.fromCharCode(e.keyCode)];
 });
 
+restartDom.addEventListener('click', () => {
+    restart()
+})
+
 const main = () => {
-    render();
     update();
     requestAnimationFrame(main);
+
+    if(!isGameOver) {
+        render();
+    }
 };
 
 livesDom.innerText = lives;
