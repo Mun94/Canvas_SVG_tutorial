@@ -10,9 +10,12 @@ fighter.speed = 5;
 const keysDown = {};
 
 const asteroid = {};
-const speed = 10;
+let speed = 0;
 asteroid.x = canvas.width;
 asteroid.y = Math.floor(Math.random() * 350);
+let randScale;
+let ang = 0;
+const arrScale = [0.4, 0.6, 0.8, 1];
 
 const bgImage = new Image();
 bgImage.src = 'images/space.png';
@@ -85,8 +88,15 @@ const moveLaser = () => {
     };
 };
 
-const moveAstroid = () => {
-    ctx.drawImage(asteroidImage, asteroid.x -= speed, asteroid.y);
+const shuffle = arr => {
+    const rand = Math.floor((Math.random() * arr.length));
+    return arr[rand];
+};
+
+const reset = () => {
+    speed = Math.floor(Math.random() * 5) + 5;
+    asteroid.x = canvas.width;
+    asteroid.y = Math.floor(Math.random() * 350);
 
     if(asteroid.y < 40) {
         asteroid.y = 40;
@@ -96,9 +106,26 @@ const moveAstroid = () => {
         asteroid.y = 360;
     };
 
+    randScale = shuffle(arrScale);
+};
+
+const moveAstroid = () => {
+    const w = asteroidImage.width * randScale;
+    const h = asteroidImage.height * randScale;
+    const coordX = (asteroidImage.width / 2) * randScale;
+    const coordY = (asteroidImage.height / 2) * randScale;
+
+    ctx.save();
+
+    ctx.translate(asteroid.x + coordX, asteroid.y + coordY);
+    ctx.rotate(Math.PI / 180 * (ang += 5));
+    ctx.translate(-asteroid.x - coordX, -asteroid.y - coordY);
+    ctx.drawImage(asteroidImage, asteroid.x -= speed, asteroid.y, w, h);
+
+    ctx.restore();
+
     if(asteroid.x < -100) {
-        asteroid.x = canvas.width;
-        asteroid.y = Math.floor(Math.random() * 350);
+        reset();
     };
 }
 
@@ -126,7 +153,11 @@ const render = () => {
         };
     }else {
         acDelta += delta;
-    }
+    };
+};
+
+const detectCollision = () => {
+    const aw = asteroidImage.width * randScale;
 }
 
 const update = () => {
@@ -170,4 +201,5 @@ const main = () => {
     requestAnimationFrame(main);
 };
 
+reset();
 main();
