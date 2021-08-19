@@ -9,12 +9,16 @@ fighter.speed = 5;
 
 const keysDown = {};
 
+const asteroid = {};
+
 const bgImage = new Image();
 bgImage.src = 'images/space.png';
 const fighterImage = new Image();
 fighterImage.src = 'images/fighter.png';
 const laserImage = new Image();
 laserImage.src = 'images/laser.png';
+const asteroidImage = new Image();
+asteroidImage.src = 'images/asteroid.png';
 
 const lastUpdateTime = 0;
 let acDelta = 0;
@@ -23,6 +27,8 @@ const msPerFrame = 1000;
 let bool_bg = false;
 let bool_fighter = false;
 let bool_laser = false;
+let bool_asteroid = false;
+
 const lasers = [];
 const laserTotal = 10;
 
@@ -38,11 +44,19 @@ laserImage.onload = () => {
     bool_laser = true;
 };
 
+asteroidImage.onload = () => {
+    bool_asteroid = true;
+};
+
 function Background() {
     this.x = 0;
     this.y = 0;
 
     this.render = function() {
+        if(this.x <= -600) {
+            this.x = 0;
+        };
+
         ctx.drawImage(bgImage, this.x--, 0);
     };
 };
@@ -85,7 +99,11 @@ const render = () => {
         if(bool_laser) {
             drawLaser();
             moveLaser();
-        }
+        };
+
+        if(bool_asteroid) {
+            ctx.drawImage(asteroidImage, 500, 200);
+        };
     }else {
         acDelta += delta;
     }
