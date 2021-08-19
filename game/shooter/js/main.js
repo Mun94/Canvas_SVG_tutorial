@@ -158,6 +158,18 @@ const render = () => {
 
 const detectCollision = () => {
     const aw = asteroidImage.width * randScale;
+    const ah = asteroidImage.height * randScale;
+
+    if(lasers.length) {
+        for(let laser of lasers) {
+            if(laser[0] > asteroid.x && laser[0] < asteroid.x + aw &&
+               laser[1] > asteroid.y && laser[1] < asteroid.y +ah 
+            ) {
+                lasers.shift();
+                reset();
+            }
+        }
+    }
 }
 
 const update = () => {
@@ -179,6 +191,8 @@ const update = () => {
     if(fighter.y >= canvas.height - 30) {
         fighter.y = canvas.height - 30;
     };
+
+    detectCollision();
 };
 
 document.addEventListener('keydown', e => {
