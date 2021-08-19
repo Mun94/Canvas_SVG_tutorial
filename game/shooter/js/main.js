@@ -10,6 +10,9 @@ fighter.speed = 5;
 const keysDown = {};
 
 const asteroid = {};
+const speed = 10;
+asteroid.x = canvas.width;
+asteroid.y = Math.floor(Math.random() * 350);
 
 const bgImage = new Image();
 bgImage.src = 'images/space.png';
@@ -82,6 +85,23 @@ const moveLaser = () => {
     };
 };
 
+const moveAstroid = () => {
+    ctx.drawImage(asteroidImage, asteroid.x -= speed, asteroid.y);
+
+    if(asteroid.y < 40) {
+        asteroid.y = 40;
+    };
+
+    if(asteroid.y > 360) {
+        asteroid.y = 360;
+    };
+
+    if(asteroid.x < -100) {
+        asteroid.x = canvas.width;
+        asteroid.y = Math.floor(Math.random() * 350);
+    };
+}
+
 const render = () => {
     const delta = Date.now() - lastUpdateTime;
 
@@ -102,7 +122,7 @@ const render = () => {
         };
 
         if(bool_asteroid) {
-            ctx.drawImage(asteroidImage, 500, 200);
+            moveAstroid();
         };
     }else {
         acDelta += delta;
