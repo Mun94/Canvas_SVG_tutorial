@@ -13,14 +13,17 @@ class SetDatas{
     addDatas(){
         for(let i = 0; i < this.dataPerSec; i++) {
             const speed = Number(Math.random().toFixed(1)) || 0.1;
+
             this.datas.push({
                 runTime: Math.ceil(Math.random() * 10),
                 speed: speed,
                 x: 0,
-                mx: 300+(Math.random()*100),
-                my: Math.random()*100,
-                mxSpeed: speed,
-                mySpeed: speed
+                y: 120,
+
+                mx: 320 + (Math.random() * 200),
+                my: 20 + Math.random() * 150,
+                mxSpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed,
+                mySpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed
             });
         };
     };
@@ -28,7 +31,80 @@ class SetDatas{
 
 const setDatas = new SetDatas();
 
-const middleDatas = [];
+class Animation extends SetDatas {
+    constructor(){
+        super();
+        
+        this.middleDatas = [];
+    };
+
+    animationLeft() {
+        for(let data of this.datas) {
+            ctx.beginPath();
+            ctx.fillStyle = 'blue';
+            ctx.arc(data.x += data.speed , data.y, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            if(data.x > (300 - 20)) {
+                this.middleDatas.push(data);
+                this.datas = this.datas.filter(data => data.x < (300 - 20)); // 원의 지름 뺌
+            };
+        };
+    };
+
+    animationMiddle() {
+        if(!this.middleDatas.length) { return; };
+
+        const bounce = data => {
+            if(data.mx >= (600 - 20)) {
+                data.mxSpeed = -data.mxSpeed;
+            };
+            if(data.mx <= (300 + 20)){
+                data.mxSpeed = Math.abs(data.mxSpeed);
+            };
+    
+            if(data.my >= (200 - 20)) {
+                data.mySpeed = -data.mySpeed
+            };
+            
+            if(data.my <= (0 + 20)) {
+                data.mySpeed = Math.abs(data.mySpeed);
+            };
+        };
+    
+        const createMiddleBullet = (color, data) => {
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.arc(data.mx += data.mxSpeed , data.my += data.mySpeed, 20, 0, Math.PI * 2);
+            ctx.fill();
+        };
+    
+        for(let data of this.middleDatas) {
+            if(data.runTime >= 1 && data.runTime < 3){
+                createMiddleBullet('blue', data);
+
+                bounce(data);
+            };
+
+            if(data.runTime >= 3 && data.runTime <= 5){
+                createMiddleBullet('yellow', data);
+
+                bounce(data);
+            };
+
+            if(data.runTime > 5 && data.runTime <= 10){
+                createMiddleBullet('red', data);
+
+                bounce(data);
+            };
+        };
+    };
+
+    render(){
+        this.animationLeft();
+        this.animationMiddle();
+    };
+};
 
 const background = () => {
     ctx.fillStyle = 'gray';
@@ -44,106 +120,13 @@ const background = () => {
     ctx.stroke();
 };
 
-const animate = () => {
-    for(let data of setDatas.datas) {
-        ctx.beginPath();
-        ctx.fillStyle = 'blue';
-        ctx.arc(data.x += data.speed , 120, 20, 0, Math.PI * 2);
-        ctx.fill();
-        
-        if(data.x > (300 - 20)) {
-            middleDatas.push(data);
-            setDatas.datas = setDatas.datas.filter(data => data.x < (300 - 20)); // 원의 지름 뺌
-        };
-    };
-};
+const animation = new Animation();
 
-const animate2 = () => {
-    if(middleDatas.length) {
-        for(let data of middleDatas) {
-            if(data.runTime >= 1 && data.runTime < 3){
-                ctx.beginPath();
-                ctx.fillStyle = 'blue';
-                ctx.arc(data.mx += data.mxSpeed , data.my += (data.mySpeed * 0.1), 20, 0, Math.PI * 2);
-                ctx.fill();
-
-                if(data.mx >= 600) {
-                    data.mxSpeed = -data.mxSpeed;
-                };
-                if(data.mx <= 300){
-                    data.mxSpeed = Math.abs(data.mxSpeed);
-                };
-
-                if(data.my >= 200 ) {
-                    data.mySpeed = -data.mySpeed
-                };
-                
-                if(data.my <= 0 ) {
-                    data.mySpeed = Math.abs(data.mySpeed);
-                };
-
-                data.mx += data.mxSpeed
-                data.my += data.mySpeed
-            };
-
-            if(data.runTime >= 3 && data.runTime <= 5){
-                ctx.beginPath();
-                ctx.fillStyle = 'yellow';
-                ctx.arc(data.mx += data.mxSpeed , data.my += (data.mySpeed * 0.1), 20, 0, Math.PI * 2);
-                ctx.fill();
-
-                if(data.mx >= 600) {
-                    data.mxSpeed = -data.mxSpeed;
-                };
-                if(data.mx <= 300){
-                    data.mxSpeed = Math.abs(data.mxSpeed);
-                };
-
-                if(data.my >= 200 ) {
-                    data.mySpeed = -data.mySpeed
-                };
-
-                if(data.my <= 0 ) {
-                    data.mySpeed = Math.abs(data.mySpeed);
-                };
-
-                data.mx += data.mxSpeed
-                data.my += data.mySpeed
-            };
-
-            if(data.runTime > 5 && data.runTime <= 10){
-                ctx.beginPath();
-                ctx.fillStyle = 'red';
-                ctx.arc(data.mx += data.mxSpeed , data.my += (data.mySpeed * 0.1), 20, 0, Math.PI * 2);
-                ctx.fill();
-
-                if(data.mx >= 600) {
-                    data.mxSpeed = -data.mxSpeed;
-                };
-                if(data.mx <= 300){
-                    data.mxSpeed = Math.abs(data.mxSpeed);
-                };
-
-                if(data.my >= 200 ) {
-                    data.mySpeed = -data.mySpeed
-                };
-
-                if(data.my <= 0 ) {
-                    data.mySpeed = Math.abs(data.mySpeed);
-                };
-
-                data.mx += data.mxSpeed
-                data.my += data.mySpeed
-            };
-        };
-    };
-}
-
-const main = () => {
+const init = () => {
     background();
-    animate()
-    animate2();
-    requestAnimationFrame(main);
+
+    animation.render();
+    requestAnimationFrame(init);
 };
 
-main();
+init();
