@@ -5,17 +5,19 @@ const ctx = canvas.getContext('2d');
 class SetDatas{
     constructor(){
         this.datas = [];
-        this.dataPerSec = 20;
+        this.dataPerSec = 4; // 초당 몇 개 생성 할 지
 
+        setInterval(() => this.addDatas(), 1000); // 지금 10초당 4개 생성 됨
         this.addDatas();
     };
 
     addDatas(){
+        const speed = Number(Math.random().toFixed(1)) || 0.1; // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
         for(let i = 0; i < this.dataPerSec; i++) {
-            const speed = Number(Math.random().toFixed(1)) || 0.1;
-
+            const runTime = Math.ceil(Math.random() * 10);
             this.datas.push({
-                runTime: Math.ceil(Math.random() * 10),
+                colorByRunTime: runTime,
+                runTime,
                 speed: speed,
                 x: 0,
                 y: 120,
@@ -36,6 +38,7 @@ class Animation extends SetDatas {
         super();
         
         this.middleDatas = [];
+        this.rightDatas = [];
     };
 
     animationLeft() {
@@ -47,6 +50,7 @@ class Animation extends SetDatas {
             
             if(data.x > (300 - 20)) {
                 this.middleDatas.push(data);
+
                 this.datas = this.datas.filter(data => data.x < (300 - 20)); // 원의 지름 뺌
             };
         };
@@ -71,7 +75,7 @@ class Animation extends SetDatas {
                 data.mySpeed = Math.abs(data.mySpeed);
             };
         };
-    
+
         const createMiddleBullet = (color, data) => {
             ctx.beginPath();
             ctx.fillStyle = color;
@@ -80,19 +84,19 @@ class Animation extends SetDatas {
         };
     
         for(let data of this.middleDatas) {
-            if(data.runTime >= 1 && data.runTime < 3){
+            if(data.colorByRunTime >= 1 && data.colorByRunTime < 3){
                 createMiddleBullet('blue', data);
 
                 bounce(data);
             };
 
-            if(data.runTime >= 3 && data.runTime <= 5){
+            if(data.colorByRunTime >= 3 && data.colorByRunTime <= 5){
                 createMiddleBullet('yellow', data);
 
                 bounce(data);
             };
 
-            if(data.runTime > 5 && data.runTime <= 10){
+            if(data.colorByRunTime > 5 && data.runTime <= 10){
                 createMiddleBullet('red', data);
 
                 bounce(data);
@@ -100,7 +104,21 @@ class Animation extends SetDatas {
         };
     };
 
-    render(){
+    excuteRuntime() {
+        if(!this.middleDatas.length) { return; };
+        this.middleDatas.forEach(data => data.runTime--);
+
+        console.log('asdas',this.middleDatas.filter(data => data.runTime <= 0))
+        this.rightDatas.push(this.middleDatas.filter(data => data.runTime <= 0));
+
+        this.middleDatas = this.middleDatas.filter(data => data.runTime > 0);
+        
+        
+        console.log(this.rightDatas)
+        console.log(this.middleDatas.map(a => a.runTime))
+    };
+
+    render() {
         this.animationLeft();
         this.animationMiddle();
     };
@@ -122,9 +140,10 @@ const background = () => {
 
 const animation = new Animation();
 
+setInterval(function(){ animation.excuteRuntime() }, 1000);
+
 const init = () => {
     background();
-
     animation.render();
     requestAnimationFrame(init);
 };
