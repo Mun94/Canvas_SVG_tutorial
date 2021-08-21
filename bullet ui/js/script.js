@@ -8,7 +8,6 @@ class SetDatas{
         this.dataPerSec = 4; // 초당 몇 개 생성 할 지
 
         setInterval(() => this.addDatas(), 1000); // 지금 1초당 4개 생성 됨
-        this.addDatas();
     };
 
     addDatas(){
@@ -36,8 +35,6 @@ class Animation extends SetDatas {
         
         this.middleDatas = [];
         this.rightDatas = [];
-
-        this.test = 620;
     };
 
     animationLeft() {
@@ -84,6 +81,12 @@ class Animation extends SetDatas {
     
         for(let data of this.middleDatas) {
             this.createBulletByRunTime(data, 'mid', bounce);
+        };
+    };
+
+    animationRight() {    
+        for(let data of this.rightDatas) {
+            this.createBulletByRunTime(data, 'right');
         };
     };
 
@@ -143,18 +146,10 @@ class Animation extends SetDatas {
             this.rightDatas.push({colorByRunTime, runTime, rx: 620, ry: 120, speed: Math.abs(mxSpeed)});
         };
          
-
         this.middleDatas = this.middleDatas.filter(data => data.runTime > 0);
-        
         
         // console.log(this.rightDatas)
         // console.log(this.middleDatas.map(a => a.runTime))
-    };
-
-    animationRight() {    
-        for(let data of this.rightDatas) {
-            this.createBulletByRunTime(data, 'right');
-        };
     };
 
     render() {
