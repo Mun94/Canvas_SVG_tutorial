@@ -7,7 +7,7 @@ class SetDatas{
         this.datas = [];
         this.dataPerSec = 4; // 초당 몇 개 생성 할 지
 
-        setInterval(() => this.addDatas(), 1000); // 지금 10초당 4개 생성 됨
+        setInterval(() => this.addDatas(), 200); // 지금 0.2초당 4개 생성 됨
         this.addDatas();
     };
 
@@ -42,18 +42,14 @@ class Animation extends SetDatas {
         
         this.middleDatas = [];
         this.rightDatas = [];
-        this.rightDatas2 = [];
 
         this.test = 620;
     };
 
     animationLeft() {
         for(let data of this.datas) {
-            ctx.beginPath();
-            ctx.fillStyle = 'blue';
-            ctx.arc(data.x += data.speed , data.y, 20, 0, Math.PI * 2);
-            ctx.fill();
-            
+            this.createBullet('blue', data, 'left');
+
             if(data.x > (300 - 20)) {
                 this.middleDatas.push(data);
 
@@ -81,32 +77,50 @@ class Animation extends SetDatas {
                 data.mySpeed = Math.abs(data.mySpeed);
             };
         };
-
-        const createMiddleBullet = (color, data) => {
-            ctx.beginPath();
-            ctx.fillStyle = color;
-            ctx.arc(data.mx += data.mxSpeed , data.my += data.mySpeed, 20, 0, Math.PI * 2);
-            ctx.fill();
-        };
     
         for(let data of this.middleDatas) {
-            if(data.colorByRunTime >= 1 && data.colorByRunTime < 3){
-                createMiddleBullet('blue', data);
+            this.createBulletByRunTime(data, 'mid', bounce);
+        };
+    };
 
-                bounce(data);
-            };
+    createBullet(color, data, area) {
+        ctx.beginPath();
+        ctx.fillStyle= color;
 
-            if(data.colorByRunTime >= 3 && data.colorByRunTime <= 5){
-                createMiddleBullet('yellow', data);
+        switch(area) {
+            case 'left':
+                ctx.arc(data.x += data.speed , data.y, 20, 0, Math.PI * 2);
+                break;
+            case 'mid':
+                ctx.arc(data.mx += data.mxSpeed , data.my += data.mySpeed, 20, 0, Math.PI * 2);
+                break;
+            case 'right':
+                ctx.arc(data.rx += data.speed, data.ry, 20, 0, Math.PI * 2);
+                break;
+            default:
+                break;
+        };
 
-                bounce(data);
-            };
+        ctx.fill();
+    };
 
-            if(data.colorByRunTime > 5 && data.runTime <= 10){
-                createMiddleBullet('red', data);
+    createBulletByRunTime(data, area, bounceFn) {
+        if(data.colorByRunTime >= 1 && data.colorByRunTime < 3){
+            this.createBullet('blue', data,  area);
 
-                bounce(data);
-            };
+            bounceFn && bounceFn(data);
+        };
+
+        if(data.colorByRunTime >= 3 && data.colorByRunTime <= 5){
+            this.createBullet('yellow', data, area);
+
+            bounceFn && bounceFn(data);
+        };
+
+        if(data.colorByRunTime > 5 && data.runTime <= 10){
+            this.createBullet('red', data, area);
+
+            bounceFn && bounceFn(data);
         };
     };
 
@@ -118,7 +132,7 @@ class Animation extends SetDatas {
             data.runTime <= 0
         )
         const sortTop = filter.sort((a, b) => b.colorByRunTime - a.colorByRunTime)[0];
-        sortTop && this.rightDatas2.push(sortTop);
+        sortTop && this.rightDatas.push(sortTop);
 
         this.middleDatas = this.middleDatas.filter(data => data.runTime > 0);
         
@@ -127,12 +141,9 @@ class Animation extends SetDatas {
         // console.log(this.middleDatas.map(a => a.runTime))
     };
 
-    animationRight() {
-        for(let data of this.rightDatas2) {
-            ctx.beginPath();
-            ctx.fillStyle = 'pink';
-            ctx.arc(data.rx += 1 , 120, 20, 0, Math.PI * 2);
-            ctx.fill();
+    animationRight() {    
+        for(let data of this.rightDatas) {
+            this.createBulletByRunTime(data, 'right');
         };
     };
 
