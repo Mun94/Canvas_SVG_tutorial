@@ -7,28 +7,22 @@ class SetDatas{
         this.datas = [];
         this.dataPerSec = 4; // 초당 몇 개 생성 할 지
 
-        setInterval(() => this.addDatas(), 200); // 지금 0.2초당 4개 생성 됨
+        setInterval(() => this.addDatas(), 1000); // 지금 1초당 4개 생성 됨
         this.addDatas();
     };
 
     addDatas(){
         const speed = Number(Math.random().toFixed(1)) || 0.1; // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
+        
         for(let i = 0; i < this.dataPerSec; i++) {
             const runTime = Math.ceil(Math.random() * 10);
             this.datas.push({
                 colorByRunTime: runTime,
                 runTime,
-                speed: speed,
+
+                speed,
                 x: 0,
                 y: 120,
-
-                mx: 320 + (Math.random() * 200),
-                my: 20 + Math.random() * 150,
-                mxSpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed,
-                mySpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed,
-
-                rx: 620,
-                ry: 120
             });
         };
     };
@@ -50,8 +44,18 @@ class Animation extends SetDatas {
         for(let data of this.datas) {
             this.createBullet('blue', data, 'left');
 
+            const {colorByRunTime, runTime, speed} = data;
+
             if(data.x > (300 - 20)) {
-                this.middleDatas.push(data);
+                this.middleDatas.push({
+                    colorByRunTime,
+                    runTime,
+
+                   mx: 320 + (Math.random() * 200),
+                   my: 20 + Math.random() * 150,
+                   mxSpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed,
+                   mySpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed,
+                });
 
                 this.datas = this.datas.filter(data => data.x < (300 - 20)); // 원의 지름 뺌
             };
@@ -128,11 +132,17 @@ class Animation extends SetDatas {
         if(!this.middleDatas.length) { return; };
         this.middleDatas.forEach(data => data.runTime--);
 
-        const filter = this.middleDatas.filter(data => 
+        const runTimeEndBullets = this.middleDatas.filter(data => 
             data.runTime <= 0
-        )
-        const sortTop = filter.sort((a, b) => b.colorByRunTime - a.colorByRunTime)[0];
-        sortTop && this.rightDatas.push(sortTop);
+        );
+        const longestRunTime = runTimeEndBullets.sort((a, b) => b.colorByRunTime - a.colorByRunTime)[0];
+
+        if(longestRunTime) {
+            const {colorByRunTime, runTime, mxSpeed} = longestRunTime;
+
+            this.rightDatas.push({colorByRunTime, runTime, rx: 620, ry: 120, speed: Math.abs(mxSpeed)});
+        };
+         
 
         this.middleDatas = this.middleDatas.filter(data => data.runTime > 0);
         
