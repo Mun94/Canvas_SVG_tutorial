@@ -1,9 +1,40 @@
 const canvas = document.querySelector('.myCanvas');
 
 const ctx = canvas.getContext('2d');
-
-class SetDatas{
+class Size {
     constructor(){
+        this.canvasW = canvas.width,
+        this.canvasH = canvas.height,
+
+        this.startRectX = 0,
+        this.startRectY = 0,
+
+        this.arcDiameter = 20,
+
+        this.bulletPathY = 240,
+
+        this.startY = 0,
+        this.startX = 0,
+
+        this.area = this.canvasW / 3, // left, mid, right 구역 당 width
+        this.left = this.canvasW / 3,
+        this.mid  = this.canvasW * ( 2 / 3 ),
+
+        this.leftEndX  = this.left - this.arcDiameter,
+        this.startMidX = this.left + this.arcDiameter,
+        this.endMidX   = this.mid - this.arcDiameter,
+
+        this.startMidY = 120,
+        this.endMidY   = this.canvasH - this.arcDiameter,
+
+        this.startRightX = this.mid + this.arcDiameter
+    };
+};
+
+class SetDatas extends Size{
+    constructor(){
+        super();
+
         this.datas = [];
         this.dataPerSec = 4; // 초당 몇 개 생성 할 지
 
@@ -14,14 +45,14 @@ class SetDatas{
         const speed = Number(Math.random().toFixed(1)) || 0.1; // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
         
         for(let i = 0; i < this.dataPerSec; i++) {
-            const runTime = Math.ceil(Math.random() * 10);
+            const runTime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
             this.datas.push({
                 colorByRunTime: runTime,
                 runTime,
 
                 speed,
-                x: 0,
-                y: 120,
+                x: this.startX,
+                y: this.bulletPathY,
             });
         };
     };
@@ -43,18 +74,18 @@ class Animation extends SetDatas {
 
             const {colorByRunTime, runTime, speed} = data;
 
-            if(data.x > (300 - 20)) {
+            if(data.x > this.leftEndX) {
                 this.middleDatas.push({
                     colorByRunTime,
                     runTime,
 
-                   mx: 320 + (Math.random() * 200),
-                   my: 20 + Math.random() * 150,
+                   mx: this.startMidX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
+                   my: this.startMidY + (Math.random() * (this.endMidY - this.startMidY)),
                    mxSpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed,
                    mySpeed: Math.sign(Math.random() - 0.5) > 0 ? speed : -speed,
                 });
 
-                this.datas = this.datas.filter(data => data.x < (300 - 20)); // 원의 지름 뺌
+                this.datas = this.datas.filter(data => data.x < this.leftEndX); // 원의 지름 뺌
             };
         };
     };
@@ -62,25 +93,26 @@ class Animation extends SetDatas {
     animationMiddle() {
         if(!this.middleDatas.length) { return; };
 
-        const bounce = data => {
-            if(data.mx >= (600 - 20)) {
+        function bounce(data) { // 일반 함수에 bind 안 사용하고 화살표 함수 사용해도 됨
+            if(data.mx >= (this.mid - this.arcDiameter)) {
                 data.mxSpeed = -data.mxSpeed;
             };
-            if(data.mx <= (300 + 20)){
+            
+            if(data.mx <= this.startMidX) {
                 data.mxSpeed = Math.abs(data.mxSpeed);
             };
     
-            if(data.my >= (200 - 20)) {
+            if(data.my >= this.endMidY) {
                 data.mySpeed = -data.mySpeed
             };
             
-            if(data.my <= (0 + 20)) {
+            if(data.my <= (this.startMidY + this.arcDiameter)) {
                 data.mySpeed = Math.abs(data.mySpeed);
             };
-        };
+        }
     
         for(let data of this.middleDatas) {
-            this.createBulletByRunTime(data, 'mid', bounce);
+            this.createBulletByRunTime(data, 'mid', bounce.bind(this));
         };
     };
 
@@ -96,13 +128,13 @@ class Animation extends SetDatas {
 
         switch(area) {
             case 'left':
-                ctx.arc(data.x += data.speed , data.y, 20, 0, Math.PI * 2);
+                ctx.arc(data.x += data.speed , data.y, this.arcDiameter, 0, Math.PI * 2);
                 break;
             case 'mid':
-                ctx.arc(data.mx += data.mxSpeed , data.my += data.mySpeed, 20, 0, Math.PI * 2);
+                ctx.arc(data.mx += data.mxSpeed , data.my += data.mySpeed, this.arcDiameter, 0, Math.PI * 2);
                 break;
             case 'right':
-                ctx.arc(data.rx += data.speed, data.ry, 20, 0, Math.PI * 2);
+                ctx.arc(data.rx += data.speed, data.ry, this.arcDiameter, 0, Math.PI * 2);
                 break;
             default:
                 break;
@@ -143,7 +175,7 @@ class Animation extends SetDatas {
         if(longestRunTime) {
             const {colorByRunTime, runTime, mxSpeed} = longestRunTime;
 
-            this.rightDatas.push({colorByRunTime, runTime, rx: 620, ry: 120, speed: Math.abs(mxSpeed)});
+            this.rightDatas.push({colorByRunTime, runTime, rx: this.startRightX, ry: this.bulletPathY, speed: Math.abs(mxSpeed)});
         };
          
         this.middleDatas = this.middleDatas.filter(data => data.runTime > 0);
@@ -159,31 +191,64 @@ class Animation extends SetDatas {
     };
 };
 
-const background = () => {
-    ctx.fillStyle = 'gray';
-    ctx.fillRect(0, 0, 900, 200);
+class Background extends Size{
+    constructor(){
+        super();
+    };
 
-    ctx.beginPath();
-    ctx.moveTo(300, 0);
-    ctx.lineTo(300, 200);
-    ctx.moveTo(600, 0);
-    ctx.lineTo(600, 200);
-    ctx.moveTo(0, 120);
-    ctx.lineTo(900, 120);
-    ctx.stroke();
+    render() {
+        ctx.fillStyle = 'gray';
+        ctx.fillRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
+    
+        ctx.beginPath();
+        ctx.moveTo(this.left   , this.startY);
+        ctx.lineTo(this.left   , this.canvasH);
+        ctx.moveTo(this.mid    , this.startY);
+        ctx.lineTo(this.mid    , this.canvasH);
+        ctx.moveTo(this.startX , this.bulletPathY);
+        ctx.lineTo(this.canvasW, this.bulletPathY);
+        ctx.stroke();
+    };
 };
 
-const animation = new Animation();
-
+const animation  = new Animation();
+const background = new Background();
 setInterval(function(){ animation.excuteRuntime() }, 1000);
 
 const init = () => {
-    background();
+    background.render();
     animation.render();
+
     requestAnimationFrame(init);
 };
 
 init();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // 테스트 영역
