@@ -29,7 +29,7 @@ class TimeCondition {
         this.criCondition = data.colorByRuntime > 5  && data.colorByRuntime <= 10;
     };
 };
-const timeCondition = (data) => new TimeCondition(data);
+const timeCondition = data => new TimeCondition(data);
 class Position {
     constructor(aniPosition) {
         this.canvasW = canvas.width;
@@ -102,12 +102,11 @@ class SetDatas extends Position{
 
         // this.addDatas();
         reqCount = dataPerSec;
-        // setInterval(() => this.addDatas(), (1000 / reqGap)); // 지금 0.2 초당 4개 생성 됨
     };
 
     addDatas(){
-        const speed = (Number(Math.random().toFixed(1)) || 0.1); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
-        
+        const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))) / 5; // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
+ 
         for(let i = 0; i < this.dataPerReq; i++) {
             const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
             this.datas.push({
@@ -196,7 +195,14 @@ class Animation extends SetDatas {
             return grad;
         };
 
-        const tailGradation = (x) => {
+        const bullet = (move, y) => {
+            ctx.beginPath();
+            ctx.fillStyle = bulletGradation(move, y);
+            ctx.arc(move , y, this.arcDiameter, 0, Math.PI * 2);
+            ctx.fill();
+        };
+
+        const tailGradation = x => {
             const tailGrad = ctx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
             tailGrad.addColorStop(0, colorData.gradation);
             tailGrad.addColorStop(0.5, colorData.background);
@@ -213,42 +219,30 @@ class Animation extends SetDatas {
             ctx.fill();
         };
 
-
         switch(area) {
             case 'reqArea':
                 const reqMove = data.x += data.speed;
             
                 tail(reqMove);
 
-                ctx.beginPath();
-                ctx.fillStyle = bulletGradation(reqMove, data.y);
-                ctx.arc(reqMove , data.y, this.arcDiameter, 0, Math.PI * 2);
-                ctx.fill();
+                bullet(reqMove, data.y);
                 break;
             case 'excuArea':
                 const excuMove = data.mx += data.mxSpeed;
                 const excuMoveY = data.my += data.mySpeed;
 
-                ctx.beginPath();
-                ctx.fillStyle = bulletGradation(excuMove, excuMoveY);
-                ctx.arc(excuMove , excuMoveY, this.arcDiameter, 0, Math.PI * 2);
-                ctx.fill();
+                bullet(excuMove, excuMoveY);
                 break;
             case 'resArea':
                 const resMove = data.rx += data.speed;
 
                 tail(resMove);
     
-                ctx.beginPath();
-                ctx.fillStyle = bulletGradation(resMove, data.ry);
-                ctx.arc(resMove, data.ry, this.arcDiameter, 0, Math.PI * 2);
-                ctx.fill();
+                bullet(resMove, data.ry);
                 break;
             default:
                 break;
         };
-
-
     };
 
     createBulletBuRuntime(data, area, bounceFn) {
@@ -273,12 +267,10 @@ class Animation extends SetDatas {
 
     excuteRuntime() {
         if(!this.excuDatas.length) { return; };
+
         this.excuDatas.forEach(data => data.runtime--);
-
-        const runtimeEndBullets = this.excuDatas.filter(data => 
-            data.runtime <= 0
-        );
-
+        
+        const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0);
         resCount = runtimeEndBullets.length;
 
         const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0];
