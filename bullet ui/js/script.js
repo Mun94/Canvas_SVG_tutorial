@@ -48,7 +48,7 @@ class Position {
             this.arcDiameter = 15;
 
             this.area  = this.canvasW / 3; // left; mid; right 구역 당 width
-            this.tailSize = 120;
+            this.tailSize = 150;
 
             this.reqEndX    = this.reqX - this.arcDiameter;
             this.excuStartX = this.reqX + this.arcDiameter;
@@ -65,6 +65,8 @@ class FontPosition extends Position {
 
         this.startRectX = 0;
         this.startRectY = 0;
+
+        this.lineTick = 1;
 
         // 글자 영역에 공통으로 필요한 조건
         this.countTitleGap = 60;
@@ -187,9 +189,8 @@ class Animation extends SetDatas {
 
     createBullet(color, data, area) {
         const bulletGradation = (move, y) => {
-            const grad = ctx.createRadialGradient(move, y, 2, move, y, this.arcDiameter)
-            grad.addColorStop(0, colorData.gradation);
-            grad.addColorStop(0.2, colorData.background);
+            const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter)
+            grad.addColorStop(0, colorData.background);
             grad.addColorStop(1, color);
 
             return grad;
@@ -314,7 +315,7 @@ class Background extends FontPosition{
     };
 
     line() {
-        ctx.lineWidth = 1;
+        ctx.lineWidth = this.lineTick;
         ctx.strokeStyle = colorData.basicLine;
 
         ctx.moveTo(this.reqX     , this.startY);
