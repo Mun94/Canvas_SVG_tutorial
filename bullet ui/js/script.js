@@ -9,7 +9,7 @@ let beforeSec = 0 ;
 class Color {
     constructor() {
 
-        this.background = '#393C43'; // 배경 색
+        this.background = '#303437'; // 배경 색
 
         this.nor = '#4D8BD5'; // 정상 색
         this.war = '#B8A605'; // 경고 색
@@ -48,6 +48,7 @@ class Position {
             this.arcDiameter = 15;
 
             this.area  = this.canvasW / 3; // left; mid; right 구역 당 width
+            this.tailSize = 120;
 
             this.reqEndX    = this.reqX - this.arcDiameter;
             this.excuStartX = this.reqX + this.arcDiameter;
@@ -105,7 +106,7 @@ class SetDatas extends Position{
     };
 
     addDatas(){
-        const speed = Number(Math.random().toFixed(1)) || 0.1; // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
+        const speed = (Number(Math.random().toFixed(1)) || 0.1); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
         
         for(let i = 0; i < this.dataPerReq; i++) {
             const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
@@ -186,41 +187,68 @@ class Animation extends SetDatas {
     };
 
     createBullet(color, data, area) {
-        const gradation = (move, y) => {
+        const bulletGradation = (move, y) => {
             const grad = ctx.createRadialGradient(move, y, 2, move, y, this.arcDiameter)
             grad.addColorStop(0, colorData.gradation);
             grad.addColorStop(0.2, colorData.background);
             grad.addColorStop(1, color);
+
             return grad;
         };
 
-        ctx.beginPath();
+        const tailGradation = (x) => {
+            const tailGrad = ctx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
+            tailGrad.addColorStop(0, colorData.gradation);
+            tailGrad.addColorStop(0.5, colorData.background);
+            tailGrad.addColorStop(1, color);
+
+            return tailGrad;
+        };
+
+        const tail = x => {
+            ctx.beginPath();
+            ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
+            ctx.fillStyle = tailGradation(x);
+            ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x, this.bulletPathY - this.arcDiameter);
+            ctx.fill();
+        };
+
 
         switch(area) {
             case 'reqArea':
                 const reqMove = data.x += data.speed;
             
-                ctx.fillStyle = gradation(reqMove, data.y);
+                tail(reqMove);
+
+                ctx.beginPath();
+                ctx.fillStyle = bulletGradation(reqMove, data.y);
                 ctx.arc(reqMove , data.y, this.arcDiameter, 0, Math.PI * 2);
+                ctx.fill();
                 break;
             case 'excuArea':
                 const excuMove = data.mx += data.mxSpeed;
                 const excuMoveY = data.my += data.mySpeed;
 
-                ctx.fillStyle = gradation(excuMove, excuMoveY);
+                ctx.beginPath();
+                ctx.fillStyle = bulletGradation(excuMove, excuMoveY);
                 ctx.arc(excuMove , excuMoveY, this.arcDiameter, 0, Math.PI * 2);
+                ctx.fill();
                 break;
             case 'resArea':
                 const resMove = data.rx += data.speed;
 
-                ctx.fillStyle = gradation(resMove, data.ry);
+                tail(resMove);
+    
+                ctx.beginPath();
+                ctx.fillStyle = bulletGradation(resMove, data.ry);
                 ctx.arc(resMove, data.ry, this.arcDiameter, 0, Math.PI * 2);
+                ctx.fill();
                 break;
             default:
                 break;
         };
 
-        ctx.fill();
+
     };
 
     createBulletBuRuntime(data, area, bounceFn) {
