@@ -8,18 +8,20 @@ let reqCount  = 0;
 let beforeSec = 0 ;
 class Color {
     constructor() {
+
         this.background = '#393C43'; // 배경 색
 
         this.nor = '#4D8BD5'; // 정상 색
         this.war = '#B8A605'; // 경고 색
         this.cri = '#B40E0A'; // 심각 색
+        this.gradation = 'rgba(38, 36, 28, 0.5)';//'#26241C' // 그라데이션 색
 
         this.basicFont = '#C6C9CD'; // 기본 폰트 색
 
         this.basicLine = '#C6C9CD'; // 라인 색
     };
 };
-const color = new Color();
+const colorData = new Color();
 class TimeCondition {
     constructor(data) {
         this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime <= 3;
@@ -43,7 +45,7 @@ class Position {
 
         if(aniPosition) {
             // 에니메이션 수행에 필요한 조건
-            this.arcDiameter = 20;
+            this.arcDiameter = 15;
 
             this.area  = this.canvasW / 3; // left; mid; right 구역 당 width
 
@@ -64,15 +66,15 @@ class FontPosition extends Position {
         this.startRectY = 0;
 
         // 글자 영역에 공통으로 필요한 조건
-        this.countTitleGap = 35;
+        this.countTitleGap = 60;
 
-        // req 글자 영역에 필요한 위치 조건
-        this.totalCountX = 30; 
+        // req 글자 위치
+        this.totalCountX = 70; 
         this.totalFontY  = 80;
         this.reqCountX   = 130;
         this.reqFontY    = 170;
 
-        // excu 글자 영역에 필요한 위치 조건
+        // excu 글자 위치
         this.excuFontY = 80;
         this.norWarCriGap = 150;
 
@@ -80,7 +82,7 @@ class FontPosition extends Position {
         this.warCountX  = this.norCountX + this.norWarCriGap;
         this.criCountX = this.warCountX + this.norWarCriGap;
 
-        // res 글자 영역에 필요한 위치 조건
+        // res 글자 위치
         this.resCountX = this.canvasW * ( 3 / 4);
         this.redFontY = 170;
     };
@@ -130,7 +132,7 @@ class Animation extends SetDatas {
 
     reqAni() {
         for(let data of this.datas) {
-            this.createBullet(color.nor, data, 'reqArea'); // blue
+            this.createBullet(colorData.nor, data, 'reqArea'); // blue
 
             const {colorByRuntime, runtime, speed} = data;
 
@@ -184,19 +186,35 @@ class Animation extends SetDatas {
     };
 
     createBullet(color, data, area) {
+        const gradation = (move, y) => {
+            const grad = ctx.createRadialGradient(move, y, 2, move, y, this.arcDiameter)
+            grad.addColorStop(0, colorData.gradation);
+            grad.addColorStop(0.2, colorData.background);
+            grad.addColorStop(1, color);
+            return grad;
+        };
 
         ctx.beginPath();
-        ctx.fillStyle = color;
 
         switch(area) {
             case 'reqArea':
-                ctx.arc(data.x += data.speed , data.y, this.arcDiameter, 0, Math.PI * 2);
+                const reqMove = data.x += data.speed;
+            
+                ctx.fillStyle = gradation(reqMove, data.y);
+                ctx.arc(reqMove , data.y, this.arcDiameter, 0, Math.PI * 2);
                 break;
             case 'excuArea':
-                ctx.arc(data.mx += data.mxSpeed , data.my += data.mySpeed, this.arcDiameter, 0, Math.PI * 2);
+                const excuMove = data.mx += data.mxSpeed;
+                const excuMoveY = data.my += data.mySpeed;
+
+                ctx.fillStyle = gradation(excuMove, excuMoveY);
+                ctx.arc(excuMove , excuMoveY, this.arcDiameter, 0, Math.PI * 2);
                 break;
             case 'resArea':
-                ctx.arc(data.rx += data.speed, data.ry, this.arcDiameter, 0, Math.PI * 2);
+                const resMove = data.rx += data.speed;
+
+                ctx.fillStyle = gradation(resMove, data.ry);
+                ctx.arc(resMove, data.ry, this.arcDiameter, 0, Math.PI * 2);
                 break;
             default:
                 break;
@@ -207,19 +225,19 @@ class Animation extends SetDatas {
 
     createBulletBuRuntime(data, area, bounceFn) {
         if(timeCondition(data).norCondition) { // 1에서 3초
-            this.createBullet(color.nor, data,  area); // blue
+            this.createBullet(colorData.nor, data,  area); // blue
 
             bounceFn && bounceFn(data);
         }; 
 
         if(timeCondition(data).warCondition) { // 3에서 5초
-            this.createBullet(color.war, data, area); // yellow
+            this.createBullet(colorData.war, data, area); // yellow
 
             bounceFn && bounceFn(data);
         };
 
         if(timeCondition(data).criCondition) { // 5에서 10초
-            this.createBullet(color.cri, data, area); // red
+            this.createBullet(colorData.cri, data, area); // red
 
             bounceFn && bounceFn(data);
         };
@@ -261,7 +279,7 @@ class Background extends FontPosition{
     };
 
     render() {
-        ctx.fillStyle = color.background; // 배경 색
+        ctx.fillStyle = colorData.background; // 배경 색
         ctx.fillRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
     
         ctx.beginPath();
@@ -276,7 +294,8 @@ class Background extends FontPosition{
     };
 
     line() {
-        ctx.strokeStyle = color.basicLine;
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = colorData.basicLine;
 
         ctx.moveTo(this.reqX     , this.startY);
         ctx.lineTo(this.reqX     , this.canvasH);
@@ -293,8 +312,11 @@ class Background extends FontPosition{
 
         ctx.font = '30px Arial';
 
-        ctx.fillStyle = color.basicFont;
+        ctx.fillStyle = colorData.basicFont;
         ctx.fillText('현재 전체 건수', this.totalCountX + this.countTitleGap + 13, this.totalFontY);
+
+        ctx.font = '45px Arial';
+
         ctx.fillText(totalCount, this.totalCountX, this.totalFontY);
         
         ctx.font = '25px Arial';
@@ -307,25 +329,25 @@ class Background extends FontPosition{
     excuCount() {
         ctx.font = '25px Arial';
 
-        ctx.fillStyle = color.basicFont;
+        ctx.fillStyle = colorData.basicFont;
         ctx.fillText('정상', this.norCountX + this.countTitleGap, this.excuFontY);
         ctx.fillText('경고', this.warCountX + this.countTitleGap, this.excuFontY);
         ctx.fillText('심각', this.criCountX + this.countTitleGap, this.excuFontY);
 
-        ctx.fillStyle = color.nor;
+        ctx.font = 'bold 35px Arial';
+
+        ctx.fillStyle = colorData.nor;
         ctx.fillText(this.count().nor, this.norCountX, this.excuFontY);
-        
-        ctx.fillStyle = color.war;
+        ctx.fillStyle = colorData.war;
         ctx.fillText(this.count().war, this.warCountX, this.excuFontY);
-   
-        ctx.fillStyle = color.cri;
+        ctx.fillStyle = colorData.cri;
         ctx.fillText(this.count().cri, this.criCountX, this.excuFontY);
     };
 
     resCount() {
         ctx.font = '25px Arial';
 
-        ctx.fillStyle = color.basicFont;
+        ctx.fillStyle = colorData.basicFont;
         ctx.fillText('응답/초', this.resCountX, this.redFontY);
         ctx.fillText(resCount, this.resCountX + (this.countTitleGap * 3), this.redFontY);
     };
@@ -352,15 +374,15 @@ const init = () => {
     const second = (new Date()).getSeconds(); 
     const milliseconds = (new Date()).getMilliseconds();
 
-    if(milliseconds % 200 <= 17 && milliseconds % 200 > 0) {
-        animation.addDatas();
-    };
-
     if(beforeSec !== second) {
         animation.excuteRuntime();
     };
     beforeSec = second;
     
+    if(milliseconds % 200 <= 17 && milliseconds % 200 > 0) {
+        animation.addDatas();
+    };
+
     background.render();
     animation.render();
 
