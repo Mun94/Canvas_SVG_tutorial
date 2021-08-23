@@ -5,6 +5,7 @@ const ctx = canvas.getContext('2d');
 let dataCount = 0;
 let resCount  = 0;
 let reqCount  = 0;
+let beforeSec = 0 ;
 class Color {
     constructor() {
         this.background = '#393C43'; // 배경 색
@@ -21,8 +22,8 @@ class Color {
 const color = new Color();
 class TimeCondition {
     constructor(data) {
-        this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime < 3;
-        this.warCondition = data.colorByRuntime >= 3 && data.colorByRuntime <= 5;
+        this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime <= 3;
+        this.warCondition = data.colorByRuntime > 3 && data.colorByRuntime <= 5;
         this.criCondition = data.colorByRuntime > 5  && data.colorByRuntime <= 10;
     };
 };
@@ -89,16 +90,16 @@ class SetDatas extends Position{
         const needAniPosition = true;
         super(needAniPosition);
 
-        const dataPerSec = 5; // 1 초 당 20 개
-        const reqGap = 1;
-        const req = (dataPerSec / reqGap); // 0.2초에 한 번씩 요청이 발생 함(4개)
+        const dataPerSec = 20; // 1 초 당 20 개
+        const sec = 0.2; // 0.2 초
+        const req = (dataPerSec * sec); // 0.2초에 한 번씩 요청이 발생 함(4개)
 
         this.datas     = [];
         this.dataPerReq = req; // 0.2초 마다 발생 할 요청에 생성 될 데이터 수
 
         // this.addDatas();
         reqCount = dataPerSec;
-        setInterval(() => this.addDatas(), (1000 / reqGap)); // 지금 0.2 초당 4개 생성 됨
+        // setInterval(() => this.addDatas(), (1000 / reqGap)); // 지금 0.2 초당 4개 생성 됨
     };
 
     addDatas(){
@@ -244,8 +245,6 @@ class Animation extends SetDatas {
          
         this.excuDatas = this.excuDatas.filter(data => data.runtime > 0);
         dataCount = this.excuDatas;
-        // console.log(this.resDatas)
-        // console.log(this.excuDatas.map(a => a.runtime))
     };
 
     render() {
@@ -349,9 +348,19 @@ class Background extends FontPosition{
 };
 const background = new Background();
 
-setInterval(() => animation.excuteRuntime(), 1000);
-
 const init = () => {
+    const second = (new Date()).getSeconds(); 
+    const milliseconds = (new Date()).getMilliseconds();
+
+    if(milliseconds % 200 <= 17 && milliseconds % 200 > 0) {
+        animation.addDatas();
+    };
+
+    if(beforeSec !== second) {
+        animation.excuteRuntime();
+    };
+    beforeSec = second;
+    
     background.render();
     animation.render();
 
@@ -359,54 +368,3 @@ const init = () => {
 };
 
 init();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 테스트 영역
-const canvas2 = document.querySelector('.myCanvas2');
-
-const ctx2 = canvas2.getContext('2d');
-
-let aa = 0;
-let topss = 0;
-const main = () => {
-    ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
-    // const ty = snow.y += snow.Position * 0.5;
-    ctx2.beginPath();
-    ctx2.fillStyle = 'red';
-    ctx2.arc(topss++ , 120, 20, 0, Math.PI * 2);
-    ctx2.fill()
-    ctx2.closePath();
-    // topss = topss++
-
-    if(topss > 900){
-        topss = 0;
-    }
-};
-
-setInterval(main, 30)
