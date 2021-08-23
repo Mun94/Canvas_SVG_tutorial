@@ -100,13 +100,10 @@ class SetDatas extends Position{
 
         this.datas       = [];
         this.dataPerReq  = dataPerSec * sec; // 0.2초 마다 발생 할 요청에 생성 될 데이터 수
-
-        reqCount         = dataPerSec;
     };
 
     addDatas(){
-        const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))) / 5; // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
- 
+        const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
         for(let i = 0; i < this.dataPerReq; i++) {
             const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
             this.datas.push({
@@ -118,6 +115,7 @@ class SetDatas extends Position{
                 y             : this.bulletPathY,
             });
         };
+        reqCount = this.datas.length;
     };
 };
 const setDatas = new SetDatas();
@@ -141,11 +139,12 @@ class Animation extends SetDatas {
                 this.excuDatas.push({
                     colorByRuntime,
                     runtime,
+                    speed,
 
                    mx     : this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
                    my     : this.startY + (Math.random() * (this.excuEndY - this.startY)),
-                   mxSpeed: Math.sign(Math.random() - 0.5) * speed,
-                   mySpeed: Math.sign(Math.random() - 0.5) * speed,
+                   mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                   mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
                 });
 
                 dataCount  = this.excuDatas;
@@ -181,9 +180,13 @@ class Animation extends SetDatas {
     };
 
     resAni() {    
+        resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
+
         for(let data of this.resDatas) {
             this.createBulletBuRuntime(data, 'resArea');
         };
+
+        this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW);
     };
 
     createBullet(color, data, area) {
@@ -268,17 +271,17 @@ class Animation extends SetDatas {
     excuteRuntime() {
         if(!this.excuDatas.length) { return; };
 
-        this.excuDatas.forEach(data => data.runtime--);
+        this.excuDatas.forEach(data => data.runtime -= 0.2);
         
         const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0);
-        resCount = runtimeEndBullets.length;
+        const resBulletCount = runtimeEndBullets.length;
 
         const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0];
 
         if(longestRuntime) {
-            const {colorByRuntime, runtime, mxSpeed} = longestRuntime;
+            const {colorByRuntime, runtime, speed} = longestRuntime;
 
-            this.resDatas.push({colorByRuntime, runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(mxSpeed)});
+            this.resDatas.push({colorByRuntime, runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(speed), resBulletCount});
         };
          
         this.excuDatas = this.excuDatas.filter(data => data.runtime > 0);
@@ -391,21 +394,21 @@ class Background extends FontPosition{
 };
 const background = new Background();
 
+let i = 0;
 const init = () => {
-    const second = (new Date()).getSeconds(); 
-    const milliseconds = (new Date()).getMilliseconds();
+    i++
 
-    if(beforeSec !== second) {
-        animation.excuteRuntime();
-    };
-    beforeSec = second;
-    
-    if(milliseconds % 200 <= 17 && milliseconds % 200 > 0) {
+    if(i % 12 === 0) { // 1초에 5번 실행
         animation.addDatas();
+        animation.excuteRuntime();
     };
 
     background.render();
     animation.render();
+
+    if(i === 60) {
+        i = 0;
+    };
 
     requestAnimationFrame(init);
 };
