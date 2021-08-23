@@ -89,7 +89,7 @@ class SetDatas extends Size{
         this.dataPerReq = req; // 0.2초 마다 발생 할 요청에 생성 될 데이터 수
 
         // this.addDatas();
-        reqCount = reqPerSec;
+        reqCount = dataPerSec;
         setInterval(() => this.addDatas(), (1000 / 5)); // 지금 0.2 초당 4개 생성 됨
     };
 
