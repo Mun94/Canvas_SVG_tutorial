@@ -21,9 +21,9 @@ class Color {
 const color = new Color();
 class TimeCondition {
     constructor(data) {
-        this.norCondition = data.colorByRunTime >= 1 && data.colorByRunTime < 3;
-        this.warCondition = data.colorByRunTime >= 3 && data.colorByRunTime <= 5;
-        this.criCondition = data.colorByRunTime > 5  && data.colorByRunTime <= 10;
+        this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime < 3;
+        this.warCondition = data.colorByRuntime >= 3 && data.colorByRuntime <= 5;
+        this.criCondition = data.colorByRuntime > 5  && data.colorByRuntime <= 10;
     };
 };
 const timeCondition = (data) => new TimeCondition(data);
@@ -105,10 +105,10 @@ class SetDatas extends Position{
         const speed = Number(Math.random().toFixed(1)) || 0.1; // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
         
         for(let i = 0; i < this.dataPerReq; i++) {
-            const runTime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
+            const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
             this.datas.push({
-                colorByRunTime: runTime,
-                runTime,
+                colorByRuntime: runtime,
+                runtime,
 
                 speed,
                 x: this.startX,
@@ -131,12 +131,12 @@ class Animation extends SetDatas {
         for(let data of this.datas) {
             this.createBullet(color.nor, data, 'reqArea'); // blue
 
-            const {colorByRunTime, runTime, speed} = data;
+            const {colorByRuntime, runtime, speed} = data;
 
             if(data.x > this.reqEndX) {
                 this.excuDatas.push({
-                    colorByRunTime,
-                    runTime,
+                    colorByRuntime,
+                    runtime,
 
                    mx: this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
                    my: this.startY + (Math.random() * (this.excuEndY - this.startY)),
@@ -172,13 +172,13 @@ class Animation extends SetDatas {
         }
     
         for(let data of this.excuDatas) {
-            this.createBulletByRunTime(data, 'excuArea', bounce.bind(this));
+            this.createBulletBuRuntime(data, 'excuArea', bounce.bind(this));
         };
     };
 
     resAni() {    
         for(let data of this.resDatas) {
-            this.createBulletByRunTime(data, 'resArea');
+            this.createBulletBuRuntime(data, 'resArea');
         };
     };
 
@@ -204,7 +204,7 @@ class Animation extends SetDatas {
         ctx.fill();
     };
 
-    createBulletByRunTime(data, area, bounceFn) {
+    createBulletBuRuntime(data, area, bounceFn) {
         if(timeCondition(data).norCondition) { // 1에서 3초
             this.createBullet(color.nor, data,  area); // blue
 
@@ -226,26 +226,26 @@ class Animation extends SetDatas {
 
     excuteRuntime() {
         if(!this.excuDatas.length) { return; };
-        this.excuDatas.forEach(data => data.runTime--);
+        this.excuDatas.forEach(data => data.runtime--);
 
-        const runTimeEndBullets = this.excuDatas.filter(data => 
-            data.runTime <= 0
+        const runtimeEndBullets = this.excuDatas.filter(data => 
+            data.runtime <= 0
         );
 
-        resCount = runTimeEndBullets.length;
+        resCount = runtimeEndBullets.length;
 
-        const longestRunTime = runTimeEndBullets.sort((a, b) => b.colorByRunTime - a.colorByRunTime)[0];
+        const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0];
 
-        if(longestRunTime) {
-            const {colorByRunTime, runTime, mxSpeed} = longestRunTime;
+        if(longestRuntime) {
+            const {colorByRuntime, runtime, mxSpeed} = longestRuntime;
 
-            this.resDatas.push({colorByRunTime, runTime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(mxSpeed)});
+            this.resDatas.push({colorByRuntime, runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(mxSpeed)});
         };
          
-        this.excuDatas = this.excuDatas.filter(data => data.runTime > 0);
+        this.excuDatas = this.excuDatas.filter(data => data.runtime > 0);
         dataCount = this.excuDatas;
         // console.log(this.resDatas)
-        // console.log(this.excuDatas.map(a => a.runTime))
+        // console.log(this.excuDatas.map(a => a.runtime))
     };
 
     render() {
