@@ -1,1 +1,1 @@
-# Canvas_tutorial
+# Canvas_SVG_tutorial
