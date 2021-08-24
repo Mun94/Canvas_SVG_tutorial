@@ -103,7 +103,8 @@ class SetDatas extends Position{
     };
 
     addDatas(){
-        const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
+        const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로
+
         for(let i = 0; i < this.dataPerReq; i++) {
             const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
             this.datas.push({
@@ -115,6 +116,7 @@ class SetDatas extends Position{
                 y             : this.bulletPathY,
             });
         };
+
         reqCount = this.datas.length;
     };
 };
@@ -269,6 +271,7 @@ class Animation extends SetDatas {
     };
 
     excuteRuntime() {
+        ///////// 수행 시간 차감 정확한 계산 필요
         if(!this.excuDatas.length) { return; };
 
         this.excuDatas.forEach(data => data.runtime -= 0.2);
