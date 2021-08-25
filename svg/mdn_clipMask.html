@@ -1,0 +1,32 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <svg>
+            <defs>
+                <clipPath id = "cut-off-bottom">
+                    <rect x = "0" y = "0" width = "200" height = "100"/>
+                </clipPath>
+            </defs>
+
+            <circle cx = "100" cy = "100" r = "100" clip-path = "url(#cut-off-bottom)"/>
+        </svg>
+
+        <svg width = "200" height = "200">
+            <defs>
+                <linearGradient id = "Gradient">
+                    <stop offset = "0" stop-color = "black"/>
+                    <stop offset = "1" stop-color = "white"/>
+                </linearGradient>
+
+                <mask id = "Mask">
+                    <rect x = "0" y = "0" width = "200" height = "200" fill = "url(#Gradient)">
+                </mask>
+            </defs>
+
+            <rect x = "0" y = "0" width = "200" height = "200" fill = "green"/>
+            <rect x = "0" y = "0" width = "200" height = "200" fill = "red" mask = "url(#Mask)"/>
+        </svg>
+    </body>
+</html>

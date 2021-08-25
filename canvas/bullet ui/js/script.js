@@ -269,6 +269,7 @@ class Animation extends SetDatas {
     };
 
     excuteRuntime() {
+        ///////// 수행 시간 차감 정확한 계산 필요
         if(!this.excuDatas.length) { return; };
 
         this.excuDatas.forEach(data => data.runtime -= 0.2); // 수행 시간 감소
