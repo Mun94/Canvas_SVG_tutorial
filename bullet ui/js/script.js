@@ -5,7 +5,6 @@ const ctx = canvas.getContext('2d');
 let dataCount = 0;
 let resCount  = 0;
 let reqCount  = 0;
-let beforeSec = 0 ;
 class Color {
     constructor() {
 
@@ -95,17 +94,18 @@ class SetDatas extends Position{
         const needAniPosition = true;
         super(needAniPosition);
 
-        const dataPerSec = 20; // 1 초 당 20 개
-        const sec        = 0.2; // 0.2 초
+        const dataPerSec = 20;
+        const sec        = 0.2;
 
         this.datas       = [];
-        this.dataPerReq  = dataPerSec * sec; // 0.2초 마다 발생 할 요청에 생성 될 데이터 수
+        this.dataPerReq  = dataPerSec * sec; // 0.2초 요청 마다 데이터 4개 생성 
     };
 
     addDatas(){
-        const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로!
+        const speed = this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)));
+        
         for(let i = 0; i < this.dataPerReq; i++) {
-            const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
+            const runtime = Math.ceil(Math.random() * 10);
             this.datas.push({
                 colorByRuntime: runtime,
                 runtime,
@@ -115,10 +115,10 @@ class SetDatas extends Position{
                 y             : this.bulletPathY,
             });
         };
+
         reqCount = this.datas.length;
     };
 };
-const setDatas = new SetDatas();
 
 // animation
 class Animation extends SetDatas {
@@ -142,13 +142,13 @@ class Animation extends SetDatas {
                     speed,
 
                    mx     : this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
-                   my     : this.startY + (Math.random() * (this.excuEndY - this.startY)),
-                   mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
-                   mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                   my     : this.startY + (Math.random()     * (this.excuEndY - this.startY)),
+                   mxSpeed: Math.sign(Math.random() - 0.5)   * (Number(Math.random().toFixed(1)) || 0.1),
+                   mySpeed: Math.sign(Math.random() - 0.5)   * (Number(Math.random().toFixed(1)) || 0.1),
                 });
 
                 dataCount  = this.excuDatas;
-                this.datas = this.datas.filter(data => data.x < this.reqEndX); // 원의 지름 뺌
+                this.datas = this.datas.filter(data => data.x < this.reqEndX); 
             };
         };
     };
@@ -156,42 +156,42 @@ class Animation extends SetDatas {
     excuAni() {
         if(!this.excuDatas.length) { return; };
 
-        function bounce(data) { // 일반 함수에 bind 안 사용하고 화살표 함수 사용해도 됨
-            if(data.mx >= (this.excuX - this.arcDiameter)) {
+        const bounce = data => { // 일반 함수에 bind 사용해도 됨
+            if(data.mx >= (this.excuX - this.arcDiameter)) { // x 오른쪽 경계
                 data.mxSpeed = -data.mxSpeed;
             };
             
             if(data.mx <= this.excuStartX) {
-                data.mxSpeed = Math.abs(data.mxSpeed);
+                data.mxSpeed = Math.abs(data.mxSpeed); // x 왼쪽 경계
             };
     
-            if(data.my >= this.excuEndY) {
+            if(data.my >= this.excuEndY) { // y 아래쪽 경계
                 data.mySpeed = -data.mySpeed
             };
             
-            if(data.my <= (this.startY + this.arcDiameter)) {
+            if(data.my <= (this.startY + this.arcDiameter)) { // y 위쪽 경계
                 data.mySpeed = Math.abs(data.mySpeed);
             };
-        }
+        };
     
         for(let data of this.excuDatas) {
-            this.createBulletBuRuntime(data, 'excuArea', bounce.bind(this));
+            this.createBulletByRuntime(data, 'excuArea', bounce);
         };
     };
 
     resAni() {    
-        resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
+        resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0); // 응답 데이터 카운트
 
         for(let data of this.resDatas) {
-            this.createBulletBuRuntime(data, 'resArea');
+            this.createBulletByRuntime(data, 'resArea');
         };
 
-        this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW);
+        this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW); // 영역 밖으로 나간 데이터 필터링
     };
 
     createBullet(color, data, area) {
         const bulletGradation = (move, y) => {
-            const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter)
+            const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter);
             grad.addColorStop(0, colorData.background);
             grad.addColorStop(1, color);
 
@@ -248,9 +248,9 @@ class Animation extends SetDatas {
         };
     };
 
-    createBulletBuRuntime(data, area, bounceFn) {
+    createBulletByRuntime(data, area, bounceFn) {
         if(timeCondition(data).norCondition) { // 1에서 3초
-            this.createBullet(colorData.nor, data,  area); // blue
+            this.createBullet(colorData.nor, data, area); // blue
 
             bounceFn && bounceFn(data);
         }; 
@@ -271,12 +271,13 @@ class Animation extends SetDatas {
     excuteRuntime() {
         if(!this.excuDatas.length) { return; };
 
-        this.excuDatas.forEach(data => data.runtime -= 0.2);
+        this.excuDatas.forEach(data => data.runtime -= 0.2); // 수행 시간 감소
         
-        const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0);
+        const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0); // 수행 시간 종료 데이터 필터링
         const resBulletCount = runtimeEndBullets.length;
 
-        const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0];
+        const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0]; // 동시에 수행 시간이 완료 된 데이터 중 
+        // runtime이 가장 길었던 데이터 추출
 
         if(longestRuntime) {
             const {colorByRuntime, runtime, speed} = longestRuntime;
@@ -284,7 +285,7 @@ class Animation extends SetDatas {
             this.resDatas.push({colorByRuntime, runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(speed), resBulletCount});
         };
          
-        this.excuDatas = this.excuDatas.filter(data => data.runtime > 0);
+        this.excuDatas = this.excuDatas.filter(data => data.runtime > 0); // 수행 시간이 남은 데이터들로 재할당
         dataCount = this.excuDatas;
     };
 
@@ -347,7 +348,6 @@ class Background extends FontPosition{
 
         ctx.fillText('요청/초', this.reqCountX, this.reqFontY);
         ctx.fillText(reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
-
     };
 
     excuCount() {
@@ -396,7 +396,7 @@ const background = new Background();
 
 let i = 0;
 const init = () => {
-    i++
+    i++;
 
     if(i % 12 === 0) { // 1초에 5번 실행
         animation.addDatas();
