@@ -50,6 +50,7 @@ const script = () => {
             };
         };
     };
+
     class SetDatas extends Position {
         constructor() {
             const needAniPosition = false;
@@ -62,12 +63,10 @@ const script = () => {
     
             this.datas       = [];
             this.dataPerReq  = dataPerSec * sec; // 0.2초 마다 발생 할 요청에 생성 될 데이터 수
-
-            // this.addDatas();
         };
 
         addDatas() {
-            const speed = Number(Math.random().toFixed(1)) || 0.1;
+            const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1))));
 
             for(let i = 0; i < this.dataPerReq; i++) {
                 const runtime = Math.ceil(Math.random() * 10);
@@ -76,10 +75,7 @@ const script = () => {
                     colorByRuntime: runtime,
                     runtime,
 
-                    dur        : (speed*10),
-                    // repeatCount: 0,
-                    // from       : this.startX,
-                    // to         : this.area  
+                    dur        : speed,
                 });
             };
         };
@@ -88,60 +84,38 @@ const script = () => {
     class Animation extends SetDatas {
         constructor() { 
             super();
-
-            window.setTimeout(() => this.reqAni(),1000)
         };
 
         reqAni() {
+            for(let data of this.datas) { 
+                const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
 
-            let el = '';
-            for(let data of this.datas) {
-                el += `
-                <circle cx = ${this.startX-20} cy = ${this.bulletPathY} r = ${this.bulletRadius} fill = "blue">
-                    <animate attributeName = "cx" from = "-20" to = "400" dur = ${data.dur} repeatCount = "indefinite">
-                </circle>
-                `
-            //     const createCircleEl = document.createElement('circle');
-            //         setAttribute(createCircleEl, 
-            //             {'cx':0, 'cy':240, 'r':20, 'fill': 'blue', 'class': 'circle' + i});
-
-            //         g.reqWrap.appendChild(createCircleEl);
-            //         i++
+                setAttribute(createCircleEl, {
+                    'cx': this.startX, 'cy': this.bulletPathY, 'r': this.bulletRadius, 'speed': data.dur
+                });
+       
+                g.reqWrap.appendChild(createCircleEl)
             };
-            g.reqWrap.innerHTML = el;
+
+            const bulletPck = document.querySelectorAll('.reqWrap')
+
+            bulletPck[0] && [...bulletPck[0].children].forEach(ele => {
+                const getCx = ele.getAttribute('cx');
+                const speed = ele.getAttribute('speed');
+
+                if(Number(getCx) > this.area - this.bulletRadius) {
+                    ele.remove();
+                };
+
+                ele.setAttribute('cx', Number(getCx) + Number(speed));
+            });
+
+            this.datas.splice(0, this.dataPerReq);
         };
 
-         // let i = 0;
-            //      for(let data of this.datas) {
-            //         const createCircleEl = document.createElement('circle');
-            //         setAttribute(createCircleEl, 
-            //             {'cx':0, 'cy':240, 'r':20, 'fill': 'blue', 'class': 'circle'+i});
-
-            //         g.reqWrap.appendChild(createCircleEl);
-
-            //         const test = document.querySelector('.circle'+i);
-
-            //         const bbb =test.getAttribute('cx');
-
-            //         let ccc = 0 ;
-            //         if( Number(bbb) < 400){
-            //             ccc = Number(bbb)+1
-            //             test.setAttribute('cx', ccc)
-            //         }
-            //         i++
-            //     //     const aaa = document.querySelector('.test');
-            //     //     const bbb = aaa.getAttribute('cx')
-            //     //     let ccc = 0;
-            //     //     if( Number(bbb) < 400){
-            //     //         ccc = Number(bbb)+1
-            //     //         aaa.setAttribute('cx', ccc)
-            //     //     }
-            //     //  };
-            // }
-
-        // render() {
-        //     this.reqAni()
-        // }
+        render() {
+            this.reqAni();
+        };
     };
     const animation = new Animation();
     class Background extends Position{
@@ -176,9 +150,8 @@ const script = () => {
         if(i % 12 === 0) {
             animation.addDatas();
         };
-
+        animation.render();
         background.render();
-        // animation.render();
 
         if(i === 60) {
             i = 0;
