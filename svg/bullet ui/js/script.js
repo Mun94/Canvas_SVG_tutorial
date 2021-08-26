@@ -30,33 +30,59 @@ const script = () => {
             this.svgW = svgWrap.getAttribute('width');
             this.svgH = svgWrap.getAttribute('height');
 
+            this.bulletPathY = 240;
+
+            this.reqX        = this.svgW / 3;
+            this.resX        = this.svgW * ( 2 / 3 );
+
             this.startX = 0;
             this.startY = 120;
 
-            this.bulletPathY = 240;
-            this.bulletRadius = 20;
-
-            this.area = this.svgW / 3;
-
             if(aniPosition) {
-                // line 그리는데 필요한 위치 조건 (startX, startY, bulletPathY 도 필요함)
-                this.reqLineX = this.area; // req, excu, res 3 구간으로 나눔
-                this.reqLineY = this.svgH;
-                // this.reqBltLineX = g.svg
-                this.reqBltLineX = this.area;
+                this.arcDiameter = 15;
 
-                this.resLineX = this.area * 2;
-                this.resLineY = this.svgH;
+                this.area = this.svgW / 3;
+
+                this.reqEndX     = this.reqX    - this.arcDiameter;
+                this.excuStartX  = this.reqX    + this.arcDiameter;
+                this.excuEndY    = this.canvasH - this.arcDiameter;
+                this.resStartX   = this.resX    + this.arcDiameter
             };
         };
     };
 
-    class SetDatas extends Position {
+    class FontPosition extends Position {
         constructor() {
             const needAniPosition = false;
             super(needAniPosition);
-            // const needAniPosition = true;
-            // super(needAniPosition);
+
+            // 글자 영역에 공통으로 필요한 조건
+            this.countTitleGap = 60;
+
+            // req 글자 위치
+            this.totalCountX   = 70; 
+            this.totalFontY    = 80;
+            this.reqCountX     = 130;
+            this.reqFontY      = 170;
+    
+            // excu 글자 위치
+            this.excuFontY     = 80;
+            this.norWarCriGap  = 150;
+    
+            this.norCountX     = (this.svgW / 3) + 20;
+            this.warCountX     = this.norCountX + this.norWarCriGap;
+            this.criCountX     = this.warCountX + this.norWarCriGap;
+    
+            // res 글자 위치
+            this.resCountX     = this.svgW * (3 / 4);
+            this.redFontY      = 170;
+        }
+    }
+
+    class SetDatas extends Position {
+        constructor() {
+            const needAniPosition = true;
+            super(needAniPosition);
     
             const dataPerSec = 20; // 1 초 당 20 개
             const sec        = 0.2; // 0.2 초
@@ -75,7 +101,7 @@ const script = () => {
                     colorByRuntime: runtime,
                     runtime,
 
-                    dur        : speed,
+                    dur           : speed,
                 });
             };
         };
@@ -91,7 +117,7 @@ const script = () => {
                 const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
 
                 setAttribute(createCircleEl, {
-                    'cx': this.startX, 'cy': this.bulletPathY, 'r': this.bulletRadius, 'speed': data.dur
+                    'cx': this.startX, 'cy': this.bulletPathY, 'r': this.arcDiameter, 'speed': data.dur
                 });
        
                 g.reqWrap.appendChild(createCircleEl)
@@ -103,7 +129,7 @@ const script = () => {
                 const getCx = ele.getAttribute('cx');
                 const speed = ele.getAttribute('speed');
 
-                if(Number(getCx) > this.area - this.bulletRadius) {
+                if(Number(getCx) > this.reqEndX) {
                     ele.remove();
                 };
 
@@ -118,23 +144,26 @@ const script = () => {
         };
     };
     const animation = new Animation();
-    class Background extends Position{
+    class Background extends FontPosition{
         constructor() {
-            const needAniPosition = true;
+            const needAniPosition = false;
             super(needAniPosition);
         };
 
         line() { 
             setAttribute(g.reqLine, 
-                {'x1': this.reqLineX, 'y1': this.startY, 'x2': this.reqLineX, 'y2': this.reqLineY});
+                {'x1': this.startX, 'y1': this.bulletPathY, 
+                 'x2': this.reqX  , 'y2': this.bulletPathY});
             setAttribute(g.reqBltLine, 
-                {'x1': this.startX, 'y1': this.bulletPathY, 'x2': this.reqBltLineX, 'y2': this.bulletPathY});
+                {'x1': this.reqX  , 'y1': this.startY, 
+                 'x2': this.reqX  , 'y2': this.svgH});
             
             setAttribute(g.resLine, 
-                {'x1': this.resLineX, 'y1': this.startY, 'x2': this.resLineX, 'y2': this.resLineY});
+                {'x1': this.resX  , 'y1': this.startY, 
+                 'x2': this.resX  , 'y2': this.svgH});
             setAttribute(g.resBltLine,
-                {'x1': this.resLineX, 'y1':this.bulletPathY, 'x2': this.svgW, 'y2': this.bulletPathY})
-
+                {'x1': this.resX  , 'y1':this.bulletPathY, 
+                 'x2': this.svgW  , 'y2': this.bulletPathY})
         };
 
         render() {

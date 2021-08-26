@@ -41,7 +41,7 @@ const script = () => {
             this.bulletPathY = 240;
     
             this.reqX        = this.canvasW / 3;
-            this.excuX       = this.canvasW * ( 2 / 3 );
+            this.resX        = this.canvasW * ( 2 / 3 );
     
             this.startY      = 120;
             this.startX      = 0;
@@ -53,10 +53,10 @@ const script = () => {
                 this.area        = this.canvasW / 3; // left; mid; right 구역 당 width
                 this.tailSize    = 150;
     
-                this.reqEndX     = this.reqX - this.arcDiameter;
-                this.excuStartX  = this.reqX + this.arcDiameter;
+                this.reqEndX     = this.reqX    - this.arcDiameter;
+                this.excuStartX  = this.reqX    + this.arcDiameter;
                 this.excuEndY    = this.canvasH - this.arcDiameter;
-                this.resStartX   = this.excuX + this.arcDiameter
+                this.resStartX   = this.resX    + this.arcDiameter
             };
         };
     };
@@ -161,7 +161,7 @@ const script = () => {
             if(!this.excuDatas.length) { return; };
     
             function bounce(data) { // 일반 함수에 bind 안 사용하고 화살표 함수 사용해도 됨
-                if(data.mx >= (this.excuX - this.arcDiameter)) {
+                if(data.mx >= (this.resX - this.arcDiameter)) {
                     data.mxSpeed = -data.mxSpeed;
                 };
                 
@@ -328,11 +328,12 @@ const script = () => {
     
             g.ctx.moveTo(this.reqX     , this.startY);
             g.ctx.lineTo(this.reqX     , this.canvasH);
-            g.ctx.moveTo(this.excuX    , this.startY);
-            g.ctx.lineTo(this.excuX    , this.canvasH);
             g.ctx.moveTo(this.startX   , this.bulletPathY);
             g.ctx.lineTo(this.reqX     , this.bulletPathY);
-            g.ctx.moveTo(this.excuX    , this.bulletPathY);
+
+            g.ctx.moveTo(this.resX    , this.startY);
+            g.ctx.lineTo(this.resX    , this.canvasH);
+            g.ctx.moveTo(this.resX    , this.bulletPathY);
             g.ctx.lineTo(this.canvasW  , this.bulletPathY);
         };
     
