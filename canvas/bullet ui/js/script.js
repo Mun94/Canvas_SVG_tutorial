@@ -1,5 +1,5 @@
 const script = () => {
-    
+
     const g = {
         canvas: undefined,
         ctx   : undefined,
@@ -400,7 +400,7 @@ const script = () => {
     const background = new Background();
     
     let i = 0;
-    const init = () => {
+    const render = () => {
         i++
     
         if(i % 12 === 0) { // 1초에 5번 실행
@@ -415,10 +415,10 @@ const script = () => {
             i = 0;
         };
     
-        requestAnimationFrame(init);
+        requestAnimationFrame(render);
     };
     
-    init();
+    render();
 };
 
 script();
