@@ -1,4 +1,5 @@
 const script = () => {
+    
     const g = {
         canvas: undefined,
         ctx   : undefined,
