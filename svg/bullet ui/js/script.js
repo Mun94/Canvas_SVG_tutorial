@@ -27,11 +27,21 @@ const script = () => {
             el.setAttribute(key, value)
         };
     };
+
+    const getAttribute = (el, key) => {
+        if(!el) { return; };
+
+        if(typeof key === 'object') {
+            return key.map(k => el.getAttribute(String(k)));
+        }else {
+            return el.getAttribute(key);
+        };
+    };  
     class Position {
         constructor(aniPosition) {
             this.svgW = svgWrap.getAttribute('width');
             this.svgH = svgWrap.getAttribute('height');
-
+            
             this.bulletPathY = 240;
 
             this.reqX        = this.svgW / 3;
@@ -130,11 +140,10 @@ const script = () => {
                 g.reqWrap.appendChild(createCircleEl);
             };
 
-            const bulletPck = document.querySelectorAll('.reqWrap')
+            const bulletPck = svgWrap.querySelectorAll('.reqWrap');
 
             bulletPck[0] && [...bulletPck[0].children].forEach(el => {
-                const getCx = el.getAttribute('cx');
-                const speed = el.getAttribute('speed');
+                const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
 
                 if(Number(getCx) > this.reqEndX) {
                     this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { return {...data, 
@@ -148,7 +157,9 @@ const script = () => {
                     el.remove();
                 };
                 
-                el.setAttribute('cx', Number(getCx) + Number(speed));
+                setAttribute(el, {
+                    'cx': Number(getCx) + Number(speed) 
+                });
             });
 
             this.datas.shift();
@@ -179,12 +190,27 @@ const script = () => {
             };
 
             g.excuWrap.appendChild(createCircleEl);
-          };
+        };
 
-          this.excuDatas.shift();
+          this.excuDatas.splice(0, 4);
+        };
+
+        addSpeed() {
+            const excuPck = svgWrap.querySelectorAll('.excuWrap');
+
+            excuPck[0] && [...excuPck[0].children].forEach(el => {
+              const [ getCx, getMxSpeed, getCy, getMySpeed ] = getAttribute(el, ['cx', 'mxSpeed', 'cy', 'mySpeed']);
+  
+                setAttribute(el,{
+                    'cx': Number(getCx) + Number(getMxSpeed),
+                    'cy': Number(getCy) + Number(getMySpeed)
+                });
+            });
         };
 
         render() {
+            this.addSpeed();
+
             this.reqAni();
             this.excuAni();
         };
@@ -222,7 +248,7 @@ const script = () => {
     const render = () => {
         i++;
 
-        if(i % 60 === 0) {
+        if(i % 12 === 0) {
             animation.addDatas();
         };
         animation.render();
