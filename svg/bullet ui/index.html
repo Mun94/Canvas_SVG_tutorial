@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <style>
+            .svgWrap {
+                fill: #303437;
+            }
+
+            .reqLine, .reqBltLine, .resLine, .resBltLine {
+                stroke: #C6C9CD;
+                stroke-width: 1;
+            }
+
+            .reqWrap circle {
+                /*정상 색*/
+                fill: #4D8BD5;
+            }
+        </style>
+    </head>
+
+    <body>
+        <svg width = "1200" height = "300" class = "svgWrap"> <!--viewBox 생략-->
+            <rect x = "0"  y= "0" width = "1200" height = "300"/>
+            
+            <g class = "reqWrap">
+                <!-- <circle cx = "3" cy = "240" r = "20" fill = "blue" class="test">
+                     <animate attributeName = "cx" from = "0" to = "400" dur = "5s" repeatCount="0" class = "test"/> 
+                </circle> -->
+            </g>
+
+            <line class = "reqLine"/>
+            <line class = "reqBltLine"/> <!--bullet path-->
+            <line class = "resLine"/>
+            <line class = "resBltLine"/> <!--bullet path-->
+        </svg>
+
+        <script src = "js/script.js"></script>
+    </body>
+</html>
