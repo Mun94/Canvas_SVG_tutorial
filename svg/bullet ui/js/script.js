@@ -8,7 +8,8 @@ const script = () => {
         resBltLine: undefined, // bullet path
 
         reqWrap   : undefined,
-        excuWrap  : undefined
+        excuWrap  : undefined,
+        rewWrap   : undefined
     };
 
     const colorData = {
@@ -32,6 +33,7 @@ const script = () => {
     
     g.reqWrap     = svgWrap.querySelector('.reqWrap');
     g.excuWrap    = svgWrap.querySelector('.excuWrap');
+    g.resWrap     = svgWrap.querySelector('.resWrap');
 
     const setAttribute = (el, obj) => {
         if(!el) { return; };
@@ -150,6 +152,7 @@ const script = () => {
             super();
 
             this.excuDatas = [];
+            this.resDatas  = [];
         };
 
         reqAni() {
@@ -222,6 +225,12 @@ const script = () => {
           this.excuDatas.splice(0, 4);
         };
 
+        resAni() {
+            for(let data of this.resDatas) {
+                this.createBulletByRuntime(data, 'resArea');
+            }; 
+        };
+
         createBullet(color, data, area) {
             const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
 
@@ -230,8 +239,27 @@ const script = () => {
                     break;
                 case 'excuArea':
                     setAttribute(createCircleEl, {
-                        'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': color
+                        'cx': data.mx, 
+                        'cy': data.my, 
+                        'r': this.arcDiameter, 
+                        'mxSpeed': data.mxSpeed, 
+                        'mySpeed': data.mySpeed, 
+                        'runtime': data.runtime, 
+                        'colorByRuntime': data.colorByRuntime, 
+                        'speed': data.speed, 
+                        'fill': color
                     });
+                    break;
+                case 'resArea':
+                    setAttribute(createCircleEl, {
+                        'cx': data.rx, 
+                        'cy': data.ry, 
+                        'r':this.arcDiameter,
+                        
+                        'speed': data.speed, 
+                        'fill': color
+                    });
+                    break;
             };
 
             g.excuWrap.appendChild(createCircleEl);
@@ -240,11 +268,30 @@ const script = () => {
         excuteRuntime() {
             const excuPck = svgWrap.querySelectorAll('.excuWrap');
 
+            const runtimeEndBullets = excuPck[0] && [...excuPck[0].children].filter(el => {
+                const runtime = getAttribute(el, 'runtime');
+
+                return runtime <= 0 
+            });
+
+            const longestRuntime = runtimeEndBullets.sort((aEl,bEl) => {
+                const a = getAttribute(aEl, 'colorByRuntime'); 
+                const b = getAttribute(bEl, 'colorByRuntime');
+            
+                return b - a;
+            })[0]
+
+            if(longestRuntime) {
+                const [ colorByRuntime, runtime, speed ] = getAttribute(longestRuntime, ['colorByRuntime', 'runtime', 'speed']);
+
+                this.resDatas.push({colorByRuntime: Number(colorByRuntime), runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(speed)});
+            };
+
             excuPck[0] && [...excuPck[0].children].forEach(el => {
                 const runtime = getAttribute(el, 'runtime');
 
                 setAttribute(el, {
-                    'runtime': runtime - (0.2 / 12) // 0.001초에 0.01666667씩 차감
+                    'runtime': runtime - 0.2
                 });
 
                 if(runtime <= 0) {
@@ -286,6 +333,7 @@ const script = () => {
 
             this.reqAni();
             this.excuAni();
+            this.resAni();
         };
     };
     const animation = new Animation();
@@ -323,9 +371,8 @@ const script = () => {
 
         if(i % 12 === 0) {
             animation.addDatas();
+            animation.excuteRuntime();
         };
-
-        animation.excuteRuntime();
         animation.render();
         background.render();
 
