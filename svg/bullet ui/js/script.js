@@ -235,7 +235,23 @@ const script = () => {
             };
 
             g.excuWrap.appendChild(createCircleEl);
-        }
+        };
+
+        excuteRuntime() {
+            const excuPck = svgWrap.querySelectorAll('.excuWrap');
+
+            excuPck[0] && [...excuPck[0].children].forEach(el => {
+                const runtime = getAttribute(el, 'runtime');
+
+                setAttribute(el, {
+                    'runtime': runtime - (0.2 / 12) // 0.001초에 0.01666667씩 차감
+                });
+
+                if(runtime <= 0) {
+                    el.remove();
+                };
+            });
+        };
 
         createBulletByRuntime(data, area) {
             if(timeCondition(data).norCondition) { // 1에서 3초
@@ -308,6 +324,8 @@ const script = () => {
         if(i % 12 === 0) {
             animation.addDatas();
         };
+
+        animation.excuteRuntime();
         animation.render();
         background.render();
 
