@@ -11,6 +11,19 @@ const script = () => {
         excuWrap  : undefined
     };
 
+    const colorData = {
+        // background : '#303437', // 배경 색
+    
+        nor        : '#4D8BD5', // 정상 색
+        war        : '#B8A605', // 경고 색
+        cri        : '#B40E0A', // 심각 색
+        // gradation  : 'rgba(38, 36, 28, 0.5)',//'#26241C' // 그라데이션 색
+    
+        // basicFont  : '#C6C9CD', // 기본 폰트 색
+    
+        // basicLine  : '#C6C9CD', // 라인 색
+    };
+
     const svgWrap = document.querySelector('.svgWrap');
     g.reqLine     = svgWrap.querySelector('.reqLine');
     g.reqBltLine  = svgWrap.querySelector('.reqBltLine');
@@ -37,6 +50,16 @@ const script = () => {
             return el.getAttribute(key);
         };
     };  
+
+    class TimeCondition {
+        constructor(data) {
+            this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime <= 3;
+            this.warCondition = data.colorByRuntime > 3 && data.colorByRuntime <= 5;
+            this.criCondition = data.colorByRuntime > 5  && data.colorByRuntime <= 10;
+        };
+    };
+
+    const timeCondition = data => new TimeCondition(data);
     class Position {
         constructor(aniPosition) {
             this.svgW = svgWrap.getAttribute('width');
@@ -165,37 +188,70 @@ const script = () => {
             this.datas.shift();
         };
 
+        bounce() {
+            const excuPck = svgWrap.querySelectorAll('.excuWrap');
+
+            excuPck[0] && [...excuPck[0].children].forEach(el => {
+                  const [getCx, getMxSpeed, getCy, getMySpeed] = getAttribute(el, ['cx', 'mxSpeed', 'cy', 'mySpeed']);
+                
+                  if(getCx >= (this.resX - this.arcDiameter)) {
+                      setAttribute(el, {'mxSpeed':  -Math.abs(Number(getMxSpeed))});
+                  };
+
+                  if(getCx <= this.excuStartX) {
+                      setAttribute(el, {'mxSpeed': Math.abs(Number(getMxSpeed))});
+                  };
+
+                  if(getCy >= this.excuEndY) {
+                      setAttribute(el, {'mySpeed': -Math.abs(Number(getMySpeed))});
+                  };
+
+                  if(getCy <= (this.startY + this.arcDiameter)) {
+                      setAttribute(el, {'mySpeed': Math.abs(Number(getMySpeed))});
+                  };
+            }); 
+        }
+
         excuAni() {
           if(!this.excuDatas.length) { return; };
-          
+
           for(let data of this.excuDatas) {
-            const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
-
-            if(data.colorByRuntime >= 1 && data.colorByRuntime <= 3) {
-                setAttribute(createCircleEl, {
-                    'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': 'blue'
-                });
-            };
-
-            if(data.colorByRuntime > 3 && data.colorByRuntime <= 5) {
-                setAttribute(createCircleEl, {
-                    'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': 'yellow'
-                });
-            };
-
-            if(data.colorByRuntime > 5 && data.colorByRuntime <= 10) {
-                setAttribute(createCircleEl, {
-                    'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': 'red'
-                });
-            };
-
-            g.excuWrap.appendChild(createCircleEl);
-        };
+            this.createBulletByRuntime(data, 'excuArea');
+          };
 
           this.excuDatas.splice(0, 4);
         };
 
-        addSpeed() {
+        createBullet(color, data, area) {
+            const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
+
+            switch(area) {
+                case 'reqArea':
+                    break;
+                case 'excuArea':
+                    setAttribute(createCircleEl, {
+                        'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': color
+                    });
+            };
+
+            g.excuWrap.appendChild(createCircleEl);
+        }
+
+        createBulletByRuntime(data, area) {
+            if(timeCondition(data).norCondition) { // 1에서 3초
+                this.createBullet(colorData.nor, data,  area); // blue
+            }; 
+    
+            if(timeCondition(data).warCondition) { // 3에서 5초
+                this.createBullet(colorData.war, data, area); // yellow
+            };
+    
+            if(timeCondition(data).criCondition) { // 5에서 10초
+                this.createBullet(colorData.cri, data, area); // red
+            };
+        };
+
+        addSpeed() { // excute 영역 속도 
             const excuPck = svgWrap.querySelectorAll('.excuWrap');
 
             excuPck[0] && [...excuPck[0].children].forEach(el => {
@@ -210,6 +266,7 @@ const script = () => {
 
         render() {
             this.addSpeed();
+            this.bounce();
 
             this.reqAni();
             this.excuAni();
