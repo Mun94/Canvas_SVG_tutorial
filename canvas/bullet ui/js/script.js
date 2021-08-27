@@ -415,3 +415,5 @@ const init = () => {
 };
 
 init();
+
+console.log(this)

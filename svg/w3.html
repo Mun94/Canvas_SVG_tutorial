@@ -1,0 +1,62 @@
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+	width="100%" height="100%" 
+	onload="startup(evt)"
+>
+<script>
+<![CDATA[
+xmlns="http://www.w3.org/2000/svg"
+var Doc;
+var O;
+function startup(evt){
+	O=evt.target
+	Doc=O.ownerDocument
+	//alert(Doc.getFirstChild().getAttribute("width"))
+	//Doc.getFirstChild().setAttribute("viewBox","0 0 100 100")
+}
+Col=new Array("red","magenta","blue","cyan","green","yellow","orange")
+//]]>
+</script>
+<defs>
+    <marker id="Arrow"
+      viewBox="0 0 20 20" refX="4" refY="5" 
+      markerUnits="strokeWidth" onclick="alert()"
+      markerWidth="4" markerHeight="4" opacity="0.75"
+      orient="auto" >
+      <path d="M 0 0 L 10 5 0 10 3 5 z" fill="#8a0" id="Q"
+	  stroke="#bf2" onclick="alert()"
+	  stroke-width="1"
+	  stroke-linejoin="round">
+	  <animate attributeName="d" id="QQ"
+dur="5s" repeatCount="indefinite"
+values="M 0 0 L 10 5 0 10 3 5 0 0;
+M 10 0 L 12 5 10 10 0 5 10 0;
+M 0 0 L 10 5 0 10 3 5 0 0"/>
+	  </path>
+	  <circle cx="5" cy="5" r="1" fill="#9b1"/>
+    </marker>
+  </defs>
+
+<line x1="5" y1="10" x2="99" y2="30" stroke-width=".5" stroke="red"/>
+<line x1="5" y1="30" x2="99" y2="50" stroke-width="1" stroke="red"/>
+<line x1="5" y1="50" x2="99" y2="70" stroke-width="2.5" stroke="red"/>
+<line x1="5" y1="70" x2="99" y2="90" stroke-width="4" stroke="blue"/>
+<rect x="5" y="10" height="99" width="130" fill="white"/>
+<line x1="15" y1="15" x2="140" y2="135" stroke-width="25" stroke="blue" stroke-linecap="round"/>
+<line x1="15" y1="15" x2="140" y2="135" stroke-width="25" stroke="aqua" stroke-dasharray="8,3,2,18"/>
+<line x1="15" y1="255" x2="160" y2="60" stroke-width="25" stroke="blue" marker-end="url(#Arrow)"/>
+ <g transform="scale(2),translate(-100,0)">
+ <path d="M 200 20 L 300 70 200 120 230 70 z" 
+ fill="red" stroke="black" onclick="alert()"
+  marker-start="url(#Arrow)"  marker-mid="url(#Arrow)" 
+  stroke-width="12" stroke-linejoin="round">
+  <animateTransform attributeName="transform" type="rotate" dur="7s" from="0 230 70" to="360 230 70" repeatCount="indefinite"/>
+  </path>
+  </g>
+<rect x="5" y="10" height="20" width="50"/>
+<rect x="5" y="35" height="20" width="50" fill="red"/>
+<rect x="5" y="60" height="20" width="50" fill="red" stroke="black"/>
+<use xlink:href="#Q" transform="translate(300,200),scale(8)" />
+</svg>
+
