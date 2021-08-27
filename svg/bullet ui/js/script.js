@@ -94,22 +94,29 @@ const script = () => {
         addDatas() {
             const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1))));
 
+            const pck = [];
             for(let i = 0; i < this.dataPerReq; i++) {
                 const runtime = Math.ceil(Math.random() * 10);
 
-                this.datas.push({
+                pck.push({
                     colorByRuntime: runtime,
                     runtime,
 
                     dur           : speed,
                 });
             };
+
+            this.datas.push(pck);
         };
     };
 
     class Animation extends SetDatas {
         constructor() { 
             super();
+
+            this.excuDatas = [];
+
+            this.test = [];
         };
 
         reqAni() {
@@ -117,7 +124,7 @@ const script = () => {
                 const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
 
                 setAttribute(createCircleEl, {
-                    'cx': this.startX, 'cy': this.bulletPathY, 'r': this.arcDiameter, 'speed': data.dur
+                    'cx': this.startX, 'cy': this.bulletPathY, 'r': this.arcDiameter, 'speed': data[0].dur, 'data-runtime': JSON.stringify(data)
                 });
        
                 g.reqWrap.appendChild(createCircleEl)
@@ -125,18 +132,32 @@ const script = () => {
 
             const bulletPck = document.querySelectorAll('.reqWrap')
 
-            bulletPck[0] && [...bulletPck[0].children].forEach(ele => {
-                const getCx = ele.getAttribute('cx');
-                const speed = ele.getAttribute('speed');
+            bulletPck[0] && [...bulletPck[0].children].forEach(el => {
+                const getCx = el.getAttribute('cx');
+                const speed = el.getAttribute('speed');
 
                 if(Number(getCx) > this.reqEndX) {
-                    ele.remove();
+                    console.log(JSON.parse(el.dataset.runtime))
+                    // const pck = [];
+                    // for(let i = 0; i < data.length; i++) {
+                    //     pck.push({
+                            
+                    //     })
+                    // }
+                    
+                    // if(pck.length === this.dataPerReq) {
+                    //     this.excuDatas.push(pck)
+                    // }; // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
+
+                    el.remove();
                 };
 
-                ele.setAttribute('cx', Number(getCx) + Number(speed));
+                
+                el.setAttribute('cx', Number(getCx) + Number(speed));
             });
 
-            this.datas.splice(0, this.dataPerReq);
+            const shift = this.datas.shift();
+            shift && this.test.push(shift);
         };
 
         render() {
