@@ -7,7 +7,8 @@ const script = () => {
         resLine   : undefined,
         resBltLine: undefined, // bullet path
 
-        reqWrap   : undefined
+        reqWrap   : undefined,
+        excuWrap  : undefined
     };
 
     const svgWrap = document.querySelector('.svgWrap');
@@ -17,6 +18,7 @@ const script = () => {
     g.resBltLine  = svgWrap.querySelector('.resBltLine');
     
     g.reqWrap     = svgWrap.querySelector('.reqWrap');
+    g.excuWrap    = svgWrap.querySelector('.excuWrap');
 
     const setAttribute = (el, obj) => {
         if(!el) { return; };
@@ -43,10 +45,10 @@ const script = () => {
 
                 this.area = this.svgW / 3;
 
-                this.reqEndX     = this.reqX    - this.arcDiameter;
-                this.excuStartX  = this.reqX    + this.arcDiameter;
-                this.excuEndY    = this.canvasH - this.arcDiameter;
-                this.resStartX   = this.resX    + this.arcDiameter
+                this.reqEndX     = this.reqX - this.arcDiameter;
+                this.excuStartX  = this.reqX + this.arcDiameter;
+                this.excuEndY    = this.svgH - this.arcDiameter;
+                this.resStartX   = this.resX + this.arcDiameter
             };
         };
     };
@@ -115,8 +117,6 @@ const script = () => {
             super();
 
             this.excuDatas = [];
-
-            this.test = [];
         };
 
         reqAni() {
@@ -125,9 +125,9 @@ const script = () => {
 
                 setAttribute(createCircleEl, {
                     'cx': this.startX, 'cy': this.bulletPathY, 'r': this.arcDiameter, 'speed': data[0].dur, 'data-runtime': JSON.stringify(data)
-                });
+                }); // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
        
-                g.reqWrap.appendChild(createCircleEl)
+                g.reqWrap.appendChild(createCircleEl);
             };
 
             const bulletPck = document.querySelectorAll('.reqWrap')
@@ -137,31 +137,56 @@ const script = () => {
                 const speed = el.getAttribute('speed');
 
                 if(Number(getCx) > this.reqEndX) {
-                    console.log(JSON.parse(el.dataset.runtime))
-                    // const pck = [];
-                    // for(let i = 0; i < data.length; i++) {
-                    //     pck.push({
-                            
-                    //     })
-                    // }
-                    
-                    // if(pck.length === this.dataPerReq) {
-                    //     this.excuDatas.push(pck)
-                    // }; // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
+                    this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { return {...data, 
+                        mx: this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
+                        my: this.startY + (Math.random() * (this.excuEndY - this.startY)),
+                        mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                        mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1)
+                    }})); // excuDatas 배열로 이동
+                    // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
 
                     el.remove();
                 };
-
                 
                 el.setAttribute('cx', Number(getCx) + Number(speed));
             });
 
-            const shift = this.datas.shift();
-            shift && this.test.push(shift);
+            this.datas.shift();
+        };
+
+        excuAni() {
+          if(!this.excuDatas.length) { return; };
+          
+          for(let data of this.excuDatas) {
+            const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
+
+            if(data.colorByRuntime >= 1 && data.colorByRuntime <= 3) {
+                setAttribute(createCircleEl, {
+                    'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': 'blue'
+                });
+            };
+
+            if(data.colorByRuntime > 3 && data.colorByRuntime <= 5) {
+                setAttribute(createCircleEl, {
+                    'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': 'yellow'
+                });
+            };
+
+            if(data.colorByRuntime > 5 && data.colorByRuntime <= 10) {
+                setAttribute(createCircleEl, {
+                    'cx': data.mx, 'cy': data.my, 'r': this.arcDiameter, 'mxSpeed': data.mxSpeed, 'mySpeed': data.mySpeed, 'runtime': data.runtime, 'fill': 'red'
+                });
+            };
+
+            g.excuWrap.appendChild(createCircleEl);
+          };
+
+          this.excuDatas.shift();
         };
 
         render() {
             this.reqAni();
+            this.excuAni();
         };
     };
     const animation = new Animation();
@@ -197,7 +222,7 @@ const script = () => {
     const render = () => {
         i++;
 
-        if(i % 12 === 0) {
+        if(i % 60 === 0) {
             animation.addDatas();
         };
         animation.render();

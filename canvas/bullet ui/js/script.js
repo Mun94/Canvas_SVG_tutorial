@@ -179,7 +179,7 @@ const script = () => {
             }
         
             for(let data of this.excuDatas) {
-                this.createBulletBuRuntime(data, 'excuArea', bounce.bind(this));
+                this.createBulletByRuntime(data, 'excuArea', bounce.bind(this));
             };
         };
     
@@ -187,7 +187,7 @@ const script = () => {
             g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
     
             for(let data of this.resDatas) {
-                this.createBulletBuRuntime(data, 'resArea');
+                this.createBulletByRuntime(data, 'resArea');
             };
     
             this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW);
@@ -252,7 +252,7 @@ const script = () => {
             };
         };
     
-        createBulletBuRuntime(data, area, bounceFn) {
+        createBulletByRuntime(data, area, bounceFn) {
             if(timeCondition(data).norCondition) { // 1에서 3초
                 this.createBullet(colorData.nor, data,  area); // blue
     
