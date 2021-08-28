@@ -9,7 +9,7 @@ const script = () => {
 
         reqWrap   : undefined,
         excuWrap  : undefined,
-        rewWrap   : undefined
+        resWrap   : undefined
     };
 
     const colorData = {
@@ -176,7 +176,9 @@ const script = () => {
                         mx: this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
                         my: this.startY + (Math.random() * (this.excuEndY - this.startY)),
                         mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
-                        mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1)
+                        mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+
+                        speed
                     }})); // excuDatas 배열로 이동
                     // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
 
@@ -229,6 +231,22 @@ const script = () => {
             for(let data of this.resDatas) {
                 this.createBulletByRuntime(data, 'resArea');
             }; 
+
+            const resPck = svgWrap.querySelectorAll('.resWrap');
+
+            resPck[0] && [...resPck[0].children].forEach(el => {
+                const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
+
+                if(Number(getCx) > this.svgW) {
+                    el.remove();
+                };
+
+                setAttribute(el, {
+                    'cx': Number(getCx) + Number(speed)
+                });
+            });
+
+            this.resDatas.shift();
         };
 
         createBullet(color, data, area) {
@@ -249,6 +267,7 @@ const script = () => {
                         'speed': data.speed, 
                         'fill': color
                     });
+                    g.excuWrap.appendChild(createCircleEl);
                     break;
                 case 'resArea':
                     setAttribute(createCircleEl, {
@@ -259,10 +278,9 @@ const script = () => {
                         'speed': data.speed, 
                         'fill': color
                     });
+                    g.resWrap.appendChild(createCircleEl);
                     break;
             };
-
-            g.excuWrap.appendChild(createCircleEl);
         };
 
         excuteRuntime() {
@@ -284,14 +302,14 @@ const script = () => {
             if(longestRuntime) {
                 const [ colorByRuntime, runtime, speed ] = getAttribute(longestRuntime, ['colorByRuntime', 'runtime', 'speed']);
 
-                this.resDatas.push({colorByRuntime: Number(colorByRuntime), runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(speed)});
+                this.resDatas.push({colorByRuntime: Number(colorByRuntime), runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(Number(speed))});
             };
 
             excuPck[0] && [...excuPck[0].children].forEach(el => {
                 const runtime = getAttribute(el, 'runtime');
 
                 setAttribute(el, {
-                    'runtime': runtime - 0.2
+                    'runtime': Number(runtime) - 0.2
                 });
 
                 if(runtime <= 0) {

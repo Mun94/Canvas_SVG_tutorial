@@ -160,7 +160,7 @@ const script = () => {
         excuAni() {
             if(!this.excuDatas.length) { return; };
     
-            function bounce(data) { // 일반 함수에 bind 안 사용하고 화살표 함수 사용해도 됨
+            const bounce = data => { // 화살표 함수 대신 일반함수에 bind메서드 사용해도 됨
                 if(data.mx >= (this.resX - this.arcDiameter)) {
                     data.mxSpeed = -data.mxSpeed;
                 };
@@ -179,7 +179,7 @@ const script = () => {
             }
         
             for(let data of this.excuDatas) {
-                this.createBulletByRuntime(data, 'excuArea', bounce.bind(this));
+                this.createBulletByRuntime(data, 'excuArea', bounce);
             };
         };
     
