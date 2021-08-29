@@ -10,6 +10,8 @@ const script = () => {
         reqWrap   : undefined,
         excuWrap  : undefined,
         resWrap   : undefined
+
+
     };
 
     const colorData = {
@@ -380,14 +382,19 @@ const script = () => {
 
     const render = () => {
         i++;
+
         const nowPerformance = performance.now();
         if(beforePerformance !== nowPerformance) {
             const culPerformance = nowPerformance - beforePerformance;
 
-            console.log('TEST', culPerformance);
-            if(culPerformance <= 34 && culPerformance >= 29) {
+            if(culPerformance >= 25) {
                 excutePerSec = 20;
                 runCycle = 4;
+            };
+
+            if(culPerformance <= 24) {
+                excutePerSec = 60;
+                runCycle = 12;
             };
 
             beforePerformance = nowPerformance;
@@ -404,8 +411,7 @@ const script = () => {
             i = 0;
         };
 
-        // console.log(requestAnimationFrame(render))
-        requestAnimationFrame(render)
+        requestAnimationFrame(render);
     };
 
     render();
