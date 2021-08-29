@@ -6,21 +6,27 @@ const script = () => {
     const resBltLine  = svgWrap.querySelector('.resBltLine'); // bullet path
     
     const reqWrap     = svgWrap.querySelector('.reqWrap');
-    const excuWrap    = svgWrap.querySelector('.excuWrap');
-    const resWrap     = svgWrap.querySelector('.resWrap');
+
+    const excuNorWrap = svgWrap.querySelector('.excuNorWrap');
+    const excuWarWrap = svgWrap.querySelector('.excuWarWrap');
+    const excuCriWrap = svgWrap.querySelector('.excuCriWrap');
+
+    const resNorWrap = svgWrap.querySelector('.resNorWrap');
+    const resWarWrap = svgWrap.querySelector('.resWarWrap');
+    const resCriWrap = svgWrap.querySelector('.resCriWrap');
 
     const totalTextWrap = svgWrap.querySelector('.totalTextWrap');
-    const totalCount = svgWrap.querySelector('.totalCount');
-    const reqTextWrap = svgWrap.querySelector('.reqTextWrap');
-    const reqCount = svgWrap.querySelector('.reqCount');
-    const norTextWrap = svgWrap.querySelector('.norTextWrap');
-    const norCount = svgWrap.querySelector('.norCount');
-    const warTextWrap = svgWrap.querySelector('.warTextWrap');
-    const warCount = svgWrap.querySelector('.warCount');
-    const criTextWrap = svgWrap.querySelector('.criTextWrap');
-    const criCount = svgWrap.querySelector('.criCount');
-    const resTextWrap = svgWrap.querySelector('.resTextWrap');
-    const resCount = svgWrap.querySelector('.resCount');
+    const totalCount    = svgWrap.querySelector('.totalCount');
+    const reqTextWrap   = svgWrap.querySelector('.reqTextWrap');
+    const reqCount      = svgWrap.querySelector('.reqCount');
+    const norTextWrap   = svgWrap.querySelector('.norTextWrap');
+    const norCount      = svgWrap.querySelector('.norCount');
+    const warTextWrap   = svgWrap.querySelector('.warTextWrap');
+    const warCount      = svgWrap.querySelector('.warCount');
+    const criTextWrap   = svgWrap.querySelector('.criTextWrap');
+    const criCount      = svgWrap.querySelector('.criCount');
+    const resTextWrap   = svgWrap.querySelector('.resTextWrap');
+    const resCount      = svgWrap.querySelector('.resCount');
    
     const g = {
         dataCount : 0,
@@ -194,12 +200,16 @@ const script = () => {
             this.datas.shift();
         };
 
-        excuAni() { 
-          const excuPck = svgWrap.querySelectorAll('.excuWrap');
+        excuAni() {
+          const norPck = svgWrap.querySelectorAll('.excuNorWrap');
+          const warPck = svgWrap.querySelectorAll('.excuWarWrap');
+          const criPck = svgWrap.querySelectorAll('.excuCriWrap');
 
-          g.dataCount = [...excuPck[0].children].map(el => { return {'colorByRuntime': Number(el.getAttribute('colorByRuntime'))}});
+          const excuPck = [...norPck[0].children, ...warPck[0].children, ...criPck[0].children];
+    
+          g.dataCount = excuPck.map(el => { return {'colorByRuntime': Number(el.getAttribute('colorByRuntime'))}});
           
-          excuPck[0] && [...excuPck[0].children].forEach(el => {
+          excuPck[0] && excuPck.forEach(el => {
                 const [getCx, getExSpeed, getCy, getEySpeed] = getAttribute(el, ['cx', 'exSpeed', 'cy', 'eySpeed']);
               
                 if(getCx >= (this.resX - this.arcDiameter)) {
@@ -238,11 +248,15 @@ const script = () => {
                 this.createBulletByRuntime(data, 'resArea');
             }; 
 
-            const resPck = svgWrap.querySelectorAll('.resWrap');
+            const norPck = svgWrap.querySelectorAll('.resNorWrap');
+            const warPck = svgWrap.querySelectorAll('.resWarWrap');
+            const criPck = svgWrap.querySelectorAll('.resCriWrap');
 
-            g.resCount = [...resPck[0].children].reduce((cur, val) => cur + Number(val.getAttribute('resBulletCount')), 0);
+            const resPck = [...norPck[0].children, ...warPck[0].children, ...criPck[0].children];
 
-            resPck[0] && [...resPck[0].children].forEach(el => {
+            g.resCount = resPck.reduce((cur, val) => cur + Number(val.getAttribute('resBulletCount')), 0);
+
+            resPck[0] && resPck.forEach(el => {
                 const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
 
                 if(Number(getCx) > this.svgW) {
@@ -258,7 +272,7 @@ const script = () => {
         };
 
         createBullet(color, data, area) {
-            const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 
             switch(area) {
                 case 'reqArea':
@@ -282,9 +296,20 @@ const script = () => {
                         'runtime': data.runtime, 
                         'colorByRuntime': data.colorByRuntime, 
                         'speed': data.speed, 
-                        'fill': color
+                    
                     });
-                    excuWrap.appendChild(createCircleEl);
+
+                    if(timeCondition(data).norCondition) {
+                        excuNorWrap.appendChild(createCircleEl);
+                    };
+
+                    if(timeCondition(data).warCondition) {
+                         excuWarWrap.appendChild(createCircleEl);
+                    };
+
+                    if(timeCondition(data).criCondition) {
+                        excuCriWrap.appendChild(createCircleEl);
+                    };
                     break;
                 case 'resArea':
                     setAttribute(createCircleEl, {
@@ -293,26 +318,40 @@ const script = () => {
                         'r':this.arcDiameter,
                         
                         'speed': data.speed, 
-                        'fill': color,
-
+                        
                         'resBulletCount': data.resBulletCount
                     });
-                    resWrap.appendChild(createCircleEl);
+                    
+                    if(timeCondition(data).norCondition) {
+                        resNorWrap.appendChild(createCircleEl);
+                    };
+
+                    if(timeCondition(data).warCondition) {
+                        resWarWrap.appendChild(createCircleEl);
+                    };
+
+                    if(timeCondition(data).criCondition) {
+                        resCriWrap.appendChild(createCircleEl);
+                    };
                     break;
             };
         };
 
         excuteRuntime() {
-            const excuPck = svgWrap.querySelectorAll('.excuWrap');
+            const norPck = svgWrap.querySelectorAll('.excuNorWrap');
+            const warPck = svgWrap.querySelectorAll('.excuWarWrap');
+            const criPck = svgWrap.querySelectorAll('.excuCriWrap');
 
-            const runtimeEndBullets = excuPck[0] && [...excuPck[0].children].filter(el => {
+            const excuPck = [...norPck[0].children, ...warPck[0].children, ...criPck[0].children];
+
+            const runtimeEndBullets = excuPck[0] && excuPck.filter(el => {
                 const runtime = getAttribute(el, 'runtime');
 
                 return runtime <= 0 
-            });
-            const resBulletCount = runtimeEndBullets.length;
+            }); 
+            const resBulletCount = (runtimeEndBullets || []).length;
 
-            const longestRuntime = runtimeEndBullets.sort((aEl,bEl) => {
+            const longestRuntime = (runtimeEndBullets || []).sort((aEl,bEl) => {
                 const a = getAttribute(aEl, 'colorByRuntime'); 
                 const b = getAttribute(bEl, 'colorByRuntime');
             
@@ -333,7 +372,7 @@ const script = () => {
                 });
             };
 
-            excuPck[0] && [...excuPck[0].children].forEach(el => {
+            excuPck[0] && excuPck.forEach(el => {
                 const runtime = getAttribute(el, 'runtime');
 
                 setAttribute(el, {
@@ -379,10 +418,6 @@ const script = () => {
             this.reqCount();
             this.excuCount();
             this.resCount();
-            // console.log(this.reqCount());
-            // console.log(this.count());
-            // console.log('req', g.reqCount);
-            // console.log('res', g.resCount);
         };
 
         line() { 
