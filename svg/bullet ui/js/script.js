@@ -374,24 +374,41 @@ const script = () => {
     const background = new Background();
 
     let i = 0;
+    let beforePerformance = 0;
+    let excutePerSec = 0;
+    let runCycle = 0;
+
     const render = () => {
         i++;
+        const nowPerformance = performance.now();
+        if(beforePerformance !== nowPerformance) {
+            const culPerformance = nowPerformance - beforePerformance;
 
-        if(i % 12 === 0) {
+            console.log('TEST', culPerformance);
+            if(culPerformance <= 34 && culPerformance >= 29) {
+                excutePerSec = 20;
+                runCycle = 4;
+            };
+
+            beforePerformance = nowPerformance;
+        };
+     
+        if(i % runCycle === 0) { // 0.2초마다 실행
             animation.addDatas();
             animation.excuteRuntime();
         };
         animation.render();
         background.render();
 
-        if(i === 60) {
+        if(i === excutePerSec) {
             i = 0;
         };
 
+        // console.log(requestAnimationFrame(render))
         requestAnimationFrame(render)
     };
 
     render();
-}
+};
 
 script();
