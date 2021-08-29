@@ -424,13 +424,14 @@ const script = () => {
 
             beforePerformance = nowPerformance;
         };
-     
-        if(i % runCycle === 0) { // 0.2초마다 실행
+
+        if(i % runCycle === 0) { // 1초에 5번 실행
             animation.addDatas();
             animation.excuteRuntime();
         };
-        animation.render();
+    
         background.render();
+        animation.render();
 
         if(i === excutePerSec) {
             i = 0;
