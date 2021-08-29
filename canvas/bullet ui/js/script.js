@@ -400,22 +400,42 @@ const script = () => {
     };
     const background = new Background();
     
-    let i = 0;
-    const render = () => {
-        i++
+     let i = 0;
+    let beforePerformance = 0;
+    let excutePerSec = 0;
+    let runCycle = 0;
 
-        if(i % 12 === 0) { // 1초에 5번 실행
+    const render = () => {
+        i++;
+
+        const nowPerformance = performance.now();
+        if(beforePerformance !== nowPerformance) {
+            const culPerformance = nowPerformance - beforePerformance;
+
+            if(culPerformance >= 25) {
+                excutePerSec = 20;
+                runCycle = 4;
+            };
+
+            if(culPerformance <= 24) {
+                excutePerSec = 60;
+                runCycle = 12;
+            };
+
+            beforePerformance = nowPerformance;
+        };
+     
+        if(i % runCycle === 0) { // 0.2초마다 실행
             animation.addDatas();
             animation.excuteRuntime();
         };
-    
-        background.render();
         animation.render();
-    
-        if(i === 60) {
+        background.render();
+
+        if(i === excutePerSec) {
             i = 0;
         };
-    
+
         requestAnimationFrame(render);
     };
     
