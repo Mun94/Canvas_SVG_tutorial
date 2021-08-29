@@ -110,6 +110,7 @@ const script = () => {
     
             for(let i = 0; i < this.dataPerReq; i++) {
                 const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
+             
                 this.datas.push({
                     colorByRuntime: runtime,
                     runtime,
@@ -286,7 +287,14 @@ const script = () => {
             if(longestRuntime) {
                 const {colorByRuntime, runtime, speed} = longestRuntime;
     
-                this.resDatas.push({colorByRuntime, runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(speed), resBulletCount});
+                this.resDatas.push({
+                    colorByRuntime, 
+                    runtime, 
+                    rx: this.resStartX, 
+                    ry: this.bulletPathY, 
+                    speed: Math.abs(speed),
+                    resBulletCount
+                });
             };
              
             this.excuDatas = this.excuDatas.filter(data => data.runtime > 0);

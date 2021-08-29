@@ -9,9 +9,11 @@ const script = () => {
 
         reqWrap   : undefined,
         excuWrap  : undefined,
-        resWrap   : undefined
+        resWrap   : undefined,
 
-
+        dataCount : 0,
+        reqCount  : 0,
+        resCount  : 0
     };
 
     const colorData = {
@@ -141,7 +143,7 @@ const script = () => {
                     colorByRuntime: runtime,
                     runtime,
 
-                    dur           : speed,
+                    speed,
                 });
             };
 
@@ -164,6 +166,8 @@ const script = () => {
 
             const bulletPck = svgWrap.querySelectorAll('.reqWrap');
 
+            g.reqCount = bulletPck[0].children.length * this.dataPerReq;
+            
             bulletPck[0] && [...bulletPck[0].children].forEach(el => {
                 const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
 
@@ -177,7 +181,6 @@ const script = () => {
                         speed
                     }})); // excuDatas 배열로 이동
                     // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
-
                     el.remove();
                 };
                 
@@ -192,6 +195,8 @@ const script = () => {
         excuAni() { 
           const excuPck = svgWrap.querySelectorAll('.excuWrap');
 
+          g.dataCount = [...excuPck[0].children].map(el => { return {'colorByRuntime': Number(el.getAttribute('colorByRuntime'))}});
+          
           excuPck[0] && [...excuPck[0].children].forEach(el => {
                 const [getCx, getExSpeed, getCy, getEySpeed] = getAttribute(el, ['cx', 'exSpeed', 'cy', 'eySpeed']);
               
@@ -233,6 +238,8 @@ const script = () => {
 
             const resPck = svgWrap.querySelectorAll('.resWrap');
 
+            g.resCount = [...resPck[0].children].reduce((cur, val) => cur + Number(val.getAttribute('resBulletCount')), 0);
+
             resPck[0] && [...resPck[0].children].forEach(el => {
                 const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
 
@@ -257,7 +264,7 @@ const script = () => {
                         'cx': this.startX, 
                         'cy': this.bulletPathY, 
                         'r' : this.arcDiameter, 
-                        'speed': data[0].dur, 
+                        'speed': data[0].speed, 
                         'data-runtime': JSON.stringify(data)
                     });
                      // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
@@ -284,7 +291,9 @@ const script = () => {
                         'r':this.arcDiameter,
                         
                         'speed': data.speed, 
-                        'fill': color
+                        'fill': color,
+
+                        'resBulletCount': data.resBulletCount
                     });
                     g.resWrap.appendChild(createCircleEl);
                     break;
@@ -299,18 +308,27 @@ const script = () => {
 
                 return runtime <= 0 
             });
+            const resBulletCount = runtimeEndBullets.length;
 
             const longestRuntime = runtimeEndBullets.sort((aEl,bEl) => {
                 const a = getAttribute(aEl, 'colorByRuntime'); 
                 const b = getAttribute(bEl, 'colorByRuntime');
             
                 return b - a;
-            })[0]
+            })[0];
 
             if(longestRuntime) {
                 const [ colorByRuntime, runtime, speed ] = getAttribute(longestRuntime, ['colorByRuntime', 'runtime', 'speed']);
 
-                this.resDatas.push({colorByRuntime: Number(colorByRuntime), runtime, rx: this.resStartX, ry: this.bulletPathY, speed: Math.abs(Number(speed))});
+                this.resDatas.push({
+                    colorByRuntime: Number(colorByRuntime), 
+                    runtime, 
+                    rx: this.resStartX, 
+                    ry: this.bulletPathY, 
+                    speed: Math.abs(Number(speed)),
+
+                    resBulletCount
+                });
             };
 
             excuPck[0] && [...excuPck[0].children].forEach(el => {
@@ -353,6 +371,14 @@ const script = () => {
             super(needAniPosition);
         };
 
+        render() {
+            this.line();
+            console.log(this.reqCount());
+            console.log(this.count());
+            console.log('req', g.reqCount);
+            console.log('res', g.resCount);
+        };
+
         line() { 
             setAttribute(g.reqLine, 
                 {'x1': this.startX, 'y1': this.bulletPathY, 
@@ -369,8 +395,30 @@ const script = () => {
                  'x2': this.svgW  , 'y2': this.bulletPathY})
         };
 
-        render() {
-            this.line();
+        reqCount() {
+            const totalCount = this.count().nor + this.count().war + this.count().cri;
+
+            return totalCount
+        };
+
+        resCount() {
+
+        };
+
+        count() {
+            const nor = (g.dataCount || []).filter(data => 
+                    timeCondition(data).norCondition
+                ).length;
+    
+            const war = (g.dataCount || []).filter(data => 
+                    timeCondition(data).warCondition
+                ).length;
+            
+            const cri = (g.dataCount || []).filter(data => 
+                    timeCondition(data).criCondition
+                ).length;
+            
+            return { nor, war, cri };
         };
     };
     const background = new Background();
