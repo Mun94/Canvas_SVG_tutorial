@@ -90,7 +90,7 @@ const script = () => {
     
             // res 글자 위치
             this.resCountX     = this.canvasW * ( 3 / 4);
-            this.redFontY      = 170;
+            this.resFontY      = 170;
         };
     };
     class SetDatas extends Position{
@@ -386,8 +386,8 @@ const script = () => {
             g.ctx.font = '25px Arial';
     
             g.ctx.fillStyle = colorData.basicFont;
-            g.ctx.fillText('응답/초', this.resCountX, this.redFontY);
-            g.ctx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.redFontY);
+            g.ctx.fillText('응답/초', this.resCountX, this.resFontY);
+            g.ctx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
         };
     
         count() {

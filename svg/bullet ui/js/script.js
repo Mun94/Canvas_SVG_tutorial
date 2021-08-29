@@ -1,16 +1,28 @@
 const script = () => {
+    const svgWrap     = document.querySelector('.svgWrap');
+    const reqLine     = svgWrap.querySelector('.reqLine');
+    const reqBltLine  = svgWrap.querySelector('.reqBltLine'); // bullet path
+    const resLine     = svgWrap.querySelector('.resLine');
+    const resBltLine  = svgWrap.querySelector('.resBltLine'); // bullet path
+    
+    const reqWrap     = svgWrap.querySelector('.reqWrap');
+    const excuWrap    = svgWrap.querySelector('.excuWrap');
+    const resWrap     = svgWrap.querySelector('.resWrap');
+
+    const totalTextWrap = svgWrap.querySelector('.totalTextWrap');
+    const totalCount = svgWrap.querySelector('.totalCount');
+    const reqTextWrap = svgWrap.querySelector('.reqTextWrap');
+    const reqCount = svgWrap.querySelector('.reqCount');
+    const norTextWrap = svgWrap.querySelector('.norTextWrap');
+    const norCount = svgWrap.querySelector('.norCount');
+    const warTextWrap = svgWrap.querySelector('.warTextWrap');
+    const warCount = svgWrap.querySelector('.warCount');
+    const criTextWrap = svgWrap.querySelector('.criTextWrap');
+    const criCount = svgWrap.querySelector('.criCount');
+    const resTextWrap = svgWrap.querySelector('.resTextWrap');
+    const resCount = svgWrap.querySelector('.resCount');
+   
     const g = {
-        // svgWrap   : undefined,
-
-        reqLine   : undefined,
-        reqBltLine: undefined, // bullet path
-        resLine   : undefined,
-        resBltLine: undefined, // bullet path
-
-        reqWrap   : undefined,
-        excuWrap  : undefined,
-        resWrap   : undefined,
-
         dataCount : 0,
         reqCount  : 0,
         resCount  : 0
@@ -28,16 +40,6 @@ const script = () => {
     
         // basicLine  : '#C6C9CD', // 라인 색
     };
-
-    const svgWrap = document.querySelector('.svgWrap');
-    g.reqLine     = svgWrap.querySelector('.reqLine');
-    g.reqBltLine  = svgWrap.querySelector('.reqBltLine');
-    g.resLine     = svgWrap.querySelector('.resLine');
-    g.resBltLine  = svgWrap.querySelector('.resBltLine');
-    
-    g.reqWrap     = svgWrap.querySelector('.reqWrap');
-    g.excuWrap    = svgWrap.querySelector('.excuWrap');
-    g.resWrap     = svgWrap.querySelector('.resWrap');
 
     const setAttribute = (el, obj) => {
         if(!el) { return; };
@@ -116,7 +118,7 @@ const script = () => {
     
             // res 글자 위치
             this.resCountX     = this.svgW * (3 / 4);
-            this.redFontY      = 170;
+            this.resFontY      = 170;
         }
     }
 
@@ -268,7 +270,7 @@ const script = () => {
                         'data-runtime': JSON.stringify(data)
                     });
                      // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
-                    g.reqWrap.appendChild(createCircleEl);
+                    reqWrap.appendChild(createCircleEl);
                     break;
                 case 'excuArea':
                     setAttribute(createCircleEl, {
@@ -282,7 +284,7 @@ const script = () => {
                         'speed': data.speed, 
                         'fill': color
                     });
-                    g.excuWrap.appendChild(createCircleEl);
+                    excuWrap.appendChild(createCircleEl);
                     break;
                 case 'resArea':
                     setAttribute(createCircleEl, {
@@ -295,7 +297,7 @@ const script = () => {
 
                         'resBulletCount': data.resBulletCount
                     });
-                    g.resWrap.appendChild(createCircleEl);
+                    resWrap.appendChild(createCircleEl);
                     break;
             };
         };
@@ -373,36 +375,65 @@ const script = () => {
 
         render() {
             this.line();
-            console.log(this.reqCount());
-            console.log(this.count());
-            console.log('req', g.reqCount);
-            console.log('res', g.resCount);
+
+            this.reqCount();
+            this.excuCount();
+            this.resCount();
+            // console.log(this.reqCount());
+            // console.log(this.count());
+            // console.log('req', g.reqCount);
+            // console.log('res', g.resCount);
         };
 
         line() { 
-            setAttribute(g.reqLine, 
+            setAttribute(reqLine, 
                 {'x1': this.startX, 'y1': this.bulletPathY, 
                  'x2': this.reqX  , 'y2': this.bulletPathY});
-            setAttribute(g.reqBltLine, 
+            setAttribute(reqBltLine, 
                 {'x1': this.reqX  , 'y1': this.startY, 
                  'x2': this.reqX  , 'y2': this.svgH});
             
-            setAttribute(g.resLine, 
+            setAttribute(resLine, 
                 {'x1': this.resX  , 'y1': this.startY, 
                  'x2': this.resX  , 'y2': this.svgH});
-            setAttribute(g.resBltLine,
+            setAttribute(resBltLine,
                 {'x1': this.resX  , 'y1':this.bulletPathY, 
                  'x2': this.svgW  , 'y2': this.bulletPathY})
         };
 
         reqCount() {
-            const totalCount = this.count().nor + this.count().war + this.count().cri;
+            setAttribute(totalTextWrap , {
+                'x': this.totalCountX, 'y': this.totalFontY
+            });
+            totalCount.innerHTML = this.count().nor + this.count().war + this.count().cri;
 
-            return totalCount
+            setAttribute(reqTextWrap, {
+                'x': this.reqCountX, 'y': this.reqFontY
+            });
+            reqCount.innerHTML = g.reqCount;
+        };
+
+        excuCount() {
+            setAttribute(norTextWrap, {
+                'x': this.norCountX, 'y': this.excuFontY
+            });
+            setAttribute(warTextWrap, {
+                'x': this.warCountX, 'y': this.excuFontY
+            });
+            setAttribute(criTextWrap, {
+                'x': this.criCountX, 'y': this.excuFontY
+            });
+
+            norCount.innerHTML = this.count().nor;
+            warCount.innerHTML = this.count().war;
+            criCount.innerHTML = this.count().cri;
         };
 
         resCount() {
-
+            setAttribute(resTextWrap, {
+                'x': this.resCountX, 'y': this.resFontY
+            });
+            resCount.innerHTML = g.resCount;
         };
 
         count() {

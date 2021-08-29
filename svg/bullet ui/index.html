@@ -10,9 +10,29 @@
                 stroke-width: 1;
             }
 
-            .reqWrap circle {
+            .reqWrap circle, .norCount {
                 /*정상 색*/
                 fill: #4D8BD5;
+            }
+
+            .count {
+                fill: #C6C9CD;
+            }
+
+            .totalTextWrap {
+                font-size: 35px;
+            }
+
+            .reqTextWrap, .resTextWrap {
+                font-size: 25px;
+            }
+
+            .warCount {
+                fill: #B8A605
+            }
+
+            .criCount {
+                fill: #B40E0A
             }
         </style>
     </head>
@@ -34,6 +54,17 @@
             <line class = "reqBltLine"/> <!--bullet path-->
             <line class = "resLine"/>
             <line class = "resBltLine"/> <!--bullet path-->
+
+            <g class = "count">
+                <text class = "totalTextWrap"><tspan class = "totalCount"></tspan>현재 전체 건수</text>
+                <text class = "reqTextWrap"><tspan class = "reqCount"></tspan>요청/초</text>
+
+                <text class = "norTextWrap"><tspan class = "norCount"></tspan>정상</text>
+                <text class = "warTextWrap"><tspan class = "warCount"></tspan>경고</text>
+                <text class = "criTextWrap"><tspan class = "criCount"></tspan>심각</text>
+
+                <text class = "resTextWrap"><tspan class = "resCount"></tspan>응답/초</text>
+            </g>
         </svg>
 
         <script src = "js/script.js"></script>
