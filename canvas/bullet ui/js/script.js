@@ -403,7 +403,7 @@ const script = () => {
     let i = 0;
     const render = () => {
         i++
-    
+
         if(i % 12 === 0) { // 1초에 5번 실행
             animation.addDatas();
             animation.excuteRuntime();

@@ -157,13 +157,7 @@ const script = () => {
 
         reqAni() {
             for(let data of this.datas) { 
-                const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
-
-                setAttribute(createCircleEl, {
-                    'cx': this.startX, 'cy': this.bulletPathY, 'r': this.arcDiameter, 'speed': data[0].dur, 'data-runtime': JSON.stringify(data)
-                }); // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
-       
-                g.reqWrap.appendChild(createCircleEl);
+                this.createBullet(colorData.nor, data, 'reqArea');
             };
 
             const bulletPck = svgWrap.querySelectorAll('.reqWrap');
@@ -173,10 +167,10 @@ const script = () => {
 
                 if(Number(getCx) > this.reqEndX) {
                     this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { return {...data, 
-                        mx: this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
-                        my: this.startY + (Math.random() * (this.excuEndY - this.startY)),
-                        mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
-                        mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                        ex: this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
+                        ey: this.startY + (Math.random() * (this.excuEndY - this.startY)),
+                        exSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                        eySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
 
                         speed
                     }})); // excuDatas 배열로 이동
@@ -193,31 +187,34 @@ const script = () => {
             this.datas.shift();
         };
 
-        bounce() {
-            const excuPck = svgWrap.querySelectorAll('.excuWrap');
+        excuAni() { 
+          const excuPck = svgWrap.querySelectorAll('.excuWrap');
 
-            excuPck[0] && [...excuPck[0].children].forEach(el => {
-                  const [getCx, getMxSpeed, getCy, getMySpeed] = getAttribute(el, ['cx', 'mxSpeed', 'cy', 'mySpeed']);
-                
-                  if(getCx >= (this.resX - this.arcDiameter)) {
-                      setAttribute(el, {'mxSpeed':  -Math.abs(Number(getMxSpeed))});
-                  };
+          excuPck[0] && [...excuPck[0].children].forEach(el => {
+                const [getCx, getExSpeed, getCy, getEySpeed] = getAttribute(el, ['cx', 'exSpeed', 'cy', 'eySpeed']);
+              
+                if(getCx >= (this.resX - this.arcDiameter)) {
+                    setAttribute(el, {'exSpeed':  -Math.abs(Number(getExSpeed))});
+                };
 
-                  if(getCx <= this.excuStartX) {
-                      setAttribute(el, {'mxSpeed': Math.abs(Number(getMxSpeed))});
-                  };
+                if(getCx <= this.excuStartX) {
+                    setAttribute(el, {'exSpeed': Math.abs(Number(getExSpeed))});
+                };
 
-                  if(getCy >= this.excuEndY) {
-                      setAttribute(el, {'mySpeed': -Math.abs(Number(getMySpeed))});
-                  };
+                if(getCy >= this.excuEndY) {
+                    setAttribute(el, {'eySpeed': -Math.abs(Number(getEySpeed))});
+                };
 
-                  if(getCy <= (this.startY + this.arcDiameter)) {
-                      setAttribute(el, {'mySpeed': Math.abs(Number(getMySpeed))});
-                  };
-            }); 
-        }
+                if(getCy <= (this.startY + this.arcDiameter)) {
+                    setAttribute(el, {'eySpeed': Math.abs(Number(getEySpeed))});
+                };
 
-        excuAni() {
+                setAttribute(el,{
+                    'cx': Number(getCx) + Number(getExSpeed),
+                    'cy': Number(getCy) + Number(getEySpeed)
+                });
+          });
+
           if(!this.excuDatas.length) { return; };
 
           for(let data of this.excuDatas) {
@@ -254,14 +251,23 @@ const script = () => {
 
             switch(area) {
                 case 'reqArea':
+                    setAttribute(createCircleEl, {
+                        'cx': this.startX, 
+                        'cy': this.bulletPathY, 
+                        'r' : this.arcDiameter, 
+                        'speed': data[0].dur, 
+                        'data-runtime': JSON.stringify(data)
+                    });
+                     // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
+                    g.reqWrap.appendChild(createCircleEl);
                     break;
                 case 'excuArea':
                     setAttribute(createCircleEl, {
-                        'cx': data.mx, 
-                        'cy': data.my, 
-                        'r': this.arcDiameter, 
-                        'mxSpeed': data.mxSpeed, 
-                        'mySpeed': data.mySpeed, 
+                        'cx': data.ex, 
+                        'cy': data.ey, 
+                        'r' : this.arcDiameter, 
+                        'exSpeed': data.exSpeed, 
+                        'eySpeed': data.eySpeed, 
                         'runtime': data.runtime, 
                         'colorByRuntime': data.colorByRuntime, 
                         'speed': data.speed, 
@@ -332,23 +338,7 @@ const script = () => {
             };
         };
 
-        addSpeed() { // excute 영역 속도 
-            const excuPck = svgWrap.querySelectorAll('.excuWrap');
-
-            excuPck[0] && [...excuPck[0].children].forEach(el => {
-              const [ getCx, getMxSpeed, getCy, getMySpeed ] = getAttribute(el, ['cx', 'mxSpeed', 'cy', 'mySpeed']);
-  
-                setAttribute(el,{
-                    'cx': Number(getCx) + Number(getMxSpeed),
-                    'cy': Number(getCy) + Number(getMySpeed)
-                });
-            });
-        };
-
         render() {
-            this.addSpeed();
-            this.bounce();
-
             this.reqAni();
             this.excuAni();
             this.resAni();
