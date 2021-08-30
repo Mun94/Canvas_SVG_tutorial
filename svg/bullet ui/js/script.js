@@ -6,7 +6,6 @@ const script = () => {
     const resBltLine  = svgWrap.querySelector('.resBltLine'); // bullet path
     
     const reqWrap     = svgWrap.querySelector('.reqWrap');
-    const reqTailWrap = svgWrap.querySelector('.reqTailWrap');
 
     const excuNorWrap = svgWrap.querySelector('.excuNorWrap');
     const excuWarWrap = svgWrap.querySelector('.excuWarWrap');
@@ -35,24 +34,11 @@ const script = () => {
         resCount  : 0
     };
 
-    const colorData = {
-        // background : '#303437', // 배경 색
-    
-        nor        : '#4D8BD5', // 정상 색
-        war        : '#B8A605', // 경고 색
-        cri        : '#B40E0A', // 심각 색
-        // gradation  : 'rgba(38, 36, 28, 0.5)',//'#26241C' // 그라데이션 색
-    
-        // basicFont  : '#C6C9CD', // 기본 폰트 색
-    
-        // basicLine  : '#C6C9CD', // 라인 색
-    };
-
     const setAttribute = (el, obj) => {
         if(!el) { return; };
 
         for(let [key, value] of Object.entries(obj)) {
-            el.setAttribute(key, value)
+            el.setAttribute(key, value);
         };
     };
 
@@ -82,8 +68,8 @@ const script = () => {
             
             this.bulletPathY = 240;
 
-            this.reqX        = this.svgW / 3;
-            this.resX        = this.svgW * ( 2 / 3 );
+            this.reqX = this.svgW / 3;
+            this.resX = this.svgW * ( 2 / 3 );
 
             this.startX = 0;
             this.startY = 120;
@@ -172,7 +158,7 @@ const script = () => {
 
         reqAni() {
             for(let data of this.datas) { 
-                this.createBullet(colorData.nor, data, 'reqArea');
+                this.createBullet(data, 'reqArea');
             };
 
             const reqPck = svgWrap.querySelectorAll('.reqWrap');
@@ -181,28 +167,29 @@ const script = () => {
             
             reqPck[0] && [...reqPck[0].children].forEach(el => {
                 const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
-                
-                if(Number(getCx) > this.reqEndX) {
-                    this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { return {...data, 
-                        ex: this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
-                        ey: this.startY + (Math.random() * (this.excuEndY - this.startY)),
-                        exSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
-                        eySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                const move = Number(getCx) + Number(speed);
 
-                        speed
-                    }})); // excuDatas 배열로 이동
+                if(Number(getCx) > this.reqEndX) {
+                    this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { 
+                        const ex = this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter));
+                        const ey = this.startY + (Math.random() * (this.excuEndY - this.startY));
+                        const exSpeed = Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1);
+                        const eySpeed =  Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1)
+                        
+                        return {...data, ex, ey, exSpeed, eySpeed, speed}
+                    })); // excuDatas 배열로 이동
                     // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
                     el.remove();
                 };
 
                 setAttribute(el, {
                     'd': `
-                        M${Number(getCx) + Number(speed)} ${this.bulletPathY - this.arcDiameter}
-                        A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${Number(getCx) + Number(speed)} ${this.bulletPathY + this.arcDiameter}
-                        L ${Number(getCx) + Number(speed) - this.tailSize} ${this.bulletPathY}
+                        M ${move} ${this.bulletPathY - this.arcDiameter}
+                        A ${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${move} ${this.bulletPathY + this.arcDiameter}
+                        L ${move - this.tailSize} ${this.bulletPathY}
                         Z
                         `,
-                    'cx': Number(getCx) + Number(speed)
+                    'cx': move
                 });
             });
 
@@ -267,6 +254,7 @@ const script = () => {
 
             resPck[0] && resPck.forEach(el => {
                 const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
+                const move = Number(getCx) + Number(speed);
 
                 if(Number(getCx) > this.svgW) {
                     el.remove();
@@ -274,31 +262,34 @@ const script = () => {
 
                 setAttribute(el, {
                     'd': `
-                    M${Number(getCx) + Number(speed)} ${this.bulletPathY - this.arcDiameter}
-                    A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${Number(getCx) + Number(speed)} ${this.bulletPathY + this.arcDiameter}
-                    L ${Number(getCx) + Number(speed) - this.tailSize} ${this.bulletPathY}
+                    M ${move} ${this.bulletPathY - this.arcDiameter}
+                    A ${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${move} ${this.bulletPathY + this.arcDiameter}
+                    L ${move - this.tailSize} ${this.bulletPathY}
                     Z
                     `,
-                    'cx': Number(getCx) + Number(speed)
+                    'cx': move
                 });
             });
 
             this.resDatas.shift();
         };
 
-        createBullet(color, data, area) {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        createBullet(data, area) {
+            const createCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             const bullet = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+            const setD = startX => {
+                return `
+                M${startX} ${this.bulletPathY - this.arcDiameter}
+                A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${startX} ${this.bulletPathY + this.arcDiameter}
+                L ${startX - this.tailSize} ${this.bulletPathY}
+                Z`;
+            };
 
             switch(area) {
                 case 'reqArea':
                     setAttribute(bullet, {
-                        'd': `
-                        M${this.startX} ${this.bulletPathY - this.arcDiameter}
-                        A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${this.startX} ${this.bulletPathY + this.arcDiameter}
-                        L ${this.startX - this.tailSize} ${this.bulletPathY}
-                        Z
-                        `,
+                        'd': setD(this.startX),
 
                         'cx': this.startX,
                         'speed': data[0].speed,
@@ -309,7 +300,7 @@ const script = () => {
                     reqWrap.appendChild(bullet);
                     break;
                 case 'excuArea':
-                    setAttribute(circle, {
+                    setAttribute(createCircle, {
                         'cx': data.ex, 
                         'cy': data.ey, 
                         'r' : this.arcDiameter, 
@@ -321,39 +312,25 @@ const script = () => {
                     });
 
                     if(timeCondition(data).norCondition) {
-                        excuNorWrap.appendChild(circle);
+                        excuNorWrap.appendChild(createCircle);
                     };
 
                     if(timeCondition(data).warCondition) {
-                         excuWarWrap.appendChild(circle);
+                         excuWarWrap.appendChild(createCircle);
                     };
 
                     if(timeCondition(data).criCondition) {
-                        excuCriWrap.appendChild(circle);
+                        excuCriWrap.appendChild(createCircle);
                     };
                     break;
                 case 'resArea':
                     setAttribute(bullet, {
-                        'd': `
-                        M${data.rx} ${this.bulletPathY - this.arcDiameter}
-                        A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${data.rx} ${this.bulletPathY + this.arcDiameter}
-                        L ${data.rx - this.tailSize} ${this.bulletPathY}
-                        Z
-                        `,
+                        'd': setD(data.rx),
 
                         'cx': data.rx,
                         'speed': data.speed,
                         'resBulletCount': data.resBulletCount
                     });
-                    // setAttribute(createCircleEl, {
-                    //     'cx': data.rx, 
-                    //     'cy': data.ry, 
-                    //     'r':this.arcDiameter,
-                        
-                    //     'speed': data.speed, 
-                        
-                    //     'resBulletCount': data.resBulletCount
-                    // });
                     
                     if(timeCondition(data).norCondition) {
                         resNorWrap.appendChild(bullet);
@@ -409,10 +386,10 @@ const script = () => {
                 const runtime = getAttribute(el, 'runtime');
 
                 setAttribute(el, {
-                    'runtime': Number(runtime) - 0.2
+                    'runtime': (Number(runtime) - 0.2).toFixed(1)
                 });
 
-                if(runtime <= 0) {
+                if(Number(runtime) <= 0) {
                     el.remove();
                 };
             });
@@ -420,15 +397,15 @@ const script = () => {
 
         createBulletByRuntime(data, area) {
             if(timeCondition(data).norCondition) { // 1에서 3초
-                this.createBullet(colorData.nor, data,  area); // blue
+                this.createBullet(data,  area); // blue
             }; 
     
             if(timeCondition(data).warCondition) { // 3에서 5초
-                this.createBullet(colorData.war, data, area); // yellow
+                this.createBullet(data, area); // yellow
             };
     
             if(timeCondition(data).criCondition) { // 5에서 10초
-                this.createBullet(colorData.cri, data, area); // red
+                this.createBullet(data, area); // red
             };
         };
 

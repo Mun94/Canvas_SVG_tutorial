@@ -277,7 +277,7 @@ const script = () => {
             ///////// 수행 시간 차감 정확한 계산 필요
             if(!this.excuDatas.length) { return; };
     
-            this.excuDatas.forEach(data => data.runtime -= 0.2);
+            this.excuDatas.forEach(data => data.runtime = Number((data.runtime - 0.2).toFixed(1)));
             
             const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0);
             const resBulletCount = runtimeEndBullets.length;

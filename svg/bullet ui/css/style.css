@@ -1,0 +1,36 @@
+.svgWrap {
+    fill: #303437;
+}
+
+.reqLine, .reqBltLine, .resLine, .resBltLine {
+    stroke: #C6C9CD;
+    stroke-width: 1;
+}
+
+.count {
+    fill: #C6C9CD;
+}
+
+.totalTextWrap {
+    font-size: 35px;
+}
+
+.reqTextWrap, .resTextWrap {
+    font-size: 25px;
+}
+
+.norTextWrap, .warTextWrap, .criTextWrap {
+    font-size: 30px;
+}
+
+.norCount {
+    fill: #4D8BD5;
+}
+
+.warCount {
+    fill: #B8A605
+}
+
+.criCount {
+    fill: #B40E0A
+}
