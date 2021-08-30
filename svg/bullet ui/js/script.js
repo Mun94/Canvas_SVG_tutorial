@@ -32,7 +32,9 @@ const script = () => {
     const g = {
         dataCount : 0,
         reqCount  : 0,
-        resCount  : 0
+        resCount  : 0,
+
+        excutePerSec: 60
     };
 
     const setAttribute = (el, obj) => {
@@ -131,7 +133,7 @@ const script = () => {
         };
 
         addDatas() {
-            const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1))));
+            const speed = (this.area / (g.excutePerSec * ((Number(Math.random().toFixed(1)) || 0.1))));
 
             const pck = [];
             for(let i = 0; i < this.dataPerReq; i++) {
@@ -179,8 +181,8 @@ const script = () => {
                             exSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1), 
                             eySpeed:  Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
                         };
-                    })); // excuDatas 배열로 이동
-                    // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
+                    })); 
+
                     el.remove();
                 };
 
@@ -297,7 +299,6 @@ const script = () => {
                         'speed': data[0].speed,
                         'data-runtime': JSON.stringify(data)
                     });
-                     // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
                    
                     reqWrap.appendChild(bullet);
                     break;
@@ -503,7 +504,6 @@ const script = () => {
     const background = new Background();
 
     let i = 0;
-    let excutePerSec = 0;
     let runCycle = 0;
 
     let beforeSec = 0;
@@ -524,10 +524,10 @@ const script = () => {
       
         term = term > 900 ? 1000 - term : term;
 
-        excutePerSec = Number((1000 / term).toFixed(0)); 
-        runCycle = Math.floor(excutePerSec / 5); // 1초에 5번 실행
+        g.excutePerSec = Math.floor(1000 / term);
+        runCycle = g.excutePerSec / 5; // 1초에 5번 실행
 
-        if(i % runCycle === 0) {
+        if(i % runCycle < 1) {
             animation.addDatas();
             animation.excuteRuntime();
         };
@@ -535,7 +535,7 @@ const script = () => {
         background.render();
         animation.render();
 
-        if(i === excutePerSec) {
+        if(i >= g.excutePerSec) {
             i = 0;
         };
 

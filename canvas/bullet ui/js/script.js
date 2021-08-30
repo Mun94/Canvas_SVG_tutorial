@@ -6,7 +6,9 @@ const script = () => {
     
         dataCount: 0,
         resCount : 0,
-        reqCount : 0
+        reqCount : 0,
+
+        excutePerSec: 60 // default 값
     };
 
     const colorData = {
@@ -106,8 +108,8 @@ const script = () => {
         };
     
         addDatas(){
-            const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로
-    
+            const speed = (this.area / (g.excutePerSec * ((Number(Math.random().toFixed(1)) || 0.1))));
+ 
             const pck = [];
             for(let i = 0; i < this.dataPerReq; i++) {
                 const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
@@ -123,6 +125,7 @@ const script = () => {
             };
     
             this.datas.push(pck);
+
             g.reqCount = (this.datas.length * this.dataPerReq);
         };
     };
@@ -183,8 +186,8 @@ const script = () => {
                 if(data.my <= (this.startY + this.arcDiameter)) {
                     data.mySpeed = Math.abs(data.mySpeed);
                 };
-            }
-        
+            };
+
             for(let data of this.excuDatas) {
                 this.createBulletByRuntime(data, 'excuArea', bounce);
             };
@@ -192,7 +195,7 @@ const script = () => {
     
         resAni() {    
             g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
-    
+
             for(let data of this.resDatas) {
                 this.createBulletByRuntime(data, 'resArea');
             };
@@ -280,15 +283,14 @@ const script = () => {
         };
     
         excuteRuntime() {
-            ///////// 수행 시간 차감 정확한 계산 필요
             if(!this.excuDatas.length) { return; };
     
-            this.excuDatas.forEach(data => data.runtime = Number((data.runtime - 0.2).toFixed(1)));
+            this.excuDatas.forEach(data => data.runtime = Number((data.runtime - 0.2).toFixed(1))); // 수행 시간 감소
             
-            const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0);
+            const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0); // 수행 시간 종료 데이터 필터링
             const resBulletCount = runtimeEndBullets.length;
     
-            const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0];
+            const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0]; // 동시에 수행 시간이 완료 된 데이터 중 runtime이 가장 길었던 데이터 추출
     
             if(longestRuntime) {
                 const {colorByRuntime, runtime, speed} = longestRuntime;
@@ -303,7 +305,7 @@ const script = () => {
                 });
             };
              
-            this.excuDatas = this.excuDatas.filter(data => data.runtime > 0);
+            this.excuDatas = this.excuDatas.filter(data => data.runtime > 0); // 수행 시간이 남은 데이터들로 재할당
             g.dataCount = this.excuDatas;
         };
     
@@ -415,7 +417,6 @@ const script = () => {
     const background = new Background();
     
     let i = 0;
-    let excutePerSec = 0;
     let runCycle = 0;
 
     let beforeSec = 0;
@@ -436,10 +437,10 @@ const script = () => {
       
         term = term > 900 ? 1000 - term : term;
 
-        excutePerSec = Number((1000 / term).toFixed(0)); 
-        runCycle = Math.floor(excutePerSec / 5); // 1초에 5번 실행
+        g.excutePerSec = Math.floor(1000 / term); 
+        runCycle = g.excutePerSec / 5; // 1초에 5번 실행
 
-        if(i % runCycle === 0) {
+        if(i % runCycle < 1) {
             animation.addDatas();
             animation.excuteRuntime();
         };
@@ -447,7 +448,7 @@ const script = () => {
         background.render();
         animation.render();
 
-        if(i === excutePerSec) {
+        if(i >= g.excutePerSec) {
             i = 0;
         };
 
