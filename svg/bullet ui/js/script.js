@@ -306,6 +306,7 @@ const script = () => {
                         'cx': data.ex, 
                         'cy': data.ey, 
                         'r' : this.arcDiameter, 
+                        
                         'exSpeed': data.exSpeed, 
                         'eySpeed': data.eySpeed, 
                         'runtime': data.runtime, 
