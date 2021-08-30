@@ -421,8 +421,8 @@ const script = () => {
             const culPerformance = nowPerformance - beforePerformance;
 
             if(culPerformance >= 25) {
-                excutePerSec = 20;
-                runCycle = 4;
+                excutePerSec = 32;
+                runCycle = 6;
             };
 
             if(culPerformance <= 24) {

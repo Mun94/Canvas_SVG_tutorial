@@ -6,6 +6,7 @@ const script = () => {
     const resBltLine  = svgWrap.querySelector('.resBltLine'); // bullet path
     
     const reqWrap     = svgWrap.querySelector('.reqWrap');
+    const reqTailWrap = svgWrap.querySelector('.reqTailWrap');
 
     const excuNorWrap = svgWrap.querySelector('.excuNorWrap');
     const excuWarWrap = svgWrap.querySelector('.excuWarWrap');
@@ -92,6 +93,8 @@ const script = () => {
 
                 this.area = this.svgW / 3;
 
+                this.tailSize = 150;
+
                 this.reqEndX     = this.reqX - this.arcDiameter;
                 this.excuStartX  = this.reqX + this.arcDiameter;
                 this.excuEndY    = this.svgH - this.arcDiameter;
@@ -172,13 +175,14 @@ const script = () => {
                 this.createBullet(colorData.nor, data, 'reqArea');
             };
 
-            const bulletPck = svgWrap.querySelectorAll('.reqWrap');
+            const reqPck = svgWrap.querySelectorAll('.reqWrap');
+            const reqTailPck = svgWrap.querySelectorAll('.reqTailWrap');
 
-            g.reqCount = bulletPck[0].children.length * this.dataPerReq;
+            g.reqCount = reqPck[0].children.length * this.dataPerReq;
             
-            bulletPck[0] && [...bulletPck[0].children].forEach(el => {
+            reqPck[0] && [...reqPck[0].children].forEach(el => {
                 const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
-
+                
                 if(Number(getCx) > this.reqEndX) {
                     this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { return {...data, 
                         ex: this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
@@ -191,7 +195,7 @@ const script = () => {
                     // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
                     el.remove();
                 };
-                
+
                 setAttribute(el, {
                     'cx': Number(getCx) + Number(speed) 
                 });
@@ -273,6 +277,7 @@ const script = () => {
 
         createBullet(color, data, area) {
             const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
             switch(area) {
                 case 'reqArea':
@@ -283,7 +288,15 @@ const script = () => {
                         'speed': data[0].speed, 
                         'data-runtime': JSON.stringify(data)
                     });
+                    setAttribute(path, {
+                        'd': `
+                        M${50} ${this.bulletPathY - this.arcDiameter} 
+                        Q${50 - this.tailSize} ${this.bulletPathY} ${50} ${this.bulletPathY + this.arcDiameter}`,
+                        'storke': 'black',
+                        'fill': 'red'
+                    });
                      // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
+                    reqTailWrap.appendChild(path);
                     reqWrap.appendChild(createCircleEl);
                     break;
                 case 'excuArea':
@@ -296,7 +309,6 @@ const script = () => {
                         'runtime': data.runtime, 
                         'colorByRuntime': data.colorByRuntime, 
                         'speed': data.speed, 
-                    
                     });
 
                     if(timeCondition(data).norCondition) {
@@ -502,8 +514,8 @@ const script = () => {
             const culPerformance = nowPerformance - beforePerformance;
 
             if(culPerformance >= 25) {
-                excutePerSec = 20;
-                runCycle = 4;
+                excutePerSec = 32;
+                runCycle = 6;
             };
 
             if(culPerformance <= 24) {
