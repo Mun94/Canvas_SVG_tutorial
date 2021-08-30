@@ -415,31 +415,30 @@ const script = () => {
     const background = new Background();
     
     let i = 0;
-    let beforePerformance = 0;
-    let excutePerSec = 0;
     let runCycle = 0;
 
+    let beforeSec = 0;
+    let term = 0;
     const render = () => {
         i++;
 
-        const nowPerformance = performance.now();
-        if(beforePerformance !== nowPerformance) {
-            const culPerformance = nowPerformance - beforePerformance;
+        
+        const nowSec = (new Date()).getMilliseconds();
 
-            if(culPerformance >= 25) {
-                excutePerSec = 32;
-                runCycle = 6;
+        if(beforeSec !== nowSec) {
+            if(nowSec > beforeSec) {
+                term = nowSec - beforeSec;
+            } else {
+                term = beforeSec - nowSec;
             };
-
-            if(culPerformance <= 24) {
-                excutePerSec = 60;
-                runCycle = 12;
-            };
-
-            beforePerformance = nowPerformance;
+            beforeSec = nowSec;
         };
+      
+        term = term > 900 ? 1000 - term : term;
 
-        if(i % runCycle === 0) { // 1초에 5번 실행
+        runCycle = Math.floor(term / 5) // 1초에 5번 실행
+
+        if(i % runCycle === 0) {
             animation.addDatas();
             animation.excuteRuntime();
         };
@@ -447,7 +446,7 @@ const script = () => {
         background.render();
         animation.render();
 
-        if(i === excutePerSec) {
+        if(i === term) {
             i = 0;
         };
 
