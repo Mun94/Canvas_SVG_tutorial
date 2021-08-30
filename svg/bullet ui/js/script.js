@@ -93,7 +93,7 @@ const script = () => {
 
                 this.area = this.svgW / 3;
 
-                this.tailSize = 150;
+                this.tailSize = 100;
 
                 this.reqEndX     = this.reqX - this.arcDiameter;
                 this.excuStartX  = this.reqX + this.arcDiameter;
@@ -176,7 +176,6 @@ const script = () => {
             };
 
             const reqPck = svgWrap.querySelectorAll('.reqWrap');
-            const reqTailPck = svgWrap.querySelectorAll('.reqTailWrap');
 
             g.reqCount = reqPck[0].children.length * this.dataPerReq;
             
@@ -197,7 +196,13 @@ const script = () => {
                 };
 
                 setAttribute(el, {
-                    'cx': Number(getCx) + Number(speed) 
+                    'd': `
+                        M${Number(getCx) + Number(speed)} ${this.bulletPathY - this.arcDiameter}
+                        A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${Number(getCx) + Number(speed)} ${this.bulletPathY + this.arcDiameter}
+                        L ${Number(getCx) + Number(speed) - this.tailSize} ${this.bulletPathY}
+                        Z
+                        `,
+                    'cx': Number(getCx) + Number(speed)
                 });
             });
 
@@ -268,6 +273,12 @@ const script = () => {
                 };
 
                 setAttribute(el, {
+                    'd': `
+                    M${Number(getCx) + Number(speed)} ${this.bulletPathY - this.arcDiameter}
+                    A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${Number(getCx) + Number(speed)} ${this.bulletPathY + this.arcDiameter}
+                    L ${Number(getCx) + Number(speed) - this.tailSize} ${this.bulletPathY}
+                    Z
+                    `,
                     'cx': Number(getCx) + Number(speed)
                 });
             });
@@ -276,31 +287,29 @@ const script = () => {
         };
 
         createBullet(color, data, area) {
-            const createCircleEl = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            const bullet = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
             switch(area) {
                 case 'reqArea':
-                    setAttribute(createCircleEl, {
-                        'cx': this.startX, 
-                        'cy': this.bulletPathY, 
-                        'r' : this.arcDiameter, 
-                        'speed': data[0].speed, 
+                    setAttribute(bullet, {
+                        'd': `
+                        M${this.startX} ${this.bulletPathY - this.arcDiameter}
+                        A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${this.startX} ${this.bulletPathY + this.arcDiameter}
+                        L ${this.startX - this.tailSize} ${this.bulletPathY}
+                        Z
+                        `,
+
+                        'cx': this.startX,
+                        'speed': data[0].speed,
                         'data-runtime': JSON.stringify(data)
                     });
-                    setAttribute(path, {
-                        'd': `
-                        M${50} ${this.bulletPathY - this.arcDiameter} 
-                        Q${50 - this.tailSize} ${this.bulletPathY} ${50} ${this.bulletPathY + this.arcDiameter}`,
-                        'storke': 'black',
-                        'fill': 'red'
-                    });
                      // 0.2초 마다 생기는 4개의 총알 속도가 모두 같으므로 대표로 하나만 돔에 추가하고 나머지(4개의 총알들) 런타임이나 그런 속성은 data-runtime attribute에 추가하고 req에서 exut로 넘어갈 때 분리시키는게 좋을 듯 
-                    reqTailWrap.appendChild(path);
-                    reqWrap.appendChild(createCircleEl);
+                   
+                    reqWrap.appendChild(bullet);
                     break;
                 case 'excuArea':
-                    setAttribute(createCircleEl, {
+                    setAttribute(circle, {
                         'cx': data.ex, 
                         'cy': data.ey, 
                         'r' : this.arcDiameter, 
@@ -312,38 +321,50 @@ const script = () => {
                     });
 
                     if(timeCondition(data).norCondition) {
-                        excuNorWrap.appendChild(createCircleEl);
+                        excuNorWrap.appendChild(circle);
                     };
 
                     if(timeCondition(data).warCondition) {
-                         excuWarWrap.appendChild(createCircleEl);
+                         excuWarWrap.appendChild(circle);
                     };
 
                     if(timeCondition(data).criCondition) {
-                        excuCriWrap.appendChild(createCircleEl);
+                        excuCriWrap.appendChild(circle);
                     };
                     break;
                 case 'resArea':
-                    setAttribute(createCircleEl, {
-                        'cx': data.rx, 
-                        'cy': data.ry, 
-                        'r':this.arcDiameter,
-                        
-                        'speed': data.speed, 
-                        
+                    setAttribute(bullet, {
+                        'd': `
+                        M${data.rx} ${this.bulletPathY - this.arcDiameter}
+                        A${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${data.rx} ${this.bulletPathY + this.arcDiameter}
+                        L ${data.rx - this.tailSize} ${this.bulletPathY}
+                        Z
+                        `,
+
+                        'cx': data.rx,
+                        'speed': data.speed,
                         'resBulletCount': data.resBulletCount
                     });
+                    // setAttribute(createCircleEl, {
+                    //     'cx': data.rx, 
+                    //     'cy': data.ry, 
+                    //     'r':this.arcDiameter,
+                        
+                    //     'speed': data.speed, 
+                        
+                    //     'resBulletCount': data.resBulletCount
+                    // });
                     
                     if(timeCondition(data).norCondition) {
-                        resNorWrap.appendChild(createCircleEl);
+                        resNorWrap.appendChild(bullet);
                     };
 
                     if(timeCondition(data).warCondition) {
-                        resWarWrap.appendChild(createCircleEl);
+                        resWarWrap.appendChild(bullet);
                     };
 
                     if(timeCondition(data).criCondition) {
-                        resCriWrap.appendChild(createCircleEl);
+                        resCriWrap.appendChild(bullet);
                     };
                     break;
             };
