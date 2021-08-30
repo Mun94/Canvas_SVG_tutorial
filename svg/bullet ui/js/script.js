@@ -172,12 +172,13 @@ const script = () => {
 
                 if(Number(getCx) > this.reqEndX) {
                     this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { 
-                        const ex = this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter));
-                        const ey = this.startY + (Math.random() * (this.excuEndY - this.startY));
-                        const exSpeed = Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1);
-                        const eySpeed =  Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1)
                         
-                        return {...data, ex, ey, exSpeed, eySpeed, speed}
+                        return {...data, 
+                            ex     : this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)), 
+                            ey     : this.startY + (Math.random() * (this.excuEndY - this.startY)), 
+                            exSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1), 
+                            eySpeed:  Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                        };
                     })); // excuDatas 배열로 이동
                     // 바로 위에 반복문에서 바로 excuDatas에 하나하나 push해도 되긴 한데 4개를 한번에 push하는게 좋을것 같아서 이렇게 함
                     el.remove();

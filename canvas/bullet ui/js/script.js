@@ -108,10 +108,11 @@ const script = () => {
         addDatas(){
             const speed = (this.area / (60 * ((Number(Math.random().toFixed(1)) || 0.1)))); // 한 번에 생성되는 4개의 데이터가 모두 같은 속도 임 각각 속도 랜덤하게 할거면 반복문 안으로
     
+            const pck = [];
             for(let i = 0; i < this.dataPerReq; i++) {
                 const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
              
-                this.datas.push({
+                pck.push({
                     colorByRuntime: runtime,
                     runtime,
     
@@ -121,7 +122,8 @@ const script = () => {
                 });
             };
     
-            g.reqCount = this.datas.length;
+            this.datas.push(pck);
+            g.reqCount = (this.datas.length * this.dataPerReq);
         };
     };
     
@@ -135,27 +137,31 @@ const script = () => {
         };
     
         reqAni() {
-            for(let data of this.datas) {
-                this.createBullet(colorData.nor, data, 'reqArea'); // blue
+            for(let i = 0; i < this.datas.length; i++) {
+                const data = this.datas[i];
+
+                this.createBullet(colorData.nor, data[0], 'reqArea'); // blue
     
-                const {colorByRuntime, runtime, speed} = data;
-    
-                if(data.x > this.reqEndX) {
-                    this.excuDatas.push({
-                        colorByRuntime,
-                        runtime,
-                        speed,
-    
-                       mx     : this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
-                       my     : this.startY + (Math.random() * (this.excuEndY - this.startY)),
-                       mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
-                       mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                if (data[0].x > this.reqEndX) {
+                    data.forEach(d => {
+                        const {colorByRuntime, runtime, speed} = d;
+                        
+                        this.excuDatas.push({
+                            colorByRuntime,
+                            runtime,
+                            speed,
+        
+                            mx     : this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
+                            my     : this.startY + (Math.random() * (this.excuEndY - this.startY)),
+                            mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                            mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                        });
                     });
-    
-                    g.dataCount  = this.excuDatas;
-                    this.datas = this.datas.filter(data => data.x < this.reqEndX); // 원의 지름 뺌
+                    this.datas.splice(i, 1);
                 };
             };
+                
+            g.dataCount  = this.excuDatas;
         };
     
         excuAni() {
@@ -171,7 +177,7 @@ const script = () => {
                 };
         
                 if(data.my >= this.excuEndY) {
-                    data.mySpeed = -data.mySpeed
+                    data.mySpeed = -data.mySpeed;
                 };
                 
                 if(data.my <= (this.startY + this.arcDiameter)) {
@@ -408,7 +414,7 @@ const script = () => {
     };
     const background = new Background();
     
-     let i = 0;
+    let i = 0;
     let beforePerformance = 0;
     let excutePerSec = 0;
     let runCycle = 0;
