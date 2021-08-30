@@ -511,7 +511,6 @@ const script = () => {
     const render = () => {
         i++;
 
-        
         const nowSec = (new Date()).getMilliseconds();
 
         if(beforeSec !== nowSec) {
@@ -526,7 +525,7 @@ const script = () => {
         term = term > 900 ? 1000 - term : term;
 
         excutePerSec = Number((1000 / term).toFixed(0)); 
-        runCycle = Math.floor(excutePerSec / 5) // 1초에 5번 실행
+        runCycle = Math.floor(excutePerSec / 5); // 1초에 5번 실행
 
         if(i % runCycle === 0) {
             animation.addDatas();
