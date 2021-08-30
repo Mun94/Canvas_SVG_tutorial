@@ -1,5 +1,6 @@
 const script = () => {
     const svgWrap     = document.querySelector('.svgWrap');
+    
     const reqLine     = svgWrap.querySelector('.reqLine');
     const reqBltLine  = svgWrap.querySelector('.reqBltLine'); // bullet path
     const resLine     = svgWrap.querySelector('.resLine');
