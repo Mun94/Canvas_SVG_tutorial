@@ -22,6 +22,14 @@ onmessage = (e) => {
             this.canvasW = canvas.width;
             this.canvasH = canvas.height;
 
+            this.bulletPath = 240;
+
+            this.reqX = this.canvasW / 3;
+            this.resX = this.canvasW * (2 / 3);
+
+            this.startX = 0;
+            this.startY = 120;
+
             if(aniPosition) {};
         };
     };
@@ -33,6 +41,9 @@ onmessage = (e) => {
 
             this.startRectX = 0;
             this.startRectY = 0;
+
+            this. lineTick = 1;
+
         }
     }
     class Animation{
@@ -46,6 +57,10 @@ onmessage = (e) => {
 
         render() {
             this.background();
+
+            ctx.beginPath();
+            this.line();
+            ctx.stroke();
         };
 
         background() {
@@ -54,12 +69,26 @@ onmessage = (e) => {
         };  
 
         line() {
-
+            ctx.lineWidth = this.lineTick;
+            ctx.strokeStyle = colorData.basicLine;
+            // req 경계
+            ctx.moveTo(this.reqX, this.startY);
+            ctx.lineTo(this.reqX, this.canvasH);
+            // req 총알 길
+            ctx.moveTo(this.startX, this.bulletPath);
+            ctx.lineTo(this.reqX, this.bulletPath);
+            // res 경계
+            ctx.moveTo(this.resX, this.startY);
+            ctx.lineTo(this.resX, this.canvasH);
+            // res 총알 길
+            ctx.moveTo(this.resX, this.bulletPath);
+            ctx.lineTo(this.canvasW, this.bulletPath);
         };
     };
     const background = new Background();
 
     const render = () => {
+        ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
 
         background.render();
         requestAnimationFrame(render);
