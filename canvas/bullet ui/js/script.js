@@ -1,9 +1,6 @@
 const script = () => {
 
     const g = {
-        canvas: undefined,
-        ctx   : undefined,
-    
         dataCount: 0,
         resCount : 0,
         reqCount : 0,
@@ -24,9 +21,9 @@ const script = () => {
         basicLine  : '#C6C9CD', // 라인 색
     };
 
-    g.canvas = document.querySelector('.myCanvas');
+    const canvas = document.querySelector('.myCanvas');
     
-    g.ctx = g.canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
     class TimeCondition {
         constructor(data) {
             this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime <= 3;
@@ -37,8 +34,8 @@ const script = () => {
     const timeCondition = data => new TimeCondition(data);
     class Position {
         constructor(aniPosition) {
-            this.canvasW     = g.canvas.width;
-            this.canvasH     = g.canvas.height;
+            this.canvasW     = canvas.width;
+            this.canvasH     = canvas.height;
     
             this.bulletPathY = 240;
     
@@ -205,7 +202,7 @@ const script = () => {
     
         createBullet(color, data, area) {
             const bulletGradation = (move, y) => {
-                const grad = g.ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter)
+                const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter)
                 grad.addColorStop(0, colorData.background);
                 grad.addColorStop(1, color);
     
@@ -213,14 +210,14 @@ const script = () => {
             };
     
             const bullet = (move, y) => {
-                g.ctx.beginPath();
-                g.ctx.fillStyle = bulletGradation(move, y);
-                g.ctx.arc(move , y, this.arcDiameter, 0, Math.PI * 2);
-                g.ctx.fill();
+                ctx.beginPath();
+                ctx.fillStyle = bulletGradation(move, y);
+                ctx.arc(move , y, this.arcDiameter, 0, Math.PI * 2);
+                ctx.fill();
             };
     
             const tailGradation = x => {
-                const tailGrad = g.ctx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
+                const tailGrad = ctx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
                 tailGrad.addColorStop(0, colorData.gradation);
                 tailGrad.addColorStop(0.5, colorData.background);
                 tailGrad.addColorStop(1, color);
@@ -229,11 +226,11 @@ const script = () => {
             };
     
             const tail = x => {
-                g.ctx.beginPath();
-                g.ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
-                g.ctx.fillStyle = tailGradation(x);
-                g.ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x, this.bulletPathY - this.arcDiameter);
-                g.ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
+                ctx.fillStyle = tailGradation(x);
+                ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x, this.bulletPathY - this.arcDiameter);
+                ctx.fill();
             };
     
             switch(area) {
@@ -324,10 +321,10 @@ const script = () => {
         };
     
         render() {
-            g.ctx.fillStyle = colorData.background; // 배경 색
-            g.ctx.fillRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
+            ctx.fillStyle = colorData.background; // 배경 색
+            ctx.fillRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
         
-            g.ctx.beginPath();
+            ctx.beginPath();
     
             this.line();
     
@@ -335,67 +332,67 @@ const script = () => {
             this.excuCount();
             this.resCount();
     
-            g.ctx.stroke();
+            ctx.stroke();
         };
     
         line() {
-            g.ctx.lineWidth   = this.lineTick;
-            g.ctx.strokeStyle = colorData.basicLine;
+            ctx.lineWidth   = this.lineTick;
+            ctx.strokeStyle = colorData.basicLine;
     
-            g.ctx.moveTo(this.reqX     , this.startY);
-            g.ctx.lineTo(this.reqX     , this.canvasH);
-            g.ctx.moveTo(this.startX   , this.bulletPathY);
-            g.ctx.lineTo(this.reqX     , this.bulletPathY);
+            ctx.moveTo(this.reqX     , this.startY);
+            ctx.lineTo(this.reqX     , this.canvasH);
+            ctx.moveTo(this.startX   , this.bulletPathY);
+            ctx.lineTo(this.reqX     , this.bulletPathY);
 
-            g.ctx.moveTo(this.resX    , this.startY);
-            g.ctx.lineTo(this.resX    , this.canvasH);
-            g.ctx.moveTo(this.resX    , this.bulletPathY);
-            g.ctx.lineTo(this.canvasW  , this.bulletPathY);
+            ctx.moveTo(this.resX    , this.startY);
+            ctx.lineTo(this.resX    , this.canvasH);
+            ctx.moveTo(this.resX    , this.bulletPathY);
+            ctx.lineTo(this.canvasW  , this.bulletPathY);
         };
     
         reqCount() {
             const totalCount = this.count().nor + this.count().war + this.count().cri;
     
-            g.ctx.font = '30px Arial';
+            ctx.font = '30px Arial';
     
-            g.ctx.fillStyle = colorData.basicFont;
-            g.ctx.fillText('현재 전체 건수', this.totalCountX + this.countTitleGap + 13, this.totalFontY);
+            ctx.fillStyle = colorData.basicFont;
+            ctx.fillText('현재 전체 건수', this.totalCountX + this.countTitleGap + 13, this.totalFontY);
     
-            g.ctx.font = '45px Arial';
+            ctx.font = '45px Arial';
     
-            g.ctx.fillText(totalCount, this.totalCountX, this.totalFontY);
+            ctx.fillText(totalCount, this.totalCountX, this.totalFontY);
             
-            g.ctx.font = '25px Arial';
+            ctx.font = '25px Arial';
     
-            g.ctx.fillText('요청/초', this.reqCountX, this.reqFontY);
-            g.ctx.fillText(g.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
+            ctx.fillText('요청/초', this.reqCountX, this.reqFontY);
+            ctx.fillText(g.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
     
         };
     
         excuCount() {
-            g.ctx.font = '25px Arial';
+            ctx.font = '25px Arial';
     
-            g.ctx.fillStyle = colorData.basicFont;
-            g.ctx.fillText('정상', this.norCountX + this.countTitleGap, this.excuFontY);
-            g.ctx.fillText('경고', this.warCountX + this.countTitleGap, this.excuFontY);
-            g.ctx.fillText('심각', this.criCountX + this.countTitleGap, this.excuFontY);
+            ctx.fillStyle = colorData.basicFont;
+            ctx.fillText('정상', this.norCountX + this.countTitleGap, this.excuFontY);
+            ctx.fillText('경고', this.warCountX + this.countTitleGap, this.excuFontY);
+            ctx.fillText('심각', this.criCountX + this.countTitleGap, this.excuFontY);
     
-            g.ctx.font = 'bold 35px Arial';
+            ctx.font = 'bold 35px Arial';
     
-            g.ctx.fillStyle = colorData.nor;
-            g.ctx.fillText(this.count().nor, this.norCountX, this.excuFontY);
-            g.ctx.fillStyle = colorData.war;
-            g.ctx.fillText(this.count().war, this.warCountX, this.excuFontY);
-            g.ctx.fillStyle = colorData.cri;
-            g.ctx.fillText(this.count().cri, this.criCountX, this.excuFontY);
+            ctx.fillStyle = colorData.nor;
+            ctx.fillText(this.count().nor, this.norCountX, this.excuFontY);
+            ctx.fillStyle = colorData.war;
+            ctx.fillText(this.count().war, this.warCountX, this.excuFontY);
+            ctx.fillStyle = colorData.cri;
+            ctx.fillText(this.count().cri, this.criCountX, this.excuFontY);
         };
     
         resCount() {
-            g.ctx.font = '25px Arial';
+            ctx.font = '25px Arial';
     
-            g.ctx.fillStyle = colorData.basicFont;
-            g.ctx.fillText('응답/초', this.resCountX, this.resFontY);
-            g.ctx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
+            ctx.fillStyle = colorData.basicFont;
+            ctx.fillText('응답/초', this.resCountX, this.resFontY);
+            ctx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
         };
     
         count() {
@@ -422,7 +419,7 @@ const script = () => {
     let beforeSec = 0;
     let term = 0;
     const render = () => {
-        g.ctx.clearRect(0, 0, this.canvasW, this.canvasH);
+        ctx.clearRect(0, 0, this.canvasW, this.canvasH);
         i++;
 
         const nowSec = (new Date()).getMilliseconds();
