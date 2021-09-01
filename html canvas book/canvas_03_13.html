@@ -1,0 +1,28 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">백그라운드 이미지 애니메이션 만들기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            const bgImg = new Image();
+            bgImg.src = 'images/space.png';
+
+            let x = 0;
+            const animate = () => {
+                ctx.drawImage(bgImg, x--, 0);
+            
+                if(x <= -600){
+                    x = 0;
+                };
+            };
+
+            setInterval(animate, 30);
+        </script>
+    </body>
+</html>

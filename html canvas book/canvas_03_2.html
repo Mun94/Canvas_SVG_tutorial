@@ -1,0 +1,42 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="canvas" width="400" height="300">사각형 그리기</canvas>
+        <script>
+            const canvas = document.querySelector('.canvas');
+
+            const ctx = canvas.getContext('2d');
+            ctx.strokeRect(20, 20, 100, 100);
+            ctx.strokeRect(150, 150, 50, 50);
+        </script>
+
+        <canvas class="canvas2" width="400" height="300">내부가 채워진 사각형 그리기</canvas>
+        <script>
+            const canvas2 = document.querySelector('.canvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+            ctx2.fillStyle = "magenta";
+            ctx2.fillRect(20, 20, 100, 100);
+            ctx2.strokeRect(20, 20, 100, 100);
+
+            ctx2.fillStyle = "green";
+            ctx2.fillRect(150, 150, 50, 50);
+            ctx2.strokeRect(150, 150, 50, 50);
+        </script>
+
+        <canvas class="canvas3" width="400" height="300">내부를 사각형으로 지우기</canvas>
+        <script>
+            const canvas3 = document.querySelector('.canvas3');
+
+            const ctx3 = canvas3.getContext('2d');
+            ctx3.lineWidth = 10;
+            ctx3.strokeStyle = "red";
+            ctx3.fillStyle = "blue";
+            ctx3.fillRect(50, 50, 200, 200);
+            ctx3.strokeRect(50, 50, 200, 200);
+            ctx3.clearRect(70, 70, 100, 50);
+        </script>
+    </body>
+</html>

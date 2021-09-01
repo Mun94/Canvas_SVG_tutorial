@@ -1,0 +1,94 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">글씨 그리기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillText('the fillText() method draws filled text on the canvas', 50, 120, 100);
+            ctx.fillText('the fillText() method draws filled text on the canvas', 50, 140, 200);
+            ctx.fillText('the fillText() method draws filled text on the canvas', 50, 160, 300);
+        </script>
+
+        <canvas class="myCanvas2" width="400" height="300">글씨의 외곽선 그리기</canvas>
+
+        <script>
+            const canvas2 = document.querySelector('.myCanvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+
+            ctx2.fillStyle = '#6495ED';
+            ctx2.font = 'italic bold 40px Arial, sans-serif';
+            ctx2.fillText('Hello Canvas World!', 10, 100);
+            ctx2.lineWidth = 2;
+            ctx2.strokeText('Hello Canvas', 10, 100);
+        </script>
+
+        <canvas class="myCanvas3" width="400" height="300">글씨의 외곽선 그리기</canvas>
+
+        <script>
+            const canvas3 = document.querySelector('.myCanvas3');
+
+            const ctx3 = canvas3.getContext('2d');
+
+            ctx3.fillStyle = '#6495ED';
+            ctx3.font = 'italic bold 30px Arial, sans-serif';
+
+            ctx3.textAlign = 'start';
+            ctx3.fillText('Hello World!', 200, 50);
+
+            ctx3.textAlign = 'end';
+            ctx3.fillText('Hello World!', 200, 100);
+
+            ctx3.textAlign = 'left';
+            ctx3.fillText('Hello World!', 200 ,150);
+
+            ctx3.textAlign = 'right';
+            ctx3.fillText('Hello World!', 200 ,200);
+            
+            ctx3.textAlign = 'center';
+            ctx3.fillText('Hello World!', 200 ,250);
+
+            ctx3.strokeStyle = 'red';
+            ctx3.moveTo(200, 20);
+            ctx3.lineTo(200, 370);
+            ctx3.stroke();
+        </script>
+
+        <canvas class="myCanvas4" width="600" height="300">글씨의 상하정렬 알아보기</canvas>
+
+        <script>
+            const canvas4 = document.querySelector('.myCanvas4');
+
+            const ctx4 = canvas4.getContext('2d');
+
+            ctx4.fillStyle = '#6495ED';
+            ctx4.font = 'italic bold 30px Arial, sans-serif';
+            
+            ctx4.textBaseline = 'top';
+            ctx4.fillText('top!!', 10, 150);
+
+            ctx4.textBaseline = 'bottom';
+            ctx4.fillText('bottom!!', 50, 150);
+
+            ctx4.textBaseline = 'middle';
+            ctx4.fillText('middle!!', 180, 150);
+
+            ctx4.textBaseline = 'alphabetic';
+            ctx4.fillText('alphabettic!!', 310, 150);
+
+            ctx4.textBaseline = 'hanging';
+            ctx4.fillText('hanging!!', 490, 150);
+
+            ctx4.strokeStyle = 'red';
+            ctx4.moveTo(10, 150);
+            ctx4.lineTo(1000, 150);
+            ctx4.stroke();
+        </script>
+    </body>
+</html>

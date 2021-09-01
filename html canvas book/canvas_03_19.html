@@ -1,0 +1,76 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class= "myCanvas" width="400" height="300">
+            간단한 불꽃 파티클 만들기
+        </canvas>
+        
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            const ctxW = canvas.width;
+            const ctxH = canvas.height;
+            
+            const particles = [];
+            const gravity = 1;
+
+            const addParticle = () => {
+
+                const x = ctxW / 2;
+                const y = ctxH / 4;
+                const size = 3;
+
+                const vx = Math.random() * 20 - 10;
+                const vy = Math.random() * 20 - 15;
+
+                particles.push({
+                    'x': x,
+                    'y': y,
+                    'size': size,
+                    'vx': vx,
+                    'vy': vy
+                });
+            };
+
+            const showParticle = () => {
+                addParticle();  
+
+                for(let particle of particles) {
+                    ctx.beginPath();
+                    
+                    const grad = ctx.createLinearGradient(100, 0, 300, 0);
+                    grad.addColorStop(0, 'white');
+                    grad.addColorStop(0.25, 'yellow');
+                    grad.addColorStop(0.5, 'red');
+                    grad.addColorStop(0.75, 'yellow');
+                    grad.addColorStop(1, 'white');
+                    ctx.fillStyle = grad;
+
+                    const x = particle.x += particle.vx;
+                    const y = particle.y += particle.vy;
+                    particle.vy += gravity;
+
+                    ctx.arc(x, y, particle.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if(particle.y > ctxH) {
+                        particles.shift();
+                    };
+                };
+            };
+
+            const animate = () => {
+            
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, ctxW, ctxH);
+                showParticle();
+            };
+
+            setInterval(animate, 30);
+        </script>
+    </body>
+</html>

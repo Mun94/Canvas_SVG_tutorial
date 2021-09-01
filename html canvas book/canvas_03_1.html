@@ -1,0 +1,113 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <canvas class="myCanvas1" width="400" height="300">선 그리기</canvas>
+        <canvas class="myCanvas2" width="400" height="300">사각형 그리기</canvas>
+        <canvas class="myCanvas3" width="400" height="300">선의 세 가지 끝부분 처리 방법</canvas>
+        <canvas class="myCanvas4" width="400" height="300">선의 꺾인 부분 처리</canvas>
+        <canvas class="myCanvas5" width="400" height="300">선의 간격을 조정하여 점선 만들기</canvas>
+
+        <script>
+            const canvas1 = document.querySelector('.myCanvas1');
+
+            const ctx1 = canvas1.getContext('2d');
+            ctx1.beginPath();
+            ctx1.moveTo(100, 50);
+            ctx1.lineTo(300, 50);
+            ctx1.stroke();
+
+            const canvas2 = document.querySelector('.myCanvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+            ctx2.beginPath();
+            ctx2.moveTo(100, 50);
+            ctx2.lineTo(300, 50);
+            ctx2.lineTo(300, 200);
+            ctx2.lineTo(100, 200);
+            ctx2.lineTo(100, 50);
+            ctx2.lineWidth = 20; // 선 두깨
+            ctx2.strokeStyle = '#0000FF'; // 선 색상
+            ctx2.lineCap = 'square'; // 사각형의 마지막 모서리 처리 butt, round, square
+            ctx2.stroke();
+            ctx2.fillStyle = 'red'; // 채우기 색상
+            ctx2.fill();
+
+            const canvas3 = document.querySelector('.myCanvas3');
+
+            const ctx3 = canvas3.getContext('2d');
+            ctx3.lineWidth = 20;
+            ctx3.strokeStyle = '#0000FF';
+
+            ctx3.beginPath();
+            ctx3.moveTo(100, 50);
+            ctx3.lineTo(300, 50);
+            ctx3.lineCap = 'butt'; 
+            ctx3.stroke();
+
+            ctx3.beginPath();
+            ctx3.moveTo(100, 100);
+            ctx3.lineTo(300, 100);
+            ctx3.lineCap = 'round';
+            ctx3.stroke();
+
+            ctx3.beginPath();
+            ctx3.moveTo(100, 150);
+            ctx3.lineTo(300, 150);
+            ctx3.lineCap = 'square';
+            ctx3.stroke();
+
+            const canvas4 = document.querySelector('.myCanvas4');
+
+            const ctx4 = canvas4.getContext('2d');
+            ctx4.lineWidth = 20;
+            ctx4.strokeStyle = '#0000FF';
+
+            ctx4.beginPath();
+            ctx4.moveTo(100, 50);
+            ctx4.lineTo(300, 50);
+            ctx4.lineTo(300, 100);
+            ctx4.lineJoin = "miter"; 
+            ctx4.stroke();
+
+            ctx4.beginPath();
+            ctx4.moveTo(100, 150);
+            ctx4.lineTo(300, 150);
+            ctx4.lineTo(300, 200);
+            ctx4.lineJoin = 'round';
+            ctx4.stroke();
+
+            ctx4.beginPath();
+            ctx4.moveTo(100, 250);
+            ctx4.lineTo(300, 250);
+            ctx4.lineTo(300, 290);
+            ctx4.lineJoin = 'bevel';
+            ctx4.stroke();
+
+            const canvas5 = document.querySelector('.myCanvas5');
+            
+            const ctx5 = canvas5.getContext('2d');
+            ctx5.lineWidth = 10;
+            ctx5.beginPath();
+            ctx5.moveTo(100, 50);
+            ctx5.lineTo(300, 50);
+            ctx5.lineTo(300, 100);
+            ctx5.setLineDash([20]);
+            ctx5.stroke();
+
+            ctx5.beginPath();
+            ctx5.moveTo(100, 150);
+            ctx5.lineTo(300, 150);
+            ctx5.lineTo(300, 200);
+            ctx5.setLineDash([50, 10]);
+            ctx5.stroke();
+
+            ctx5.beginPath();
+            ctx5.moveTo(100, 250);
+            ctx5.lineTo(300, 250);
+            ctx5.lineTo(300, 290);
+            ctx5.setLineDash([20, 10, 50, 10]);
+            ctx5.stroke();
+        </script>
+    </body>
+</html>

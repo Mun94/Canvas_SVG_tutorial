@@ -1,0 +1,25 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">알파 값 적용하기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgba(63, 169, 245, 1)'; // 하늘색
+            ctx.fillRect(20, 20, 100, 100);
+
+            ctx.globalAlpha = 0.5;
+            ctx.fillStyle = 'red';
+            ctx.fillRect(50, 50, 100, 100);
+        </script>
+
+        <script>
+            // 두 개의 이미지를 합성하여 그리기 186 ~ 187p 정리 할 것!
+        </script>
+    </body>
+</html>

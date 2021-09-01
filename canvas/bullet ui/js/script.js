@@ -435,20 +435,22 @@ const script = () => {
       
         term = term > 900 ? 1000 - term : term;
 
-        g.excutePerSec = Math.floor(1000 / term); 
+        g.excutePerSec = 1000 / term; 
         runCycle = g.excutePerSec / 5; // 1초에 5번 실행
 
         if(i % runCycle < 1) {
             animation.addDatas();
             animation.excuteRuntime();
+
+            i = 0;
         };
     
         background.render();
         animation.render();
 
-        if(i >= g.excutePerSec) {
-            i = 0;
-        };
+        // if(i >= g.excutePerSec) {
+        //     i = 0;
+        // };
 
         requestAnimationFrame(render);
     };

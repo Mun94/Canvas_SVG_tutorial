@@ -1,0 +1,61 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">사각형을 x축으로 왼쪽에서 오른쪽으로 움직이기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+
+            let x = 0;
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = 'red';
+                ctx.fillRect(x, 10, 50, 50);
+                x++
+            };
+
+            setInterval(animate, 30);
+        </script>
+
+        <canvas class="myCanvas2" width="400" height="300">두 개의 사각형을 만들고 애니메이션을 멈추게 하기</canvas>
+
+        <script>
+            const canvas2 = document.querySelector('.myCanvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+
+            let x2 = 0, y2 = 0;
+
+            const animate2 = () => {
+                ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+                ctx2.fillStyle = 'red';
+                ctx2.fillRect(x2, 10, 50, 50);
+                x2++;
+            
+                ctx2.fillStyle = 'blue';
+                ctx2.fillRect(10, y2, 50, 50);
+                y2++;
+
+                if(x2 > canvas2.width) {
+                    x2 = 0;
+                };
+
+                if(y2 > canvas2.height) {
+                    y2 = 0;
+                };   
+            };
+
+
+            const animateInterval = setInterval(animate2, 30);
+            ctx2.canvas.addEventListener('click', () => {
+                clearInterval(animateInterval);
+            });
+        </script>
+    </body>
+</html>

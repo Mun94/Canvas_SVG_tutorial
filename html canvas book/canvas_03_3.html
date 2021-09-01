@@ -1,0 +1,55 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">원 그리기</canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+
+            const ctx = canvas.getContext('2d');
+            ctx.arc(150, 150, 100, 0, Math.PI*2);
+            ctx.stroke();
+        </script>
+
+        <canvas class="myCanvas2" width="400" height="300">선과 호를 연결하여 라운드 코너 그리기</canvas>
+        <script>
+            const canvas2 = document.querySelector('.myCanvas2');
+
+            const ctx2 = canvas2.getContext('2d');
+            ctx2.beginPath();
+            ctx2.moveTo(50, 50);
+            ctx2.lineTo(300, 50);
+            ctx2.arcTo(350, 50, 350, 100, 50);
+            ctx2.lineTo(350, 200);
+            ctx2.stroke();
+        </script>
+
+        <canvas class="myCanvas3" width="400" height="300">quadraticCurve</canvas>
+        <script>
+            const canvas3 = document.querySelector('.myCanvas3');
+
+            const ctx3 = canvas3.getContext('2d');
+            ctx3.beginPath();
+            ctx3.moveTo(50,50);
+            ctx3.lineTo(300, 50);
+            ctx3.quadraticCurveTo(200, 100, 350, 100);
+            ctx3.lineTo(350, 200);
+            ctx3.stroke();
+        </script>
+
+        <canvas class="myCanvas4" width="400" height="300">bezierCurve</canvas>
+        <script>
+            const canvas4 = document.querySelector('.myCanvas4');
+
+            const ctx4 = canvas4.getContext('2d');
+            ctx4.beginPath();
+            ctx4.moveTo(50, 50);
+            ctx4.lineTo(300, 50);
+            ctx4.bezierCurveTo(200, 70, 100, 150, 350, 100);
+            ctx4.lineTo(350, 200);
+            ctx4.stroke();
+        </script>
+    </body>
+</html>

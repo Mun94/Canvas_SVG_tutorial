@@ -1,0 +1,131 @@
+<html>
+    <head>
+    </head>
+
+    <body>
+        <canvas class="myCanvas" width="400" height="300">
+            비행기를 화면 하단에 배치하여 좌우로 움직임 구현하기
+        </canvas>
+
+        <script>
+            const canvas = document.querySelector('.myCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const fighterImage = new Image();
+            fighterImage.src = 'images/BlueFighter.png';
+            const enemyImage = new Image();
+            enemyImage.src = 'images/EnemyFighter.png';
+
+            const enemies = [
+                {'id': 'enemy1', 'x': 100, 'y': -70, 'w': 43, 'h': 61},
+                {'id': 'enemy2', 'x': 200, 'y': -70, 'w': 43, 'h': 61},
+                {'id': 'enemy3', 'x': 300, 'y': -70, 'w': 43, 'h': 61}
+            ]
+            const speed = 5;
+            const enemySpeed = 0.5;
+            const keysDown = {};
+            const missiles = [];
+
+            const checkCollision = (m, mi) => {
+                for(let ene of enemies) {
+                    if(m.x >= ene.x && m.x <= ene.x + ene.w &&
+                        m.y >= ene.y && m.y <= ene.y + ene.h
+                    ) {
+                        missiles.shift();
+                        enemies.shift();
+                    };
+                };
+            };
+
+            function gameOver() {
+                clearInterval(this.animation1)
+                
+                ctx.font = 'bold 36px Arial, sans-serif';
+                ctx.fillStyle = '#FC0';
+                ctx.textAlign = 'center';
+                ctx.fillText('YOU WIN!', canvas.width * 0.5, 150);
+            };
+
+            function Player() {
+                this.x = canvas.width * 0.5 - 25;
+                this.y = 250;
+                this.w = 50;
+                this.h = 45;
+
+                this.render = function() {
+                    ctx.drawImage(fighterImage, this.x, this.y);
+
+                    missiles.forEach((m, idx) => {
+                        ctx.fillStyle = m.bg;
+                        ctx.fillRect(m.x, m.y -= 5, m.w, m.h);
+
+                        checkCollision(m, idx);
+
+                        if(m.y <= 0) {
+                            missiles.shift();
+                        };
+                    })
+                };
+            };
+
+            function Enemy() {
+                this.render = function() {
+                    if(!enemies.length) {
+                        return gameOver();
+                    };
+
+                    for(let ene of enemies) {
+                        const enemyY = ene.y += speed;
+
+                        ctx.drawImage(enemyImage, ene.x, enemyY);
+                    };
+                };
+            };
+
+            const player = new Player();
+            const enemy = new Enemy();
+
+            const update = () => {
+                if(65 in keysDown) {
+                    player.x -= speed;
+                } else if(68 in keysDown) {
+                    player.x += speed;
+                };
+                
+
+                if(player.x < 0) {
+                    player.x = 0;
+                } else if(player.x > (canvas.width - player.w)) {
+                    player.x = canvas.width - player.w;
+                };
+            };
+
+            document.addEventListener('keydown', e => {
+                keysDown[e.keyCode] = true;
+
+                if(e.keyCode === 32) {
+                    missiles.push({
+                        'x': player.x + player.w * 0.5,
+                        'y': player.y - 5,
+                        'w': 3,
+                        'h': 10,
+                        'bg': 'red'
+                    });
+                };
+            });
+
+            document.addEventListener('keyup', e => {
+                delete keysDown[e.keyCode];
+            });
+
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                player.render();
+                enemy.render();
+                update();
+            };
+
+            this.animation = setInterval(animate, 30);
+        </script>
+    </body>
+</html>
