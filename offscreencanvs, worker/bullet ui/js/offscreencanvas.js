@@ -45,7 +45,10 @@ onmessage = (e) => {
 
                 this.arcDiameter = 15;
 
-                this.reqEndX = this.reqX - this.arcDiameter
+                this.reqEndX     = this.reqX    - this.arcDiameter;
+                this.excuStartX  = this.reqX    + this.arcDiameter;
+                this.excuEndY    = this.canvasH - this.arcDiameter;
+                this.resStartX   = this.resX    + this.arcDiameter
             };
         };
     };
@@ -105,6 +108,7 @@ onmessage = (e) => {
 
         render() {
             this.reqAni();
+            this.excuAni();
         };
 
         reqAni() {
@@ -142,22 +146,22 @@ onmessage = (e) => {
 
         excuAni() {
             if(!this.excuDatas.length) { return; };
-            console.log(this.excuDatas);
+           
             const bounce = data => {
                 if(data.ex >= (this.resX - this.arcDiameter)) {
                     data.exSpeed = -data.exSpeed;
                 };
 
-                if(data.mx <= this.excuStartX) {
-                    data.mxSpeed = Math.abs(data.mxSpeed);
+                if(data.ex <= this.excuStartX) {
+                    data.exSpeed = Math.abs(data.exSpeed);
                 };
 
-                if(data.my >= this.excuEndY) {
-                    data.mySpeed = -data.mySpeed;
+                if(data.ey >= this.excuEndY) {
+                    data.eySpeed = -data.eySpeed;
                 };
 
-                if(data.my <= (this.startY + this.arcDiameter)) {
-                    data.mySpeed = Math.abs(data.mySpeed);
+                if(data.ey <= (this.startY + this.arcDiameter)) {
+                    data.eySpeed = Math.abs(data.eySpeed);
                 };
             };
 
@@ -171,11 +175,11 @@ onmessage = (e) => {
 
             const bullet = color => {
                 this.createBullet(color, data, area);
-                console.log(data);
-                bounceFn && bounce();
+                
+                bounceFn && bounceFn(data);
             };
 
-            if(timeCondition(data),cri) {
+            if(timeCondition(data).cri) {
                 bullet(colorData.cri);
 
             } else if(timeCondition(data).war) {
@@ -191,10 +195,24 @@ onmessage = (e) => {
 
         createBullet(color, data, area) {
             // area별로 분리
-            ctx.beginPath();
-            ctx.fillStyle = color;
-            ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
-            ctx.fill();
+            // ctx.beginPath();
+            // ctx.fillStyle = color;
+            // ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
+            // ctx.fill();
+
+            switch(area) {
+                case 'reqArea':
+                    ctx.beginPath();
+                    ctx.fillStyle = color;
+                    ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'excuArea':
+                    ctx.beginPath();
+                    ctx.fillStyle = color;
+                    ctx.arc(data.ex += data.exSpeed, data.ey += data.eySpeed, this.arcDiameter, 0, Math.PI * 2);
+                    ctx.fill();
+            }
         };
     };
     const animation = new Animation();
