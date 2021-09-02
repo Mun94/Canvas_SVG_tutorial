@@ -19,6 +19,14 @@ onmessage = (e) => {
         basicLine  : '#C6C9CD', // 라인 색
     };
 
+    const timeCondition = data => {
+        return {
+            nor: data.colorByRuntime >= 1 && data.colorByRuntime <= 3,
+            war: data.colorByRuntime > 3 && data.colorByRuntime <= 5,
+            cri:  data.colorByRuntime > 5  && data.colorByRuntime <= 10
+        };
+    };
+
     class Position{
         constructor(aniPosition) {
             this.canvasW = canvas.width;
@@ -50,7 +58,7 @@ onmessage = (e) => {
             this.startRectX = 0;
             this.startRectY = 0;
 
-            this. lineTick = 1;
+            this.lineTick = 1;
         };
     };
 
@@ -105,7 +113,7 @@ onmessage = (e) => {
             for(let i = 0; i < this.datas.length; i++) {
                 const data = this.datas[i];
 
-                this.createBullet(colorData.nor, data[0]);
+                this.createBullet(colorData.nor, data[0], 'reqArea');
 
                 if(data[0].x > this.reqEndX) {
                     data.forEach(d => {
@@ -132,7 +140,57 @@ onmessage = (e) => {
             };
         };
 
-        createBullet(color, data) {
+        excuAni() {
+            if(!this.excuDatas.length) { return; };
+            console.log(this.excuDatas);
+            const bounce = data => {
+                if(data.ex >= (this.resX - this.arcDiameter)) {
+                    data.exSpeed = -data.exSpeed;
+                };
+
+                if(data.mx <= this.excuStartX) {
+                    data.mxSpeed = Math.abs(data.mxSpeed);
+                };
+
+                if(data.my >= this.excuEndY) {
+                    data.mySpeed = -data.mySpeed;
+                };
+
+                if(data.my <= (this.startY + this.arcDiameter)) {
+                    data.mySpeed = Math.abs(data.mySpeed);
+                };
+            };
+
+            for(let data of this.excuDatas) {
+                this.createBulletByRuntime(data, bounce);
+            };
+        };
+
+        createBulletByRuntime(data, bounceFn) {
+            const area = bounceFn ? 'excuArea' : 'resArea';
+
+            const bullet = color => {
+                this.createBullet(color, data, area);
+                console.log(data);
+                bounceFn && bounce();
+            };
+
+            if(timeCondition(data),cri) {
+                bullet(colorData.cri);
+
+            } else if(timeCondition(data).war) {
+                bullet(colorData.war);
+
+            } else if(timeCondition(data).nor) {
+                bullet(colorData.nor);
+
+            } else {
+                console.log('check colorByRuntime');
+            };
+        };
+
+        createBullet(color, data, area) {
+            // area별로 분리
             ctx.beginPath();
             ctx.fillStyle = color;
             ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
