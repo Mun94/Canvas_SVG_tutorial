@@ -32,7 +32,7 @@ onmessage = (e) => {
             this.canvasW = canvas.width;
             this.canvasH = canvas.height;
 
-            this.bulletPath = 240;
+            this.bulletPathY = 240;
 
             this.reqX = this.canvasW / 3;
             this.resX = this.canvasW * (2 / 3);
@@ -91,7 +91,7 @@ onmessage = (e) => {
                     speed,
 
                     x: this.startX,
-                    y: this.bulletPath
+                    y: this.bulletPathY
                 });
             };
 
@@ -109,6 +109,7 @@ onmessage = (e) => {
         render() {
             this.reqAni();
             this.excuAni();
+            this.resAni();
         };
 
         reqAni() {
@@ -170,6 +171,14 @@ onmessage = (e) => {
             };
         };
 
+        resAni() {
+            if(!this.resDatas.length) { return; };
+            
+            for(let data of this.resDatas) {
+                this.createBulletByRuntime(data);
+            };
+        };
+
         createBulletByRuntime(data, bounceFn) {
             const area = bounceFn ? 'excuArea' : 'resArea';
 
@@ -181,38 +190,60 @@ onmessage = (e) => {
 
             if(timeCondition(data).cri) {
                 bullet(colorData.cri);
-
             } else if(timeCondition(data).war) {
                 bullet(colorData.war);
-
             } else if(timeCondition(data).nor) {
                 bullet(colorData.nor);
-
             } else {
-                console.log('check colorByRuntime');
+                alert('check colorByRuntime');
             };
         };
 
         createBullet(color, data, area) {
-            // area별로 분리
-            // ctx.beginPath();
-            // ctx.fillStyle = color;
-            // ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
-            // ctx.fill();
 
+            ctx.beginPath();
             switch(area) {
                 case 'reqArea':
-                    ctx.beginPath();
                     ctx.fillStyle = color;
                     ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
-                    ctx.fill();
                     break;
                 case 'excuArea':
-                    ctx.beginPath();
                     ctx.fillStyle = color;
                     ctx.arc(data.ex += data.exSpeed, data.ey += data.eySpeed, this.arcDiameter, 0, Math.PI * 2);
-                    ctx.fill();
-            }
+                    break;
+                case 'resArea':
+                    ctx.fillStyle = color;
+                    ctx.arc(data.rx += data.speed, data.ry, this.arcDiameter, 0, Math.PI * 2);
+                    break;
+            };
+            ctx.fill();
+        };
+
+        excuteRuntime() {
+            if(!this.excuDatas.length) { return; };
+    
+            this.excuDatas.forEach(data => data.runtime = Number((data.runtime - 0.2).toFixed(1))); // 수행 시간 감소
+            
+            const runtimeEndBullets = this.excuDatas.filter(data => data.runtime <= 0); // 수행 시간 종료 데이터 필터링
+            const resBulletCount = runtimeEndBullets.length;
+    
+            const longestRuntime = runtimeEndBullets.sort((a, b) => b.colorByRuntime - a.colorByRuntime)[0]; // 동시에 수행 시간이 완료 된 데이터 중 runtime이 가장 길었던 데이터 추출
+    
+            if(longestRuntime) {
+                const {colorByRuntime, runtime, speed} = longestRuntime;
+    
+                this.resDatas.push({
+                    colorByRuntime, 
+                    runtime, 
+                    rx: this.resStartX, 
+                    ry: this.bulletPathY, 
+                    speed: Math.abs(speed),
+
+                    resBulletCount
+                });
+            };
+             
+            this.excuDatas = this.excuDatas.filter(data => data.runtime > 0); // 수행 시간이 남은 데이터들로 재할당
         };
     };
     const animation = new Animation();
@@ -241,21 +272,27 @@ onmessage = (e) => {
             ctx.moveTo(this.reqX, this.startY);
             ctx.lineTo(this.reqX, this.canvasH);
             // req 총알 길
-            ctx.moveTo(this.startX, this.bulletPath);
-            ctx.lineTo(this.reqX, this.bulletPath);
+            ctx.moveTo(this.startX, this.bulletPathY);
+            ctx.lineTo(this.reqX, this.bulletPathY);
             // res 경계
             ctx.moveTo(this.resX, this.startY);
             ctx.lineTo(this.resX, this.canvasH);
             // res 총알 길
-            ctx.moveTo(this.resX, this.bulletPath);
-            ctx.lineTo(this.canvasW, this.bulletPath);
+            ctx.moveTo(this.resX, this.bulletPathY);
+            ctx.lineTo(this.canvasW, this.bulletPathY);
         };
     };
     const background = new Background();
 
+    let i = 0; // 카운트 체크는 임시로;
     const render = () => {
+        i++;
         ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
 
+        if(i % 12 === 0) {
+            animation.excuteRuntime();
+            i = 0;
+        }
         background.render();
         animation.render();
         
