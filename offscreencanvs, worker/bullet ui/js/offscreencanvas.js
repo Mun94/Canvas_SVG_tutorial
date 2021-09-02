@@ -3,6 +3,10 @@ onmessage = (e) => {
     const ctx = canvas.getContext('2d');
 
     const g = {
+        dataCount: 0,
+        reqCount: 0,
+        resCount: 0,
+
         excutePerSec : 60 // default 값
     };
 
@@ -44,6 +48,8 @@ onmessage = (e) => {
                 this.area = this.canvasW / 3;
 
                 this.arcDiameter = 15;
+
+                this.tailSize = 150;
 
                 this.reqEndX     = this.reqX    - this.arcDiameter;
                 this.excuStartX  = this.reqX    + this.arcDiameter;
@@ -115,6 +121,8 @@ onmessage = (e) => {
         reqAni() {
             if(!this.datas.length) { return; };
 
+            g.reqCount = this.datas.length * this.dataPerReq;
+
             for(let i = 0; i < this.datas.length; i++) {
                 const data = this.datas[i];
 
@@ -148,6 +156,8 @@ onmessage = (e) => {
         excuAni() {
             if(!this.excuDatas.length) { return; };
            
+            g.dataCount = this.excuDatas;
+
             const bounce = data => {
                 if(data.ex >= (this.resX - this.arcDiameter)) {
                     data.exSpeed = -data.exSpeed;
@@ -174,6 +184,8 @@ onmessage = (e) => {
         resAni() {
             if(!this.resDatas.length) { return; };
             
+            g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, []);
+
             for(let data of this.resDatas) {
                 this.createBulletByRuntime(data);
             };
@@ -200,23 +212,61 @@ onmessage = (e) => {
         };
 
         createBullet(color, data, area) {
+            const bulletGradation = (move, y) => {
+                const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter);
+                grad.addColorStop(0, colorData.background);
+                grad.addColorStop(1, color);
+
+                return grad;
+            };
+
+            const bullet = (move, y) => {
+                ctx.fillStyle = bulletGradation(move, y);
+                ctx.arc(move, y, this.arcDiameter, 0, Math.PI * 2);
+            }; 
+
+            const tailGradation = x => {
+                const tailGrad = ctx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
+                tailGrad.addColorStop(0, colorData.gradation);
+                tailGrad.addColorStop(0.5, colorData.background);
+                tailGrad.addColorStop(1, color);
+
+                return tailGrad;
+            };
+
+            const tail = x => {
+                ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
+                ctx.fillStyle = tailGradation(x);
+                ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcDiameter);
+            };
 
             ctx.beginPath();
             switch(area) {
                 case 'reqArea':
-                    ctx.fillStyle = color;
-                    ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
+                    const reqMove = data.x += data.speed;
+
+                    tail(reqMove);
+
+                    bullet(reqMove, data.y);
                     break;
                 case 'excuArea':
-                    ctx.fillStyle = color;
-                    ctx.arc(data.ex += data.exSpeed, data.ey += data.eySpeed, this.arcDiameter, 0, Math.PI * 2);
+                    const excuMove = data.ex += data.exSpeed;
+                    const excuMoveY = data.ey += data.eySpeed;
+
+                    bullet(excuMove, excuMoveY);
                     break;
                 case 'resArea':
-                    ctx.fillStyle = color;
-                    ctx.arc(data.rx += data.speed, data.ry, this.arcDiameter, 0, Math.PI * 2);
+                    const resMove = data.rx += data.speed;
+
+                    tail(resMove);
+
+                    bullet(resMove, data.ry);
+                    break;
+                default:
                     break;
             };
             ctx.fill();
+
         };
 
         excuteRuntime() {
