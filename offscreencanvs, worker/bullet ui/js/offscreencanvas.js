@@ -36,6 +36,8 @@ onmessage = (e) => {
                 this.area = this.canvasW / 3;
 
                 this.arcDiameter = 15;
+
+                this.reqEndX = this.reqX - this.arcDiameter
             };
         };
     };
@@ -49,7 +51,6 @@ onmessage = (e) => {
             this.startRectY = 0;
 
             this. lineTick = 1;
-
         };
     };
 
@@ -100,16 +101,41 @@ onmessage = (e) => {
 
         reqAni() {
             if(!this.datas.length) { return; };
-            
-            for(let data of this.datas) {
+
+            for(let i = 0; i < this.datas.length; i++) {
+                const data = this.datas[i];
+
                 this.createBullet(colorData.nor, data[0]);
+
+                if(data[0].x > this.reqEndX) {
+                    data.forEach(d => {
+                        const {colorByRuntime, runtime, speed} = d;
+
+                        const randomX = Math.random() * (this.area - (this.arcDiameter * 2));
+                        const randomY = Math.random() * (this.excuEndY - this.startY);
+                        const randomExSpeed = (Number(Math.random().toFixed(1)) || 0.1);
+                        const randomEySpeed = (Number(Math.random().toFixed(1)) || 0.1);
+                        
+                        this.excuDatas.push({
+                            colorByRuntime,
+                            runtime,
+                            speed,
+
+                            ex: this.excuStartX + randomX,
+                            ey: this.startY + randomY,
+                            exSpeed: Math.sign(Math.random() - 0.5) * randomExSpeed,
+                            eySpeed: Math.sign(Math.random() - 0.5) * randomEySpeed
+                        });
+                    });
+                    this.datas.splice(i, 1);
+                };
             };
         };
 
         createBullet(color, data) {
             ctx.beginPath();
             ctx.fillStyle = color;
-            ctx.arc(data.x, data.y, this.arcDiameter, 0, Math.PI * 2);
+            ctx.arc(data.x += data.speed, data.y, this.arcDiameter, 0, Math.PI * 2);
             ctx.fill();
         };
     };
@@ -161,6 +187,5 @@ onmessage = (e) => {
     };
     animation.addDatas(); // 나중에 requestAnimationFrame에 들여놔야 함
 
-    render()
-
+    render();
 };
