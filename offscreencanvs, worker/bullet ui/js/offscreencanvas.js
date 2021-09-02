@@ -99,29 +99,23 @@ onmessage = (e) => {
         };
 
         reqAni() {
-            // if(!this.datas.length) { return; };
-            // console.log(this.datas)
-            this.createBullet(colorData.nor, data[0]);
+            if(!this.datas.length) { return; };
+            
             for(let data of this.datas) {
                 this.createBullet(colorData.nor, data[0]);
-                console.log(123)
             };
         };
 
         createBullet(color, data) {
-       
-            ctx.fillStyle = 'red';
-            ctx.arc(200 ,240, 15, 0, Math.PI * 2);
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.arc(data.x, data.y, this.arcDiameter, 0, Math.PI * 2);
             ctx.fill();
-        };
-
-        createBulletByRuntime() {
-
         };
     };
     const animation = new Animation();
     class Background extends FontPosition {
-        constructor(){
+        constructor() {
             super();
         };
 
@@ -158,10 +152,11 @@ onmessage = (e) => {
     const background = new Background();
 
     const render = () => {
-        // ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
+        ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
 
-        animation.createBullet();
         background.render();
+        animation.render();
+        
         requestAnimationFrame(render);
     };
     animation.addDatas(); // 나중에 requestAnimationFrame에 들여놔야 함

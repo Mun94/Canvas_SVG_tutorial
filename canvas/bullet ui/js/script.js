@@ -316,7 +316,7 @@ const script = () => {
     
     // background
     class Background extends FontPosition{
-        constructor(){
+        constructor() {
             super();
         };
     
