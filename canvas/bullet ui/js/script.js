@@ -122,8 +122,6 @@ const script = () => {
             };
     
             this.datas.push(pck);
-
-            g.reqCount = (this.datas.length * this.dataPerReq);
         };
     };
     
@@ -137,6 +135,8 @@ const script = () => {
         };
     
         reqAni() {
+            g.reqCount = this.datas.length * this.dataPerReq;
+
             for(let i = 0; i < this.datas.length; i++) {
                 const data = this.datas[i];
 
