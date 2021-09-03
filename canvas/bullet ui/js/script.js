@@ -45,16 +45,16 @@ const script = () => {
     
             if(aniPosition) {
                 // 에니메이션 수행에 필요한 조건
-                this.arcDiameter = 15;
+                this.arcRadius = 15;
     
                 this.area        = this.canvasW / 3; // left; mid; right 구역 당 width
                 
                 this.tailSize    = 150;
     
-                this.reqEndX     = this.reqX    - this.arcDiameter;
-                this.excuStartX  = this.reqX    + this.arcDiameter;
-                this.excuEndY    = this.canvasH - this.arcDiameter;
-                this.resStartX   = this.resX    + this.arcDiameter
+                this.reqEndX     = this.reqX    - this.arcRadius;
+                this.excuStartX  = this.reqX    + this.arcRadius;
+                this.excuEndY    = this.canvasH - this.arcRadius;
+                this.resStartX   = this.resX    + this.arcRadius
             };
         };
     };
@@ -154,7 +154,7 @@ const script = () => {
                     data.forEach(d => {
                         const { colorByRuntime, runtime, speed } = d;
 
-                        const randomX = Math.random() * (this.area - (this.arcDiameter * 2));
+                        const randomX = Math.random() * (this.area - (this.arcRadius * 2));
                         const randomY = Math.random() * (this.excuEndY - this.startY);
                         const randomExSpeed = (Number(Math.random().toFixed(1)) || 0.1);
                         const randomEySpeed = (Number(Math.random().toFixed(1)) || 0.1);
@@ -184,7 +184,7 @@ const script = () => {
             if(!this.excuDatas.length) { return; };
 
             const bounce = data => {
-                if(data.ex >= (this.resX - this.arcDiameter)) {
+                if(data.ex >= (this.resX - this.arcRadius)) {
                     data.exSpeed = -data.exSpeed;
                 };
 
@@ -196,7 +196,7 @@ const script = () => {
                     data.eySpeed = -data.eySpeed;
                 };
 
-                if(data.ey <= (this.startY + this.arcDiameter)) {
+                if(data.ey <= (this.startY + this.arcRadius)) {
                     data.eySpeed = Math.abs(data.eySpeed);
                 };
             };
@@ -240,7 +240,7 @@ const script = () => {
 
         createBullet(color, data, area) {
             const bulletGradation = (move, y, opacity) => {
-                const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter);
+                const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcRadius);
                 grad.addColorStop(0, colorData.background);
                 if(area === 'excuArea') {
                     grad.addColorStop(1, this.setOpacity(color, opacity));
@@ -254,7 +254,7 @@ const script = () => {
             const bullet = (move, y, opacity) => {
                 ctx.beginPath();
                 ctx.fillStyle = bulletGradation(move, y, opacity);
-                ctx.arc(move, y, this.arcDiameter, 0, Math.PI * 2);
+                ctx.arc(move, y, this.arcRadius, 0, Math.PI * 2);
                 ctx.fill();
             }; 
 
@@ -269,9 +269,9 @@ const script = () => {
 
             const tail = x => {
                 ctx.beginPath();
-                ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
+                ctx.moveTo(x, this.bulletPathY + this.arcRadius);
                 ctx.fillStyle = tailGradation(x);
-                ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcDiameter);
+                ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcRadius);
                 ctx.fill();
             };
 
