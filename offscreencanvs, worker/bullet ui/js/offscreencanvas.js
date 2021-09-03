@@ -64,10 +64,31 @@ onmessage = (e) => {
             const needAniPosition = false;
             super(needAniPosition);
 
-            this.startRectX = 0;
-            this.startRectY = 0;
-
-            this.lineTick = 1;
+            this.startRectX    = 0;
+            this.startRectY    = 0;
+    
+            this.lineTick      = 1;
+    
+            // 글자 영역에 공통으로 필요한 조건
+            this.countTitleGap = 60;
+    
+            // req 글자 위치
+            this.totalCountX   = 70; 
+            this.totalFontY    = 80;
+            this.reqCountX     = 130;
+            this.reqFontY      = 170;
+    
+            // excu 글자 위치
+            this.excuFontY     = 80;
+            this.norWarCriGap  = 150;
+    
+            this.norCountX     = (this.canvasW / 3) + 20;
+            this.warCountX     = this.norCountX + this.norWarCriGap;
+            this.criCountX     = this.warCountX + this.norWarCriGap;
+    
+            // res 글자 위치
+            this.resCountX     = this.canvasW * ( 3 / 4 );
+            this.resFontY      = 170;
         };
     };
 
@@ -120,17 +141,19 @@ onmessage = (e) => {
 
         reqAni() {
             g.reqCount = this.datas.length * this.dataPerReq;
-            
+
             if(!this.datas.length) { return; };
+
+            for(let data of this.datas) {
+                this.createBullet(colorData.nor, data[0], 'reqArea');
+            };
 
             for(let i = 0; i < this.datas.length; i++) {
                 const data = this.datas[i];
 
-                this.createBullet(colorData.nor, data[0], 'reqArea');
-
                 if(data[0].x > this.reqEndX) {
                     data.forEach(d => {
-                        const {colorByRuntime, runtime, speed} = d;
+                        const { colorByRuntime, runtime, speed } = d;
 
                         const randomX = Math.random() * (this.area - (this.arcDiameter * 2));
                         const randomY = Math.random() * (this.excuEndY - this.startY);
@@ -148,6 +171,7 @@ onmessage = (e) => {
                             eySpeed: Math.sign(Math.random() - 0.5) * randomEySpeed
                         });
                     });
+                    
                     this.datas.splice(i, 1);
                 };
             };
@@ -309,6 +333,11 @@ onmessage = (e) => {
 
             ctx.beginPath();
             this.line();
+
+            this.reqCount();
+            this.excuCount();
+            this.resCount();
+
             ctx.stroke();
         };
 
@@ -333,26 +362,102 @@ onmessage = (e) => {
             ctx.moveTo(this.resX, this.bulletPathY);
             ctx.lineTo(this.canvasW, this.bulletPathY);
         };
+
+        reqCount() {
+            const totalCount = this.count().nor + this.count().war + this.count().cri;
+    
+            ctx.font = '30px Arial';
+    
+            ctx.fillStyle = colorData.basicFont;
+            ctx.fillText('현재 전체 건수', this.totalCountX + this.countTitleGap + 13, this.totalFontY);
+    
+            ctx.font = '45px Arial';
+    
+            ctx.fillText(totalCount, this.totalCountX, this.totalFontY);
+            
+            ctx.font = '25px Arial';
+    
+            ctx.fillText('요청/초', this.reqCountX, this.reqFontY);
+            ctx.fillText(g.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
+        };
+
+        excuCount() {
+            ctx.font = '25px Arial';
+    
+            ctx.fillStyle = colorData.basicFont;
+            ctx.fillText('정상', this.norCountX + this.countTitleGap, this.excuFontY);
+            ctx.fillText('경고', this.warCountX + this.countTitleGap, this.excuFontY);
+            ctx.fillText('심각', this.criCountX + this.countTitleGap, this.excuFontY);
+    
+            ctx.font = 'bold 35px Arial';
+    
+            ctx.fillStyle = colorData.nor;
+            ctx.fillText(this.count().nor, this.norCountX, this.excuFontY);
+            ctx.fillStyle = colorData.war;
+            ctx.fillText(this.count().war, this.warCountX, this.excuFontY);
+            ctx.fillStyle = colorData.cri;
+            ctx.fillText(this.count().cri, this.criCountX, this.excuFontY);
+        };
+    
+        resCount() {
+            ctx.font = '25px Arial';
+    
+            ctx.fillStyle = colorData.basicFont;
+            ctx.fillText('응답/초', this.resCountX, this.resFontY);
+            ctx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
+        };
+
+        count() {
+            const nor = (g.dataCount || []).filter(data => timeCondition(data).nor).length;
+            const war = (g.dataCount || []).filter(data => timeCondition(data).war).length;
+            const cri = (g.dataCount || []).filter(data => timeCondition(data).cri).length;
+
+            return { nor, war, cri };
+        };
     };
     const background = new Background();
 
-    let i = 0; // 카운트 체크는 임시로;
+    let i = 0;
+    let runCycle = 0;
+
+    let beforeSec = 0;
+    let term = 0;
     const render = () => {
+        ctx.clearRect(0, 0, this.canvasW, this.canvasH);
         i++;
-        ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
 
-        console.log(g)
+        const nowSec = (new Date()).getMilliseconds();
 
-        if(i % 12 === 0) {
+        if(beforeSec !== nowSec) {
+            if(nowSec > beforeSec) {
+                term = nowSec - beforeSec;
+            } else {
+                term = beforeSec - nowSec;
+            };
+            beforeSec = nowSec;
+        };
+      
+        term = term > 900 ? 1000 - term : term;
+
+        g.excutePerSec = 1000 / term; 
+        runCycle = g.excutePerSec / 5; // 1초에 5번 실행
+
+        if(i % runCycle < 1) {
+            animation.addDatas();
             animation.excuteRuntime();
+
             i = 0;
-        }
+        };
+    
         background.render();
         animation.render();
-        
+
+        // if(i >= g.excutePerSec) {
+        //     i = 0;
+        // };
+
         requestAnimationFrame(render);
     };
-    animation.addDatas(); // 나중에 requestAnimationFrame에 들여놔야 함
 
     render();
 };

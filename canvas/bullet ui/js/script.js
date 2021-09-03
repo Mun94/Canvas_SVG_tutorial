@@ -1,9 +1,9 @@
 const script = () => {
 
     const g = {
+        reqCount : 0,
         dataCount: 0,
         resCount : 0,
-        reqCount : 0,
 
         excutePerSec: 60 // default 값
     };
@@ -50,6 +50,7 @@ const script = () => {
                 this.arcDiameter = 15;
     
                 this.area        = this.canvasW / 3; // left; mid; right 구역 당 width
+                
                 this.tailSize    = 150;
     
                 this.reqEndX     = this.reqX    - this.arcDiameter;
@@ -422,7 +423,6 @@ const script = () => {
         ctx.clearRect(0, 0, this.canvasW, this.canvasH);
         i++;
 
-        console.log(g);
         const nowSec = (new Date()).getMilliseconds();
 
         if(beforeSec !== nowSec) {
