@@ -27,22 +27,36 @@ const script = () => {
     for(let c = 0; c < brickColumnCount; c++) {
         bricks[c] = [];
         for(let r = 0; r < brickRowCount; r++) {
-            bricks[c][r] = { x: 0, y: 0};
+            bricks[c][r] = { x: 0, y: 0, status: 1 };
+        };
+    };
+
+    const collisionDetection = () => {
+        for(let c = 0; c < brickColumnCount; c++) {
+            for(let r = 0; r < brickRowCount; r++) {
+                const b = bricks[c][r];
+                if( x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+                    dy = -dy;
+                    b.status = 0;
+                };
+            };
         };
     };
 
     const drawBricks = () => {
         for(let c = 0; c < brickColumnCount; c++) {
             for(let r = 0; r < brickRowCount; r++) {
-                const brickX = ( c * (brickWidth + brickPadding)) + brickOffsetLeft;
-                const brickY = ( r * (brickHeight + brickPadding)) + brickOffsetTop;
-                bricks[c][r].x = brickX;
-                bricks[c][r].y = brickY;
+                if(bricks[c][r].status === 1) {
+                    const brickX = ( c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                    const brickY = ( r * (brickHeight + brickPadding)) + brickOffsetTop;
+                    bricks[c][r].x = brickX;
+                    bricks[c][r].y = brickY;
 
-                ctx.beginPath();
-                ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                ctx.fillStlye = '#0095DD';
-                ctx.fill();
+                    ctx.beginPath();
+                    ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                    ctx.fillStlye = '#0095DD';
+                    ctx.fill();
+                };
             };
         };
     };
@@ -91,6 +105,7 @@ const script = () => {
 
         drawBall();
         drawPaddle();
+        collisionDetection();
         drawBricks();
 
         if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
