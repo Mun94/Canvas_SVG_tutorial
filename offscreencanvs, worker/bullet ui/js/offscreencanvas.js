@@ -308,14 +308,14 @@ onmessage = (e) => {
             };
         };
 
-        setOpacity(color, t) {
+        setOpacity(color, a) {
             switch(color) {
                 case colorData.nor:
-                    return `rgba(77, 139, 213, ${t})`;
+                    return `rgba(77, 139, 213, ${a})`;
                 case colorData.war:
-                    return `rgba(184, 166, 5, ${t})`;
+                    return `rgba(184, 166, 5, ${a})`;
                 case colorData.cri:
-                    return `rgba(180, 14, 10, ${t})`;
+                    return `rgba(180, 14, 10, ${a})`;
                 default:
                     break;
             };

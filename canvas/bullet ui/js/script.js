@@ -1,7 +1,5 @@
 const script = () => {
-
     const canvas = document.querySelector('.myCanvas');
-    
     const ctx = canvas.getContext('2d');
 
     const g = {
@@ -169,7 +167,9 @@ const script = () => {
                             ex: this.excuStartX + randomX,
                             ey: this.startY + randomY,
                             exSpeed: Math.sign(Math.random() - 0.5) * randomExSpeed,
-                            eySpeed: Math.sign(Math.random() - 0.5) * randomEySpeed
+                            eySpeed: Math.sign(Math.random() - 0.5) * randomEySpeed,
+
+                            opacity: 0
                         });
                     });
                     
@@ -239,17 +239,23 @@ const script = () => {
         };
 
         createBullet(color, data, area) {
-            const bulletGradation = (move, y) => {
+            const bulletGradation = (move, y, opacity) => {
                 const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter);
                 grad.addColorStop(0, colorData.background);
-                grad.addColorStop(1, color);
+                if(area === 'excuArea') {
+                    grad.addColorStop(1, this.setOpacity(color, opacity));
+                } else {
+                    grad.addColorStop(1, color);
+                };
 
                 return grad;
             };
 
-            const bullet = (move, y) => {
-                ctx.fillStyle = bulletGradation(move, y);
+            const bullet = (move, y, opacity) => {
+                ctx.beginPath();
+                ctx.fillStyle = bulletGradation(move, y, opacity);
                 ctx.arc(move, y, this.arcDiameter, 0, Math.PI * 2);
+                ctx.fill();
             }; 
 
             const tailGradation = x => {
@@ -262,12 +268,13 @@ const script = () => {
             };
 
             const tail = x => {
+                ctx.beginPath();
                 ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
                 ctx.fillStyle = tailGradation(x);
                 ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcDiameter);
+                ctx.fill();
             };
 
-            ctx.beginPath();
             switch(area) {
                 case 'reqArea':
                     const reqMove = data.x += data.speed;
@@ -277,10 +284,16 @@ const script = () => {
                     bullet(reqMove, data.y);
                     break;
                 case 'excuArea':
-                    const excuMove = data.ex += data.exSpeed;
+                    const excuMove  = data.ex += data.exSpeed;
                     const excuMoveY = data.ey += data.eySpeed;
 
-                    bullet(excuMove, excuMoveY);
+                    let opacity;
+                    if(data.opacity < 1) {
+                        const increase = 0.04;
+                        opacity = data.opacity += increase;
+                    };
+
+                    bullet(excuMove, excuMoveY, opacity || 1);
                     break;
                 case 'resArea':
                     const resMove = data.rx += data.speed;
@@ -292,8 +305,19 @@ const script = () => {
                 default:
                     break;
             };
-            ctx.fill();
+        };
 
+        setOpacity(color, a) {
+            switch(color) {
+                case colorData.nor:
+                    return `rgba(77, 139, 213, ${a})`;
+                case colorData.war:
+                    return `rgba(184, 166, 5, ${a})`;
+                case colorData.cri:
+                    return `rgba(180, 14, 10, ${a})`;
+                default:
+                    break;
+            };
         };
 
         excuteRuntime() {
