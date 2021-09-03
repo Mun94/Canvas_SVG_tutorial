@@ -243,19 +243,20 @@ onmessage = (e) => {
             const bulletGradation = (move, y, opacity) => {
                 const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter);
                 grad.addColorStop(0, colorData.background);
-
                 if(area === 'excuArea') {
-                    grad.addColorStop(1, this.opacity(color, opacity))
+                    grad.addColorStop(1, this.setOpacity(color, opacity));
                 } else {
                     grad.addColorStop(1, color);
-                }
+                };
 
                 return grad;
             };
 
             const bullet = (move, y, opacity) => {
+                ctx.beginPath();
                 ctx.fillStyle = bulletGradation(move, y, opacity);
                 ctx.arc(move, y, this.arcDiameter, 0, Math.PI * 2);
+                ctx.fill();
             }; 
 
             const tailGradation = x => {
@@ -268,12 +269,13 @@ onmessage = (e) => {
             };
 
             const tail = x => {
+                ctx.beginPath();
                 ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
                 ctx.fillStyle = tailGradation(x);
                 ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcDiameter);
+                ctx.fill();
             };
 
-            ctx.beginPath();
             switch(area) {
                 case 'reqArea':
                     const reqMove = data.x += data.speed;
@@ -304,16 +306,15 @@ onmessage = (e) => {
                 default:
                     break;
             };
-            ctx.fill();
         };
 
-        opacity(color, t) {
+        setOpacity(color, t) {
             switch(color) {
-                case '#4D8BD5':
-                   return `rgba(77, 139, 213, ${t})`;
-                case '#B8A605':
+                case colorData.nor:
+                    return `rgba(77, 139, 213, ${t})`;
+                case colorData.war:
                     return `rgba(184, 166, 5, ${t})`;
-                case '#B40E0A':
+                case colorData.cri:
                     return `rgba(180, 14, 10, ${t})`;
                 default:
                     break;
