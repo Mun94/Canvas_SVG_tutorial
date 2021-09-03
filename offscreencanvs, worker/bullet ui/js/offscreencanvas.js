@@ -3,8 +3,8 @@ onmessage = (e) => {
     const ctx = canvas.getContext('2d');
 
     const g = {
-        dataCount: 0,
         reqCount: 0,
+        dataCount: 0,
         resCount: 0,
 
         excutePerSec : 60 // default 값
@@ -119,9 +119,9 @@ onmessage = (e) => {
         };
 
         reqAni() {
-            if(!this.datas.length) { return; };
-
             g.reqCount = this.datas.length * this.dataPerReq;
+            
+            if(!this.datas.length) { return; };
 
             for(let i = 0; i < this.datas.length; i++) {
                 const data = this.datas[i];
@@ -154,9 +154,9 @@ onmessage = (e) => {
         };
 
         excuAni() {
-            if(!this.excuDatas.length) { return; };
-           
             g.dataCount = this.excuDatas;
+
+            if(!this.excuDatas.length) { return; };
 
             const bounce = data => {
                 if(data.ex >= (this.resX - this.arcDiameter)) {
@@ -182,13 +182,15 @@ onmessage = (e) => {
         };
 
         resAni() {
+            g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
+
             if(!this.resDatas.length) { return; };
-            
-            g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, []);
 
             for(let data of this.resDatas) {
                 this.createBulletByRuntime(data);
             };
+
+            this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW);
         };
 
         createBulletByRuntime(data, bounceFn) {
@@ -338,6 +340,8 @@ onmessage = (e) => {
     const render = () => {
         i++;
         ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
+
+        console.log(g)
 
         if(i % 12 === 0) {
             animation.excuteRuntime();

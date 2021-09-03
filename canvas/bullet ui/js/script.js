@@ -422,6 +422,7 @@ const script = () => {
         ctx.clearRect(0, 0, this.canvasW, this.canvasH);
         i++;
 
+        console.log(g);
         const nowSec = (new Date()).getMilliseconds();
 
         if(beforeSec !== nowSec) {
@@ -439,7 +440,6 @@ const script = () => {
         runCycle = g.excutePerSec / 5; // 1초에 5번 실행
 
         if(i % runCycle < 1) {
-            animation.addDatas();
             animation.excuteRuntime();
 
             i = 0;
@@ -454,7 +454,7 @@ const script = () => {
 
         requestAnimationFrame(render);
     };
-    
+    animation.addDatas();
     render();
 };
 
