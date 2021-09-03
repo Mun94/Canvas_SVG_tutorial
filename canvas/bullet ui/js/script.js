@@ -424,7 +424,7 @@ const script = () => {
     let beforeSec = 0;
     let term = 0;
     const render = () => {
-        ctx.clearRect(0, 0, this.canvasW, this.canvasH);
+        ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
         i++;
 
         const nowSec = (new Date()).getMilliseconds();
