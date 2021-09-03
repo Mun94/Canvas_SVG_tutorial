@@ -29,7 +29,7 @@ const script = () => {
         return {
             nor: data.colorByRuntime >= 1 && data.colorByRuntime <= 3,
             war: data.colorByRuntime > 3 && data.colorByRuntime <= 5,
-            cri:  data.colorByRuntime > 5  && data.colorByRuntime <= 10
+            cri: data.colorByRuntime > 5  && data.colorByRuntime <= 10
         };
     };
     class Position {

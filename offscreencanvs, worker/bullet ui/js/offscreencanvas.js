@@ -27,7 +27,7 @@ onmessage = (e) => {
         return {
             nor: data.colorByRuntime >= 1 && data.colorByRuntime <= 3,
             war: data.colorByRuntime > 3 && data.colorByRuntime <= 5,
-            cri:  data.colorByRuntime > 5  && data.colorByRuntime <= 10
+            cri: data.colorByRuntime > 5  && data.colorByRuntime <= 10
         };
     };
 
@@ -98,9 +98,9 @@ onmessage = (e) => {
             super(needAniPosition);
 
             const dataPerSec = 20;
-            const sec = 0.2;
+            const sec        = 0.2;
 
-            this.datas = [];
+            this.datas      = [];
             this.dataPerReq = dataPerSec * sec;
         };
 
