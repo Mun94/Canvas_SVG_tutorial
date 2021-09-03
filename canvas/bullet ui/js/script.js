@@ -1,5 +1,9 @@
 const script = () => {
 
+    const canvas = document.querySelector('.myCanvas');
+    
+    const ctx = canvas.getContext('2d');
+
     const g = {
         reqCount : 0,
         dataCount: 0,
@@ -21,17 +25,13 @@ const script = () => {
         basicLine  : '#C6C9CD', // 라인 색
     };
 
-    const canvas = document.querySelector('.myCanvas');
-    
-    const ctx = canvas.getContext('2d');
-    class TimeCondition {
-        constructor(data) {
-            this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime <= 3;
-            this.warCondition = data.colorByRuntime > 3 && data.colorByRuntime <= 5;
-            this.criCondition = data.colorByRuntime > 5  && data.colorByRuntime <= 10;
+     const timeCondition = data => {
+        return {
+            nor: data.colorByRuntime >= 1 && data.colorByRuntime <= 3,
+            war: data.colorByRuntime > 3 && data.colorByRuntime <= 5,
+            cri:  data.colorByRuntime > 5  && data.colorByRuntime <= 10
         };
     };
-    const timeCondition = data => new TimeCondition(data);
     class Position {
         constructor(aniPosition) {
             this.canvasW     = canvas.width;
@@ -105,181 +105,197 @@ const script = () => {
             this.dataPerReq  = dataPerSec * sec; // 0.2초 마다 발생 할 요청에 생성 될 데이터 수
         };
     
-        addDatas(){
-            const speed = (this.area / (g.excutePerSec * ((Number(Math.random().toFixed(1)) || 0.1))));
- 
+        addDatas() {
+            const speed = this.area / (g.excutePerSec * Number(Math.random().toFixed(1)) || 0.1);
+
             const pck = [];
+
             for(let i = 0; i < this.dataPerReq; i++) {
-                const runtime = Math.ceil(Math.random() * 10); // 0.1 ~ 1초
-             
+                const runtime = Math.ceil(Math.random() * 10); // 수행 시간 1 ~ 10초
+                
                 pck.push({
                     colorByRuntime: runtime,
                     runtime,
-    
                     speed,
-                    x             : this.startX,
-                    y             : this.bulletPathY,
+
+                    x: this.startX,
+                    y: this.bulletPathY
                 });
             };
-    
+
             this.datas.push(pck);
         };
     };
-    
-    // animation
     class Animation extends SetDatas {
-        constructor(){
+        constructor() {
             super();
-            
-            this.excuDatas = []; // 실행 될 데이터 배열
-            this.resDatas  = [];
+
+            this.excuDatas = [];
+            this.resDatas = [];
         };
-    
+
+        render() {
+            this.reqAni();
+            this.excuAni();
+            this.resAni();
+        };
+
         reqAni() {
             g.reqCount = this.datas.length * this.dataPerReq;
+
+            if(!this.datas.length) { return; };
+
+            for(let data of this.datas) {
+                this.createBullet(colorData.nor, data[0], 'reqArea');
+            };
 
             for(let i = 0; i < this.datas.length; i++) {
                 const data = this.datas[i];
 
-                this.createBullet(colorData.nor, data[0], 'reqArea'); // blue
-    
-                if (data[0].x > this.reqEndX) {
+                if(data[0].x > this.reqEndX) {
                     data.forEach(d => {
-                        const {colorByRuntime, runtime, speed} = d;
+                        const { colorByRuntime, runtime, speed } = d;
+
+                        const randomX = Math.random() * (this.area - (this.arcDiameter * 2));
+                        const randomY = Math.random() * (this.excuEndY - this.startY);
+                        const randomExSpeed = (Number(Math.random().toFixed(1)) || 0.1);
+                        const randomEySpeed = (Number(Math.random().toFixed(1)) || 0.1);
                         
                         this.excuDatas.push({
                             colorByRuntime,
                             runtime,
                             speed,
-        
-                            mx     : this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)),
-                            my     : this.startY + (Math.random() * (this.excuEndY - this.startY)),
-                            mxSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
-                            mySpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+
+                            ex: this.excuStartX + randomX,
+                            ey: this.startY + randomY,
+                            exSpeed: Math.sign(Math.random() - 0.5) * randomExSpeed,
+                            eySpeed: Math.sign(Math.random() - 0.5) * randomEySpeed
                         });
                     });
+                    
                     this.datas.splice(i, 1);
                 };
             };
-                
-            g.dataCount  = this.excuDatas;
         };
-    
+
         excuAni() {
+            g.dataCount = this.excuDatas;
+
             if(!this.excuDatas.length) { return; };
-    
-            const bounce = data => { // 화살표 함수 대신 일반함수에 bind메서드 사용해도 됨
-                if(data.mx >= (this.resX - this.arcDiameter)) {
-                    data.mxSpeed = -data.mxSpeed;
+
+            const bounce = data => {
+                if(data.ex >= (this.resX - this.arcDiameter)) {
+                    data.exSpeed = -data.exSpeed;
                 };
-                
-                if(data.mx <= this.excuStartX) {
-                    data.mxSpeed = Math.abs(data.mxSpeed);
+
+                if(data.ex <= this.excuStartX) {
+                    data.exSpeed = Math.abs(data.exSpeed);
                 };
-        
-                if(data.my >= this.excuEndY) {
-                    data.mySpeed = -data.mySpeed;
+
+                if(data.ey >= this.excuEndY) {
+                    data.eySpeed = -data.eySpeed;
                 };
-                
-                if(data.my <= (this.startY + this.arcDiameter)) {
-                    data.mySpeed = Math.abs(data.mySpeed);
+
+                if(data.ey <= (this.startY + this.arcDiameter)) {
+                    data.eySpeed = Math.abs(data.eySpeed);
                 };
             };
 
             for(let data of this.excuDatas) {
-                this.createBulletByRuntime(data, 'excuArea', bounce);
+                this.createBulletByRuntime(data, bounce);
             };
         };
-    
-        resAni() {    
+
+        resAni() {
             g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
 
+            if(!this.resDatas.length) { return; };
+
             for(let data of this.resDatas) {
-                this.createBulletByRuntime(data, 'resArea');
+                this.createBulletByRuntime(data);
             };
-    
+
             this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW);
         };
-    
+
+        createBulletByRuntime(data, bounceFn) {
+            const area = bounceFn ? 'excuArea' : 'resArea';
+
+            const bullet = color => {
+                this.createBullet(color, data, area);
+                
+                bounceFn && bounceFn(data);
+            };
+
+            if(timeCondition(data).cri) {
+                bullet(colorData.cri);
+            } else if(timeCondition(data).war) {
+                bullet(colorData.war);
+            } else if(timeCondition(data).nor) {
+                bullet(colorData.nor);
+            } else {
+                alert('check colorByRuntime');
+            };
+        };
+
         createBullet(color, data, area) {
             const bulletGradation = (move, y) => {
-                const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter)
+                const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter);
                 grad.addColorStop(0, colorData.background);
                 grad.addColorStop(1, color);
-    
+
                 return grad;
             };
-    
+
             const bullet = (move, y) => {
-                ctx.beginPath();
                 ctx.fillStyle = bulletGradation(move, y);
-                ctx.arc(move , y, this.arcDiameter, 0, Math.PI * 2);
-                ctx.fill();
-            };
-    
+                ctx.arc(move, y, this.arcDiameter, 0, Math.PI * 2);
+            }; 
+
             const tailGradation = x => {
                 const tailGrad = ctx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
                 tailGrad.addColorStop(0, colorData.gradation);
                 tailGrad.addColorStop(0.5, colorData.background);
                 tailGrad.addColorStop(1, color);
-    
+
                 return tailGrad;
             };
-    
+
             const tail = x => {
-                ctx.beginPath();
                 ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
                 ctx.fillStyle = tailGradation(x);
-                ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x, this.bulletPathY - this.arcDiameter);
-                ctx.fill();
+                ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcDiameter);
             };
-    
+
+            ctx.beginPath();
             switch(area) {
                 case 'reqArea':
                     const reqMove = data.x += data.speed;
-                
+
                     tail(reqMove);
-    
+
                     bullet(reqMove, data.y);
                     break;
                 case 'excuArea':
-                    const excuMove  = data.mx += data.mxSpeed;
-                    const excuMoveY = data.my += data.mySpeed;
-    
+                    const excuMove = data.ex += data.exSpeed;
+                    const excuMoveY = data.ey += data.eySpeed;
+
                     bullet(excuMove, excuMoveY);
                     break;
                 case 'resArea':
                     const resMove = data.rx += data.speed;
-    
+
                     tail(resMove);
-        
+
                     bullet(resMove, data.ry);
                     break;
                 default:
                     break;
             };
+            ctx.fill();
+
         };
-    
-        createBulletByRuntime(data, area, bounceFn) {
-            if(timeCondition(data).norCondition) { // 1에서 3초
-                this.createBullet(colorData.nor, data,  area); // blue
-    
-                bounceFn && bounceFn(data);
-            }; 
-    
-            if(timeCondition(data).warCondition) { // 3에서 5초
-                this.createBullet(colorData.war, data, area); // yellow
-    
-                bounceFn && bounceFn(data);
-            };
-    
-            if(timeCondition(data).criCondition) { // 5에서 10초
-                this.createBullet(colorData.cri, data, area); // red
-    
-                bounceFn && bounceFn(data);
-            };
-        };
-    
+
         excuteRuntime() {
             if(!this.excuDatas.length) { return; };
     
@@ -299,58 +315,55 @@ const script = () => {
                     rx: this.resStartX, 
                     ry: this.bulletPathY, 
                     speed: Math.abs(speed),
+
                     resBulletCount
                 });
             };
              
             this.excuDatas = this.excuDatas.filter(data => data.runtime > 0); // 수행 시간이 남은 데이터들로 재할당
-            g.dataCount = this.excuDatas;
-        };
-    
-        render() {
-            this.reqAni();
-            this.excuAni();
-            this.resAni();
         };
     };
-    const animation  = new Animation();
-    
-    // background
-    class Background extends FontPosition{
+    const animation = new Animation();
+    class Background extends FontPosition {
         constructor() {
             super();
         };
-    
+
         render() {
-            ctx.fillStyle = colorData.background; // 배경 색
-            ctx.fillRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
-        
+            this.background();
+
             ctx.beginPath();
-    
             this.line();
-    
+
             this.reqCount();
             this.excuCount();
             this.resCount();
-    
+
             ctx.stroke();
         };
-    
-        line() {
-            ctx.lineWidth   = this.lineTick;
-            ctx.strokeStyle = colorData.basicLine;
-    
-            ctx.moveTo(this.reqX     , this.startY);
-            ctx.lineTo(this.reqX     , this.canvasH);
-            ctx.moveTo(this.startX   , this.bulletPathY);
-            ctx.lineTo(this.reqX     , this.bulletPathY);
 
-            ctx.moveTo(this.resX    , this.startY);
-            ctx.lineTo(this.resX    , this.canvasH);
-            ctx.moveTo(this.resX    , this.bulletPathY);
-            ctx.lineTo(this.canvasW  , this.bulletPathY);
+        background() {
+            ctx.fillStyle = colorData.background;
+            ctx.fillRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
+        };  
+
+        line() {
+            ctx.lineWidth = this.lineTick;
+            ctx.strokeStyle = colorData.basicLine;
+            // req 경계
+            ctx.moveTo(this.reqX, this.startY);
+            ctx.lineTo(this.reqX, this.canvasH);
+            // req 총알 길
+            ctx.moveTo(this.startX, this.bulletPathY);
+            ctx.lineTo(this.reqX, this.bulletPathY);
+            // res 경계
+            ctx.moveTo(this.resX, this.startY);
+            ctx.lineTo(this.resX, this.canvasH);
+            // res 총알 길
+            ctx.moveTo(this.resX, this.bulletPathY);
+            ctx.lineTo(this.canvasW, this.bulletPathY);
         };
-    
+
         reqCount() {
             const totalCount = this.count().nor + this.count().war + this.count().cri;
     
@@ -367,9 +380,8 @@ const script = () => {
     
             ctx.fillText('요청/초', this.reqCountX, this.reqFontY);
             ctx.fillText(g.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
-    
         };
-    
+
         excuCount() {
             ctx.font = '25px Arial';
     
@@ -395,25 +407,17 @@ const script = () => {
             ctx.fillText('응답/초', this.resCountX, this.resFontY);
             ctx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
         };
-    
+
         count() {
-            const nor = (g.dataCount || []).filter(data => 
-                    timeCondition(data).norCondition
-                ).length;
-    
-            const war = (g.dataCount || []).filter(data => 
-                    timeCondition(data).warCondition
-                ).length;
-            
-            const cri = (g.dataCount || []).filter(data => 
-                    timeCondition(data).criCondition
-                ).length;
-            
+            const nor = (g.dataCount || []).filter(data => timeCondition(data).nor).length;
+            const war = (g.dataCount || []).filter(data => timeCondition(data).war).length;
+            const cri = (g.dataCount || []).filter(data => timeCondition(data).cri).length;
+
             return { nor, war, cri };
         };
     };
     const background = new Background();
-    
+
     let i = 0;
     let runCycle = 0;
 
@@ -440,6 +444,7 @@ const script = () => {
         runCycle = g.excutePerSec / 5; // 1초에 5번 실행
 
         if(i % runCycle < 1) {
+            animation.addDatas();
             animation.excuteRuntime();
 
             i = 0;
@@ -448,13 +453,9 @@ const script = () => {
         background.render();
         animation.render();
 
-        // if(i >= g.excutePerSec) {
-        //     i = 0;
-        // };
-
         requestAnimationFrame(render);
     };
-    animation.addDatas();
+
     render();
 };
 
