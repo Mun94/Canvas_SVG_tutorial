@@ -184,20 +184,14 @@ const script = () => {
             if(!this.excuDatas.length) { return; };
 
             const bounce = data => {
-                if(data.ex >= (this.resX - this.arcRadius)) {
-                    data.exSpeed = -data.exSpeed;
+                if(data.ex >= (this.resX - this.arcRadius) || 
+                    data.ex <= this.excuStartX) {
+                        data.exSpeed = -data.exSpeed;
                 };
 
-                if(data.ex <= this.excuStartX) {
-                    data.exSpeed = Math.abs(data.exSpeed);
-                };
-
-                if(data.ey >= this.excuEndY) {
-                    data.eySpeed = -data.eySpeed;
-                };
-
-                if(data.ey <= (this.startY + this.arcRadius)) {
-                    data.eySpeed = Math.abs(data.eySpeed);
+                if(data.ey >= this.excuEndY || 
+                    data.ey <= (this.startY + this.arcRadius)) {
+                        data.eySpeed = -data.eySpeed;
                 };
             };
 
