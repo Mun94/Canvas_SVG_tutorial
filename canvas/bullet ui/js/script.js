@@ -310,7 +310,7 @@ const script = () => {
                 case colorData.cri:
                     return `rgba(180, 14, 10, ${a})`;
                 default:
-                    break;
+                    return;
             };
         };
 

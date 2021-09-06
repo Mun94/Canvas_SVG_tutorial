@@ -186,15 +186,13 @@ const script = () => {
                     el.remove();
                 };
 
-                setAttribute(el, {
-                    'd': `
-                        M ${move} ${this.bulletPathY - this.arcDiameter}
-                        A ${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${move} ${this.bulletPathY + this.arcDiameter}
-                        L ${move - this.tailSize} ${this.bulletPathY}
-                        Z
-                        `,
-                    'cx': move
-                });
+                el.setAttribute('d',  `
+                M ${move} ${this.bulletPathY - this.arcDiameter}
+                A ${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${move} ${this.bulletPathY + this.arcDiameter}
+                L ${move - this.tailSize} ${this.bulletPathY}
+                Z
+                `);
+                el.setAttribute('cx', move);
             });
 
             this.datas.shift();
@@ -210,28 +208,29 @@ const script = () => {
           g.dataCount = excuPck.map(el => { return {'colorByRuntime': Number(el.getAttribute('colorByRuntime'))}});
           
           excuPck[0] && excuPck.forEach(el => {
-                const [getCx, getExSpeed, getCy, getEySpeed] = getAttribute(el, ['cx', 'exSpeed', 'cy', 'eySpeed']);
+                const getCx = el.getAttribute('cx');
+                const getExSpeed = el.getAttribute('exSpeed');
+                const getCy = el.getAttribute('cy');
+                const getEySpeed = el.getAttribute('eySpeed');
               
                 if(getCx >= (this.resX - this.arcDiameter)) {
-                    setAttribute(el, {'exSpeed':  -Math.abs(Number(getExSpeed))});
+                    el.setAttribute('exSpeed', -Math.abs(Number(getExSpeed)));
                 };
 
                 if(getCx <= this.excuStartX) {
-                    setAttribute(el, {'exSpeed': Math.abs(Number(getExSpeed))});
+                    el.setAttribute('exSpeed', Math.abs(Number(getExSpeed)));
                 };
 
                 if(getCy >= this.excuEndY) {
-                    setAttribute(el, {'eySpeed': -Math.abs(Number(getEySpeed))});
+                    el.setAttribute('eySpeed', -Math.abs(Number(getEySpeed)));
                 };
 
                 if(getCy <= (this.startY + this.arcDiameter)) {
-                    setAttribute(el, {'eySpeed': Math.abs(Number(getEySpeed))});
+                    el.setAttribute('eySpeed', Math.abs(Number(getEySpeed)));
                 };
 
-                setAttribute(el,{
-                    'cx': Number(getCx) + Number(getExSpeed),
-                    'cy': Number(getCy) + Number(getEySpeed)
-                });
+                el.setAttribute('cx', Number(getCx) + Number(getExSpeed));
+                el.setAttribute('cy', Number(getCy) + Number(getEySpeed));
           });
 
           if(!this.excuDatas.length) { return; };
@@ -257,22 +256,21 @@ const script = () => {
             g.resCount = resPck.reduce((cur, val) => cur + Number(val.getAttribute('resBulletCount')), 0);
 
             resPck[0] && resPck.forEach(el => {
-                const [getCx, speed] = getAttribute(el, ['cx', 'speed']);
+                const getCx = el.getAttribute('cx');
+                const speed = el.getAttribute('speed');
                 const move = Number(getCx) + Number(speed);
 
                 if(Number(getCx) > this.svgW) {
                     el.remove();
                 };
 
-                setAttribute(el, {
-                    'd': `
-                    M ${move} ${this.bulletPathY - this.arcDiameter}
-                    A ${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${move} ${this.bulletPathY + this.arcDiameter}
-                    L ${move - this.tailSize} ${this.bulletPathY}
-                    Z
-                    `,
-                    'cx': move
-                });
+                el.setAttribute('d',  `
+                M ${move} ${this.bulletPathY - this.arcDiameter}
+                A ${this.arcDiameter} ${this.arcDiameter} 0, 1, 1 ${move} ${this.bulletPathY + this.arcDiameter}
+                L ${move - this.tailSize} ${this.bulletPathY}
+                Z
+                `);
+                el.setAttribute('cx', move);
             });
 
             this.resDatas.shift();
@@ -292,28 +290,21 @@ const script = () => {
 
             switch(area) {
                 case 'reqArea':
-                    setAttribute(bullet, {
-                        'd': setD(this.startX),
-
-                        'cx': this.startX,
-                        'speed': data[0].speed,
-                        'data-runtime': JSON.stringify(data)
-                    });
+                    bullet.setAttribute('d', setD(this.startX));
+                    bullet.setAttribute('cx', this.startX);
+                    bullet.setAttribute('speed', data[0].speed);
+                    bullet.setAttribute('data-runtime', JSON.stringify(data));
                    
                     reqWrap.appendChild(bullet);
                     break;
                 case 'excuArea':
-                    setAttribute(createCircle, {
-                        'cx': data.ex, 
-                        'cy': data.ey, 
-                        'r' : this.arcDiameter, 
-                        
-                        'exSpeed': data.exSpeed, 
-                        'eySpeed': data.eySpeed, 
-                        'runtime': data.runtime, 
-                        'colorByRuntime': data.colorByRuntime, 
-                        'speed': data.speed, 
-                    });
+                    createCircle.setAttribute('cx', data.ex);
+                    createCircle.setAttribute('cy', data.ey);
+                    createCircle.setAttribute('r', this.arcDiameter);
+                    createCircle.setAttribute('exSpeed', data.exSpeed);
+                    createCircle.setAttribute('eySpeed', data.eySpeed);
+                    createCircle.setAttribute('colorByRuntime', data.colorByRuntime);
+                    createCircle.setAttribute('speed', data.speed);
 
                     if(timeCondition(data).norCondition) {
                         excuNorWrap.appendChild(createCircle);
@@ -328,13 +319,10 @@ const script = () => {
                     };
                     break;
                 case 'resArea':
-                    setAttribute(bullet, {
-                        'd': setD(data.rx),
-
-                        'cx': data.rx,
-                        'speed': data.speed,
-                        'resBulletCount': data.resBulletCount
-                    });
+                    bullet.setAttribute('d', setD(data.rx));
+                    bullet.setAttribute('cx', data.rx);
+                    bullet.setAttribute('speed', data.speed);
+                    bullet.setAttribute('resBulletCount', data.resBulletCount);
                     
                     if(timeCondition(data).norCondition) {
                         resNorWrap.appendChild(bullet);
@@ -359,21 +347,23 @@ const script = () => {
             const excuPck = [...norPck[0].children, ...warPck[0].children, ...criPck[0].children];
 
             const runtimeEndBullets = excuPck[0] && excuPck.filter(el => {
-                const runtime = getAttribute(el, 'runtime');
+                const runtime = el.getAttribute('runtime');
 
                 return runtime <= 0 
             }); 
             const resBulletCount = (runtimeEndBullets || []).length;
 
             const longestRuntime = (runtimeEndBullets || []).sort((aEl,bEl) => {
-                const a = getAttribute(aEl, 'colorByRuntime'); 
-                const b = getAttribute(bEl, 'colorByRuntime');
+                const a = aEl.getAttribute('colorByRuntime'); 
+                const b = bEl.getAttribute('colorByRuntime');
             
                 return b - a;
             })[0];
 
             if(longestRuntime) {
-                const [ colorByRuntime, runtime, speed ] = getAttribute(longestRuntime, ['colorByRuntime', 'runtime', 'speed']);
+                const colorByRuntime = longestRuntime.getAttribute('colorByRuntime');
+                const runtime = longestRuntime.getAttribute('runtime');
+                const speed = longestRuntime.getAttribute('speed');
 
                 this.resDatas.push({
                     colorByRuntime: Number(colorByRuntime), 
@@ -387,11 +377,9 @@ const script = () => {
             };
 
             excuPck[0] && excuPck.forEach(el => {
-                const runtime = getAttribute(el, 'runtime');
+                const runtime = el.getAttribute('runtime');
 
-                setAttribute(el, {
-                    'runtime': (Number(runtime) - 0.2).toFixed(1)
-                });
+                el.setAttribute('runtime', (Number(runtime) - 0.2).toFixed(1));
 
                 if(Number(runtime) <= 0) {
                     el.remove();
@@ -435,43 +423,48 @@ const script = () => {
         };
 
         line() { 
-            setAttribute(reqLine, 
-                {'x1': this.startX, 'y1': this.bulletPathY, 
-                 'x2': this.reqX  , 'y2': this.bulletPathY});
-            setAttribute(reqBltLine, 
-                {'x1': this.reqX  , 'y1': this.startY, 
-                 'x2': this.reqX  , 'y2': this.svgH});
-            
-            setAttribute(resLine, 
-                {'x1': this.resX  , 'y1': this.startY, 
-                 'x2': this.resX  , 'y2': this.svgH});
-            setAttribute(resBltLine,
-                {'x1': this.resX  , 'y1':this.bulletPathY, 
-                 'x2': this.svgW  , 'y2': this.bulletPathY})
+            reqLine.setAttribute('x1', this.startX);
+            reqLine.setAttribute('y1', this.bulletPathY);
+            reqLine.setAttribute('x2', this.reqX);
+            reqLine.setAttribute('y2', this.bulletPathY);
+
+            reqBltLine.setAttribute('x1', this.reqX);
+            reqBltLine.setAttribute('y1', this.startY);
+            reqBltLine.setAttribute('x2', this.reqX);
+            reqBltLine.setAttribute('y2', this.svgH);
+
+            resLine.setAttribute('x1', this.resX);
+            resLine.setAttribute('y1', this.startX);
+            resLine.setAttribute('x2', this.resX);
+            resLine.setAttribute('y2', this.svgH);
+
+            resBltLine.setAttribute('x1', this.resX);
+            resBltLine.setAttribute('y1', this.bulletPathY);
+            resBltLine.setAttribute('x2', this.svgW);
+            resBltLine.setAttribute('y2', this.bulletPathY);
         };
 
         reqCount() {
-            setAttribute(totalTextWrap , {
-                'x': this.totalCountX, 'y': this.totalFontY
-            });
+            totalTextWrap.setAttribute('x', this.totalCountX);
+            totalTextWrap.setAttribute('y', this.totalFontY);
+
             totalCount.innerHTML = this.count().nor + this.count().war + this.count().cri;
 
-            setAttribute(reqTextWrap, {
-                'x': this.reqCountX, 'y': this.reqFontY
-            });
+            reqTextWrap.setAttribute('x', this.reqCountX);
+            reqTextWrap.setAttribute('y', this.reqFontY);
+
             reqCount.innerHTML = g.reqCount;
         };
 
         excuCount() {
-            setAttribute(norTextWrap, {
-                'x': this.norCountX, 'y': this.excuFontY
-            });
-            setAttribute(warTextWrap, {
-                'x': this.warCountX, 'y': this.excuFontY
-            });
-            setAttribute(criTextWrap, {
-                'x': this.criCountX, 'y': this.excuFontY
-            });
+            norTextWrap.setAttribute('x', this.norCountX);
+            norTextWrap.setAttribute('y', this.excuFontY);
+            
+            warTextWrap.setAttribute('x', this.warCountX);
+            warTextWrap.setAttribute('y', this.excuFontY);
+            
+            criTextWrap.setAttribute('x', this.criCountX);
+            criTextWrap.setAttribute('y',this.excuFontY);
 
             norCount.innerHTML = this.count().nor;
             warCount.innerHTML = this.count().war;
@@ -479,9 +472,9 @@ const script = () => {
         };
 
         resCount() {
-            setAttribute(resTextWrap, {
-                'x': this.resCountX, 'y': this.resFontY
-            });
+            resTextWrap.setAttribute('x', this.resCountX);
+            resTextWrap.setAttribute('y', this.resFontY);
+ 
             resCount.innerHTML = g.resCount;
         };
 
