@@ -1,7 +1,7 @@
 const canvas = document.querySelector('.background');
 const ctx = canvas.getContext('2d');
 
-let global = {
+const g = {
     reqCount: 0,
     dataCount: [],
     resCount: 0,
@@ -30,8 +30,8 @@ const timeCondition = data => {
     };
 };
 
-class BackgroundPosition {
-    constructor() {
+class Position{
+    constructor(aniPosition) {
         this.canvasW = canvas.width;
         this.canvasH = canvas.height;
 
@@ -42,6 +42,26 @@ class BackgroundPosition {
 
         this.startX = 0;
         this.startY = 120;
+
+        if(aniPosition) {
+            this.area = this.canvasW / 3;
+
+            this.arcRadius = 15;
+
+            this.tailSize = 150;
+
+            this.reqEndX     = this.reqX    - this.arcRadius;
+            this.excuStartX  = this.reqX    + this.arcRadius;
+            this.excuEndY    = this.canvasH - this.arcRadius;
+            this.resStartX   = this.resX    + this.arcRadius
+        };
+    };
+};
+
+class FontPosition extends Position {
+    constructor() {
+        const needAniPosition = false;
+        super(needAniPosition);
 
         this.startRectX    = 0;
         this.startRectY    = 0;
@@ -71,7 +91,7 @@ class BackgroundPosition {
     };
 };
 
-class Background extends BackgroundPosition {
+class Background extends FontPosition {
     constructor() {
         super();
     };
@@ -85,7 +105,6 @@ class Background extends BackgroundPosition {
         this.reqCount();
         this.excuCount();
         this.resCount();
-
         ctx.stroke();
     };
 
@@ -126,7 +145,7 @@ class Background extends BackgroundPosition {
         ctx.font = '25px Arial';
 
         ctx.fillText('요청/초', this.reqCountX, this.reqFontY);
-        ctx.fillText(global.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
+        ctx.fillText(g.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
     };
 
     excuCount() {
@@ -152,15 +171,15 @@ class Background extends BackgroundPosition {
 
         ctx.fillStyle = colorData.basicFont;
         ctx.fillText('응답/초', this.resCountX, this.resFontY);
-        ctx.fillText(global.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
+        ctx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
     };
 
     count() {
-        const nor = global.dataCount.filter(data => timeCondition(data).nor).length;
-        const war = global.dataCount.filter(data => timeCondition(data).war).length;
-        const cri = global.dataCount.filter(data => timeCondition(data).cri).length;
+        const nor = g.dataCount.filter(data => timeCondition(data).nor).length;
+        const war = g.dataCount.filter(data => timeCondition(data).war).length;
+        const cri = g.dataCount.filter(data => timeCondition(data).cri).length;
 
-        const totalCount = global.dataCount.length;
+        const totalCount = g.dataCount.length;
 
         return { nor, war, cri, totalCount };
     };
@@ -168,31 +187,10 @@ class Background extends BackgroundPosition {
 const background = new Background();
 
 const render = () => {
-    ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     background.render();
 
     requestAnimationFrame(render);
 };
 
 render();
-
-const worker = () => {
-    if(window.Worker) {
-        const bulletCanvas = document.querySelector('.offscreenCanvas');
-        const offscreen = bulletCanvas.transferControlToOffscreen();
-
-        const wk = new Worker('./js/offscreencanvas.js');
-        
-        wk.postMessage({offscreen, colorData, g: global}, [offscreen]);
-
-        wk.onmessage = (e) => {
-            const { g } = e.data
-           
-            global = g;
-        }
-    } else {
-        console.error('worker 지원 x');
-    };
-};
-
-worker();
