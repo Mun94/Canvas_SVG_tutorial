@@ -384,7 +384,7 @@ onmessage = (e) => {
         };
 
         reqCount() {
-            const totalCount = this.count().nor + this.count().war + this.count().cri;
+            const { totalCount } = this.count();
     
             ctx.font = '30px Arial';
     
@@ -432,7 +432,9 @@ onmessage = (e) => {
             const war = (g.dataCount || []).filter(data => timeCondition(data).war).length;
             const cri = (g.dataCount || []).filter(data => timeCondition(data).cri).length;
 
-            return { nor, war, cri };
+            const totalCount = g.dataCount.length;
+
+            return { nor, war, cri, totalCount };
         };
     };
     const background = new Background();

@@ -128,7 +128,7 @@ const script = () => {
         constructor() {
             super();
 
-            this.excuDatas = [];
+            this.excuDatas = []; // 런타임 실행 영역에 필요한 데이터 배열
             this.resDatas = [];
         };
 
@@ -183,14 +183,14 @@ const script = () => {
 
             if(!this.excuDatas.length) { return; };
 
-            const bounce = data => {
+            const bounce = data => { // 일반 함수에 bind해서 사용해도 됨
                 if(data.ex >= (this.resX - this.arcRadius) || 
-                    data.ex <= this.excuStartX) {
+                    data.ex <= this.excuStartX) { // x축 오른쪽, 왼쪽 경계
                         data.exSpeed = -data.exSpeed;
                 };
 
                 if(data.ey >= this.excuEndY || 
-                    data.ey <= (this.startY + this.arcRadius)) {
+                    data.ey <= (this.startY + this.arcRadius)) { // y축 위쪽, 아래쪽 경계
                         data.eySpeed = -data.eySpeed;
                 };
             };
@@ -201,7 +201,7 @@ const script = () => {
         };
 
         resAni() {
-            g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
+            g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0); // 응답 데이터 카운트
 
             if(!this.resDatas.length) { return; };
 
@@ -209,7 +209,7 @@ const script = () => {
                 this.createBulletByRuntime(data);
             };
 
-            this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW);
+            this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW); // 전체 영역 밖으로 나간 데이터 필터링
         };
 
         createBulletByRuntime(data, bounceFn) {
@@ -221,12 +221,12 @@ const script = () => {
                 bounceFn && bounceFn(data);
             };
 
-            if(timeCondition(data).cri) {
-                bullet(colorData.cri);
-            } else if(timeCondition(data).war) {
-                bullet(colorData.war);
-            } else if(timeCondition(data).nor) {
-                bullet(colorData.nor);
+            if(timeCondition(data).cri) { // 5에서 10초
+                bullet(colorData.cri); // red
+            } else if(timeCondition(data).war) { // 3에서 5초
+                bullet(colorData.war); // yellow
+            } else if(timeCondition(data).nor) { // 1에서 3초
+                bullet(colorData.nor); // blue
             } else {
                 alert('check colorByRuntime');
             };
@@ -383,7 +383,7 @@ const script = () => {
         };
 
         reqCount() {
-            const totalCount = this.count().nor + this.count().war + this.count().cri;
+            const { totalCount } = this.count();
     
             ctx.font = '30px Arial';
     
@@ -431,7 +431,9 @@ const script = () => {
             const war = (g.dataCount || []).filter(data => timeCondition(data).war).length;
             const cri = (g.dataCount || []).filter(data => timeCondition(data).cri).length;
 
-            return { nor, war, cri };
+            const totalCount = g.dataCount.length;
+
+            return { nor, war, cri, totalCount };
         };
     };
     const background = new Background();
