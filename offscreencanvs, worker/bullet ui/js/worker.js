@@ -1,5 +1,7 @@
 const canvas = document.querySelector('.background');
 const ctx = canvas.getContext('2d');
+const countCanvas = document.querySelector('.count');
+const countCtx = countCanvas.getContext('2d');
 
 let global = {
     reqCount: 0,
@@ -81,12 +83,15 @@ class Background extends BackgroundPosition {
 
         ctx.beginPath();
         this.line();
+        ctx.stroke();
+    };
 
+    renderCount() {
+        countCtx.beginPath();
         this.reqCount();
         this.excuCount();
         this.resCount();
-
-        ctx.stroke();
+        countCtx.stroke();
     };
 
     background() {
@@ -114,45 +119,45 @@ class Background extends BackgroundPosition {
     reqCount() {
         const { totalCount } = this.count();
 
-        ctx.font = '30px Arial';
+        countCtx.font = '30px Arial';
 
-        ctx.fillStyle = colorData.basicFont;
-        ctx.fillText('현재 전체 건수', this.totalCountX + this.countTitleGap + 13, this.totalFontY);
+        countCtx.fillStyle = colorData.basicFont;
+        countCtx.fillText('현재 전체 건수', this.totalCountX + this.countTitleGap + 13, this.totalFontY);
 
-        ctx.font = '45px Arial';
+        countCtx.font = '45px Arial';
 
-        ctx.fillText(totalCount, this.totalCountX, this.totalFontY);
+        countCtx.fillText(totalCount, this.totalCountX, this.totalFontY);
         
-        ctx.font = '25px Arial';
+        countCtx.font = '25px Arial';
 
-        ctx.fillText('요청/초', this.reqCountX, this.reqFontY);
-        ctx.fillText(global.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
+        countCtx.fillText('요청/초', this.reqCountX, this.reqFontY);
+        countCtx.fillText(global.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
     };
 
     excuCount() {
-        ctx.font = '25px Arial';
+        countCtx.font = '25px Arial';
 
-        ctx.fillStyle = colorData.basicFont;
-        ctx.fillText('정상', this.norCountX + this.countTitleGap, this.excuFontY);
-        ctx.fillText('경고', this.warCountX + this.countTitleGap, this.excuFontY);
-        ctx.fillText('심각', this.criCountX + this.countTitleGap, this.excuFontY);
+        countCtx.fillStyle = colorData.basicFont;
+        countCtx.fillText('정상', this.norCountX + this.countTitleGap, this.excuFontY);
+        countCtx.fillText('경고', this.warCountX + this.countTitleGap, this.excuFontY);
+        countCtx.fillText('심각', this.criCountX + this.countTitleGap, this.excuFontY);
 
-        ctx.font = 'bold 35px Arial';
+        countCtx.font = 'bold 35px Arial';
 
-        ctx.fillStyle = colorData.nor;
-        ctx.fillText(this.count().nor, this.norCountX, this.excuFontY);
-        ctx.fillStyle = colorData.war;
-        ctx.fillText(this.count().war, this.warCountX, this.excuFontY);
-        ctx.fillStyle = colorData.cri;
-        ctx.fillText(this.count().cri, this.criCountX, this.excuFontY);
+        countCtx.fillStyle = colorData.nor;
+        countCtx.fillText(this.count().nor, this.norCountX, this.excuFontY);
+        countCtx.fillStyle = colorData.war;
+        countCtx.fillText(this.count().war, this.warCountX, this.excuFontY);
+        countCtx.fillStyle = colorData.cri;
+        countCtx.fillText(this.count().cri, this.criCountX, this.excuFontY);
     };
 
     resCount() {
-        ctx.font = '25px Arial';
+        countCtx.font = '25px Arial';
 
-        ctx.fillStyle = colorData.basicFont;
-        ctx.fillText('응답/초', this.resCountX, this.resFontY);
-        ctx.fillText(global.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
+        countCtx.fillStyle = colorData.basicFont;
+        countCtx.fillText('응답/초', this.resCountX, this.resFontY);
+        countCtx.fillText(global.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
     };
 
     count() {
@@ -167,9 +172,10 @@ class Background extends BackgroundPosition {
 };
 const background = new Background();
 
+background.render();
 const render = () => {
-    ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
-    background.render();
+    countCtx.clearRect(0, 0, countCanvas.width, countCanvas.height);
+    background.renderCount();
 
     requestAnimationFrame(render);
 };

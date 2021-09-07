@@ -5,7 +5,7 @@
 .background {
     z-index: -1;
 }
-.bullet{
+.bullet, .count{
     position: absolute;
     top: 0;
     left: 0;
