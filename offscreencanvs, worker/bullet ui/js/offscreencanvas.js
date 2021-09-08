@@ -348,7 +348,7 @@ onmessage = (e) => {
         
         requestAnimationFrame(render);
     };
-    animation.addDatas(); // 나중에 requestAnimationFrame에 들여놔야 함
+    // 나중에 requestAnimationFrame에 들여놔야 함
 
     render();
-};
+};adasdasd
