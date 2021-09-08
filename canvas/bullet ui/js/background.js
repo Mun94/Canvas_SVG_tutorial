@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 const countCanvas = document.querySelector('.count');
 const countCtx = countCanvas.getContext('2d');
 
-let global = {
+const g = {
     reqCount: 0,
     dataCount: [],
     resCount: 0,
@@ -32,8 +32,8 @@ const timeCondition = data => {
     };
 };
 
-class BackgroundPosition {
-    constructor() {
+class Position{
+    constructor(aniPosition) {
         this.canvasW = canvas.width;
         this.canvasH = canvas.height;
 
@@ -44,6 +44,26 @@ class BackgroundPosition {
 
         this.startX = 0;
         this.startY = 120;
+
+        if(aniPosition) {
+            this.area = this.canvasW / 3;
+
+            this.arcRadius = 15;
+
+            this.tailSize = 150;
+
+            this.reqEndX     = this.reqX    - this.arcRadius;
+            this.excuStartX  = this.reqX    + this.arcRadius;
+            this.excuEndY    = this.canvasH - this.arcRadius;
+            this.resStartX   = this.resX    + this.arcRadius
+        };
+    };
+};
+
+class FontPosition extends Position {
+    constructor() {
+        const needAniPosition = false;
+        super(needAniPosition);
 
         this.startRectX    = 0;
         this.startRectY    = 0;
@@ -73,7 +93,7 @@ class BackgroundPosition {
     };
 };
 
-class Background extends BackgroundPosition {
+class Background extends FontPosition {
     constructor() {
         super();
     };
@@ -131,7 +151,7 @@ class Background extends BackgroundPosition {
         countCtx.font = '25px Arial';
 
         countCtx.fillText('요청/초', this.reqCountX, this.reqFontY);
-        countCtx.fillText(global.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
+        countCtx.fillText(g.reqCount, this.reqCountX - this.countTitleGap, this.reqFontY);
     };
 
     excuCount() {
@@ -157,15 +177,15 @@ class Background extends BackgroundPosition {
 
         countCtx.fillStyle = colorData.basicFont;
         countCtx.fillText('응답/초', this.resCountX, this.resFontY);
-        countCtx.fillText(global.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
+        countCtx.fillText(g.resCount, this.resCountX + (this.countTitleGap * 3), this.resFontY);
     };
 
     count() {
-        const nor = global.dataCount.filter(data => timeCondition(data).nor).length;
-        const war = global.dataCount.filter(data => timeCondition(data).war).length;
-        const cri = global.dataCount.filter(data => timeCondition(data).cri).length;
+        const nor = g.dataCount.filter(data => timeCondition(data).nor).length;
+        const war = g.dataCount.filter(data => timeCondition(data).war).length;
+        const cri = g.dataCount.filter(data => timeCondition(data).cri).length;
 
-        const totalCount = global.dataCount.length;
+        const totalCount = g.dataCount.length;
 
         return { nor, war, cri, totalCount };
     };
@@ -181,24 +201,3 @@ const render = () => {
 };
 
 render();
-
-const worker = () => {
-    if(window.Worker) {
-        const bulletCanvas = document.querySelector('.offscreenCanvas');
-        const offscreen = bulletCanvas.transferControlToOffscreen();
-
-        const wk = new Worker('./js/offscreencanvas.js');
-        
-        wk.postMessage({offscreen, colorData, g: global}, [offscreen]);
-
-        wk.onmessage = (e) => {
-            const { g } = e.data
-           
-            global = g;
-        }
-    } else {
-        console.error('worker 지원 x');
-    };
-};
-
-worker();

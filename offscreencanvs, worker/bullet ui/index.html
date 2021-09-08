@@ -1,9 +1,15 @@
 <html>
     <head>
+        <meta charset="utf-8"/>
+        <link href = "css/style.css" rel = "stylesheet"></link>
     </head>
 
     <body>
-        <canvas class = "offscreenCanvas" width = "1200" height = "300">offscreen canvas</canvas>
+        <div class = "canvasWrap">
+            <canvas class = "background" width = "1200" height = "300">background</canvas>
+            <canvas class = "count" width = "1200" height = "300">count</canvas>
+            <canvas class = "offscreenCanvas" width = "1200" height = "300">offscreen canvas</canvas>
+        </div>
 
         <script src = "./js/worker.js"></script>
     </body>

@@ -55,15 +55,13 @@ const script = () => {
         };
     };  
 
-    class TimeCondition {
-        constructor(data) {
-            this.norCondition = data.colorByRuntime >= 1 && data.colorByRuntime <= 3;
-            this.warCondition = data.colorByRuntime > 3 && data.colorByRuntime <= 5;
-            this.criCondition = data.colorByRuntime > 5  && data.colorByRuntime <= 10;
+    const timeCondition = data => {
+        return {
+            nor: data.colorByRuntime >= 1 && data.colorByRuntime <= 3,
+            war: data.colorByRuntime > 3 && data.colorByRuntime <= 5,
+            cri: data.colorByRuntime > 5  && data.colorByRuntime <= 10
         };
     };
-
-    const timeCondition = data => new TimeCondition(data);
     class Position {
         constructor(aniPosition) {
             this.svgW = svgWrap.getAttribute('width');
@@ -174,12 +172,16 @@ const script = () => {
 
                 if(Number(getCx) > this.reqEndX) {
                     this.excuDatas.push(...JSON.parse(el.dataset.runtime).map(data => { 
-                        
+                        const randomX = Math.random() * (this.area - this.arcDiameter - this.arcDiameter);
+                        const randomY = Math.random() * (this.excuEndY - this.startY);
+                        const randomExSpeed = Number(Math.random().toFixed(1)) || 0.1;
+                        const randomEySpeed = Number(Math.random().toFixed(1)) || 0.1;
+
                         return {...data, 
-                            ex     : this.excuStartX + (Math.random() * (this.area - this.arcDiameter - this.arcDiameter)), 
-                            ey     : this.startY + (Math.random() * (this.excuEndY - this.startY)), 
-                            exSpeed: Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1), 
-                            eySpeed:  Math.sign(Math.random() - 0.5) * (Number(Math.random().toFixed(1)) || 0.1),
+                            ex     : this.excuStartX + randomX, 
+                            ey     : this.startY + randomY, 
+                            exSpeed: Math.sign(Math.random() - 0.5) * randomExSpeed, 
+                            eySpeed:  Math.sign(Math.random() - 0.5) * randomEySpeed,
                         };
                     })); 
 
@@ -315,15 +317,15 @@ const script = () => {
                         'speed': data.speed, 
                     });
 
-                    if(timeCondition(data).norCondition) {
+                    if(timeCondition(data).nor) {
                         excuNorWrap.appendChild(createCircle);
                     };
 
-                    if(timeCondition(data).warCondition) {
+                    if(timeCondition(data).war) {
                          excuWarWrap.appendChild(createCircle);
                     };
 
-                    if(timeCondition(data).criCondition) {
+                    if(timeCondition(data).cri) {
                         excuCriWrap.appendChild(createCircle);
                     };
                     break;
@@ -336,15 +338,15 @@ const script = () => {
                         'resBulletCount': data.resBulletCount
                     });
                     
-                    if(timeCondition(data).norCondition) {
+                    if(timeCondition(data).nor) {
                         resNorWrap.appendChild(bullet);
                     };
 
-                    if(timeCondition(data).warCondition) {
+                    if(timeCondition(data).war) {
                         resWarWrap.appendChild(bullet);
                     };
 
-                    if(timeCondition(data).criCondition) {
+                    if(timeCondition(data).cri) {
                         resCriWrap.appendChild(bullet);
                     };
                     break;
@@ -400,15 +402,15 @@ const script = () => {
         };
 
         createBulletByRuntime(data, area) {
-            if(timeCondition(data).norCondition) { // 1에서 3초
+            if(timeCondition(data).nor) { // 1에서 3초
                 this.createBullet(data,  area); // blue
             }; 
     
-            if(timeCondition(data).warCondition) { // 3에서 5초
+            if(timeCondition(data).war) { // 3에서 5초
                 this.createBullet(data, area); // yellow
             };
     
-            if(timeCondition(data).criCondition) { // 5에서 10초
+            if(timeCondition(data).cri) { // 5에서 10초
                 this.createBullet(data, area); // red
             };
         };
@@ -454,7 +456,7 @@ const script = () => {
             setAttribute(totalTextWrap , {
                 'x': this.totalCountX, 'y': this.totalFontY
             });
-            totalCount.innerHTML = this.count().nor + this.count().war + this.count().cri;
+            totalCount.innerHTML = this.count().totalCount;
 
             setAttribute(reqTextWrap, {
                 'x': this.reqCountX, 'y': this.reqFontY
@@ -487,18 +489,20 @@ const script = () => {
 
         count() {
             const nor = (g.dataCount || []).filter(data => 
-                    timeCondition(data).norCondition
+                    timeCondition(data).nor
                 ).length;
     
             const war = (g.dataCount || []).filter(data => 
-                    timeCondition(data).warCondition
+                    timeCondition(data).war
                 ).length;
             
             const cri = (g.dataCount || []).filter(data => 
-                    timeCondition(data).criCondition
+                    timeCondition(data).cri
                 ).length;
+
+            const totalCount = g.dataCount.length;
             
-            return { nor, war, cri };
+            return { nor, war, cri, totalCount };
         };
     };
     const background = new Background();

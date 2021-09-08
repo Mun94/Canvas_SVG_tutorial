@@ -1,0 +1,14 @@
+.canvasWrap {
+    display: inline-block;
+    position: relative;
+}
+.background {
+    z-index: -1;
+}
+.bullet, .count{
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    z-index: 0;
+}

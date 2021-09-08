@@ -1,85 +1,48 @@
-onmessage = (e) => {
-    const { canvas } = e.data;
-    const ctx = canvas.getContext('2d');
-
-    const g = {
-        dataCount: 0,
-        reqCount: 0,
-        resCount: 0,
-
-        excutePerSec : 60 // default 값
-    };
-
-    const colorData = {
-        background : '#303437', // 배경 색
+onmessage = e => {
+    const { offscreen, colorData, g } = e.data;
+    const bulletCtx = offscreen.getContext('2d');
     
-        nor        : '#4D8BD5', // 정상 색
-        war        : '#B8A605', // 경고 색
-        cri        : '#B40E0A', // 심각 색
-        gradation  : 'rgba(38, 36, 28, 0.5)',//'#26241C' // 그라데이션 색
-    
-        basicFont  : '#C6C9CD', // 기본 폰트 색
-    
-        basicLine  : '#C6C9CD', // 라인 색
-    };
-
     const timeCondition = data => {
         return {
             nor: data.colorByRuntime >= 1 && data.colorByRuntime <= 3,
             war: data.colorByRuntime > 3 && data.colorByRuntime <= 5,
-            cri:  data.colorByRuntime > 5  && data.colorByRuntime <= 10
+            cri: data.colorByRuntime > 5  && data.colorByRuntime <= 10
         };
     };
 
     class Position{
-        constructor(aniPosition) {
-            this.canvasW = canvas.width;
-            this.canvasH = canvas.height;
-
+        constructor() {
+            this.canvasW = offscreen.width;
+            this.canvasH = offscreen.height;
+    
             this.bulletPathY = 240;
-
+    
             this.reqX = this.canvasW / 3;
             this.resX = this.canvasW * (2 / 3);
-
+    
             this.startX = 0;
             this.startY = 120;
+    
+            this.area = this.canvasW / 3;
 
-            if(aniPosition) {
-                this.area = this.canvasW / 3;
+            this.arcRadius = 15;
 
-                this.arcDiameter = 15;
+            this.tailSize = 150;
 
-                this.tailSize = 150;
-
-                this.reqEndX     = this.reqX    - this.arcDiameter;
-                this.excuStartX  = this.reqX    + this.arcDiameter;
-                this.excuEndY    = this.canvasH - this.arcDiameter;
-                this.resStartX   = this.resX    + this.arcDiameter
-            };
+            this.reqEndX     = this.reqX    - this.arcRadius;
+            this.excuStartX  = this.reqX    + this.arcRadius;
+            this.excuEndY    = this.canvasH - this.arcRadius;
+            this.resStartX   = this.resX    + this.arcRadius
         };
     };
-
-    class FontPosition extends Position {
-        constructor() {
-            const needAniPosition = false;
-            super(needAniPosition);
-
-            this.startRectX = 0;
-            this.startRectY = 0;
-
-            this.lineTick = 1;
-        };
-    };
-
     class SetDatas extends Position {
         constructor() {
-            const needAniPosition = true;
-            super(needAniPosition);
+            super();
 
             const dataPerSec = 20;
-            const sec = 0.2;
+            const sec        = 0.2;
 
-            this.datas = [];
+            this.datas      = [];
             this.dataPerReq = dataPerSec * sec;
         };
 
@@ -119,20 +82,22 @@ onmessage = (e) => {
         };
 
         reqAni() {
+            g.reqCount = this.datas.length * this.dataPerReq;
+
             if(!this.datas.length) { return; };
 
-            g.reqCount = this.datas.length * this.dataPerReq;
+            for(let data of this.datas) {
+                this.createBullet(colorData.nor, data[0], 'reqArea');
+            };
 
             for(let i = 0; i < this.datas.length; i++) {
                 const data = this.datas[i];
 
-                this.createBullet(colorData.nor, data[0], 'reqArea');
-
                 if(data[0].x > this.reqEndX) {
                     data.forEach(d => {
-                        const {colorByRuntime, runtime, speed} = d;
+                        const { colorByRuntime, runtime, speed } = d;
 
-                        const randomX = Math.random() * (this.area - (this.arcDiameter * 2));
+                        const randomX = Math.random() * (this.area - (this.arcRadius * 2));
                         const randomY = Math.random() * (this.excuEndY - this.startY);
                         const randomExSpeed = (Number(Math.random().toFixed(1)) || 0.1);
                         const randomEySpeed = (Number(Math.random().toFixed(1)) || 0.1);
@@ -145,34 +110,31 @@ onmessage = (e) => {
                             ex: this.excuStartX + randomX,
                             ey: this.startY + randomY,
                             exSpeed: Math.sign(Math.random() - 0.5) * randomExSpeed,
-                            eySpeed: Math.sign(Math.random() - 0.5) * randomEySpeed
+                            eySpeed: Math.sign(Math.random() - 0.5) * randomEySpeed,
+
+                            opacity: 0
                         });
                     });
+                    
                     this.datas.splice(i, 1);
                 };
             };
         };
 
         excuAni() {
-            if(!this.excuDatas.length) { return; };
-           
             g.dataCount = this.excuDatas;
 
+            if(!this.excuDatas.length) { return; };
+
             const bounce = data => {
-                if(data.ex >= (this.resX - this.arcDiameter)) {
+                if(data.ex >= (this.resX - this.arcRadius) || 
+                data.ex <= this.excuStartX) {
                     data.exSpeed = -data.exSpeed;
                 };
 
-                if(data.ex <= this.excuStartX) {
-                    data.exSpeed = Math.abs(data.exSpeed);
-                };
-
-                if(data.ey >= this.excuEndY) {
-                    data.eySpeed = -data.eySpeed;
-                };
-
-                if(data.ey <= (this.startY + this.arcDiameter)) {
-                    data.eySpeed = Math.abs(data.eySpeed);
+                if(data.ey >= this.excuEndY || 
+                    data.ey <= (this.startY + this.arcRadius)) {
+                        data.eySpeed = -data.eySpeed;
                 };
             };
 
@@ -182,13 +144,15 @@ onmessage = (e) => {
         };
 
         resAni() {
+            g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, 0);
+
             if(!this.resDatas.length) { return; };
-            
-            g.resCount = this.resDatas.reduce((cur, val) => cur + val.resBulletCount, []);
 
             for(let data of this.resDatas) {
                 this.createBulletByRuntime(data);
             };
+
+            this.resDatas = this.resDatas.filter(data => data.rx < this.canvasW);
         };
 
         createBulletByRuntime(data, bounceFn) {
@@ -212,21 +176,27 @@ onmessage = (e) => {
         };
 
         createBullet(color, data, area) {
-            const bulletGradation = (move, y) => {
-                const grad = ctx.createRadialGradient(move, y, 0, move, y, this.arcDiameter);
+            const bulletGradation = (move, y, opacity) => {
+                const grad = bulletCtx.createRadialGradient(move, y, 0, move, y, this.arcRadius);
                 grad.addColorStop(0, colorData.background);
-                grad.addColorStop(1, color);
+                if(area === 'excuArea') {
+                    grad.addColorStop(1, this.setOpacity(color, opacity));
+                } else {
+                    grad.addColorStop(1, color);
+                };
 
                 return grad;
             };
 
-            const bullet = (move, y) => {
-                ctx.fillStyle = bulletGradation(move, y);
-                ctx.arc(move, y, this.arcDiameter, 0, Math.PI * 2);
+            const bullet = (move, y, opacity) => {
+                bulletCtx.beginPath();
+                bulletCtx.fillStyle = bulletGradation(move, y, opacity);
+                bulletCtx.arc(move, y, this.arcRadius, 0, Math.PI * 2);
+                bulletCtx.fill();
             }; 
 
             const tailGradation = x => {
-                const tailGrad = ctx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
+                const tailGrad = bulletCtx.createLinearGradient(x - this.tailSize, this.bulletPathY, x, this.bulletPathY);
                 tailGrad.addColorStop(0, colorData.gradation);
                 tailGrad.addColorStop(0.5, colorData.background);
                 tailGrad.addColorStop(1, color);
@@ -235,12 +205,13 @@ onmessage = (e) => {
             };
 
             const tail = x => {
-                ctx.moveTo(x, this.bulletPathY + this.arcDiameter);
-                ctx.fillStyle = tailGradation(x);
-                ctx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcDiameter);
+                bulletCtx.beginPath();
+                bulletCtx.moveTo(x, this.bulletPathY + this.arcRadius);
+                bulletCtx.fillStyle = tailGradation(x);
+                bulletCtx.quadraticCurveTo(x - this.tailSize, this.bulletPathY, x,  this.bulletPathY - this.arcRadius);
+                bulletCtx.fill();
             };
 
-            ctx.beginPath();
             switch(area) {
                 case 'reqArea':
                     const reqMove = data.x += data.speed;
@@ -250,10 +221,16 @@ onmessage = (e) => {
                     bullet(reqMove, data.y);
                     break;
                 case 'excuArea':
-                    const excuMove = data.ex += data.exSpeed;
+                    const excuMove  = data.ex += data.exSpeed;
                     const excuMoveY = data.ey += data.eySpeed;
 
-                    bullet(excuMove, excuMoveY);
+                    let opacity;
+                    if(data.opacity < 1) {
+                        const increase = 0.04;
+                        opacity = data.opacity += increase;
+                    };
+
+                    bullet(excuMove, excuMoveY, opacity || 1);
                     break;
                 case 'resArea':
                     const resMove = data.rx += data.speed;
@@ -265,8 +242,19 @@ onmessage = (e) => {
                 default:
                     break;
             };
-            ctx.fill();
+        };
 
+        setOpacity(color, a) {
+            switch(color) {
+                case colorData.nor:
+                    return `rgba(77, 139, 213, ${a})`;
+                case colorData.war:
+                    return `rgba(184, 166, 5, ${a})`;
+                case colorData.cri:
+                    return `rgba(180, 14, 10, ${a})`;
+                default:
+                    break;
+            };
         };
 
         excuteRuntime() {
@@ -297,58 +285,43 @@ onmessage = (e) => {
         };
     };
     const animation = new Animation();
-    class Background extends FontPosition {
-        constructor() {
-            super();
-        };
 
-        render() {
-            this.background();
+    let i = 0;
+    let runCycle = 0;
 
-            ctx.beginPath();
-            this.line();
-            ctx.stroke();
-        };
-
-        background() {
-            ctx.fillStyle = colorData.background;
-            ctx.fillRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
-        };  
-
-        line() {
-            ctx.lineWidth = this.lineTick;
-            ctx.strokeStyle = colorData.basicLine;
-            // req 경계
-            ctx.moveTo(this.reqX, this.startY);
-            ctx.lineTo(this.reqX, this.canvasH);
-            // req 총알 길
-            ctx.moveTo(this.startX, this.bulletPathY);
-            ctx.lineTo(this.reqX, this.bulletPathY);
-            // res 경계
-            ctx.moveTo(this.resX, this.startY);
-            ctx.lineTo(this.resX, this.canvasH);
-            // res 총알 길
-            ctx.moveTo(this.resX, this.bulletPathY);
-            ctx.lineTo(this.canvasW, this.bulletPathY);
-        };
-    };
-    const background = new Background();
-
-    let i = 0; // 카운트 체크는 임시로;
+    let beforeSec = 0;
+    let term = 0;
     const render = () => {
         i++;
-        ctx.clearRect(this.startRectX, this.startRectY, this.canvasW, this.canvasH);
+        bulletCtx.clearRect(0, 0, 1200, 300);
+        const nowSec = (new Date()).getMilliseconds();
 
-        if(i % 12 === 0) {
+        if(beforeSec !== nowSec) {
+            if(nowSec > beforeSec) {
+                term = nowSec - beforeSec;
+            } else {
+                term = beforeSec - nowSec;
+            };
+            beforeSec = nowSec;
+        };
+      
+        term = term > 900 ? 1000 - term : term;
+
+        g.excutePerSec = 1000 / term; 
+        runCycle = g.excutePerSec / 5; // 1초에 5번 실행
+
+        if(i % runCycle < 1) {
+            animation.addDatas();
             animation.excuteRuntime();
+
             i = 0;
-        }
-        background.render();
+        };
+
+        postMessage({ g });
         animation.render();
-        
+
         requestAnimationFrame(render);
     };
-    // 나중에 requestAnimationFrame에 들여놔야 함
 
     render();
 };adasdasd
